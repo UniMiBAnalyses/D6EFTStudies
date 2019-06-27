@@ -403,7 +403,7 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max)
         }
 
       if (ptj1 < 30) continue ;
-      if (ptj1 < 30) continue ;
+      if (ptj2 < 30) continue ;
 
       TLorentzVector ME = v_f_neutrinos.at (0) + v_f_neutrinos.at (1) ;
       if (ME.Pt () < 40) continue ;
