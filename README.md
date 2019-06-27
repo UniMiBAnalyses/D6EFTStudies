@@ -73,6 +73,17 @@ To submit a job:
 
 
 
+## useful commands
+
+  * unzip madgraph results within a folder
+   ```
+   for fil in  `find  . -name "*gz"` ; do gunzip $fil ; done
+   ```
+  * prepare list of lhe files for cfg files (rem unalias ls)
+   ```
+   find . -name "*lhe" | sed -e s%\.%`pwd`% | tr "\n" ","
+   ```
+
 
 
 

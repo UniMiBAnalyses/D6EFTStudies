@@ -390,8 +390,20 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max)
       float eventWeight = reader.hepeup.XWGTUP ;
       Ntuple.increaseNorm (eventWeight) ;
 
-      if (v_f_quarks.at (0).Pt () < 30) continue ;
-      if (v_f_quarks.at (1).Pt () < 30) continue ;
+      float ptj1 = v_f_quarks.at (0).Pt () ;
+      float ptj2 = v_f_quarks.at (1).Pt () ;
+
+      float etaj1 = v_f_quarks.at (0).Eta () ;
+      float etaj2 = v_f_quarks.at (1).Eta () ;
+
+      if (ptj1 < ptj2) 
+        {
+          swap (ptj1, ptj2) ;
+          swap (etaj1, etaj2) ;
+        }
+
+      if (ptj1 < 30) continue ;
+      if (ptj1 < 30) continue ;
 
       TLorentzVector ME = v_f_neutrinos.at (0) + v_f_neutrinos.at (1) ;
       if (ME.Pt () < 40) continue ;
@@ -411,13 +423,27 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max)
       Ntuple.setvalue ("mjj", v_jj.M ()) ;
       Ntuple.setvalue ("mll", v_ll.M ()) ;
 
+      Ntuple.setvalue ("ptj1", ptj1) ;
+      Ntuple.setvalue ("ptj2", ptj2) ;
+      Ntuple.setvalue ("etaj1", etaj1) ;
+      Ntuple.setvalue ("etaj2", etaj2) ;
+
       float ptl1 = v_f_leptons.at (0).Pt () ;
       float ptl2 = v_f_leptons.at (1).Pt () ;
 
-      if (ptl1 < ptl2) swap (ptl1, ptl2) ;
+      float etal1 = v_f_leptons.at (0).Eta () ;
+      float etal2 = v_f_leptons.at (1).Eta () ;
+
+      if (ptl1 < ptl2) 
+        {
+          swap (ptl1, ptl2) ;
+          swap (etal1, etal2) ;
+        }
 
       Ntuple.setvalue ("ptl1", ptl1) ;
       Ntuple.setvalue ("ptl2", ptl2) ;
+      Ntuple.setvalue ("etal1", etal1) ;
+      Ntuple.setvalue ("etal2", etal2) ;
 
       Ntuple.setvalue ("met", ME.Pt ()) ;
 
