@@ -71,7 +71,9 @@ To submit a job:
   * `read_02.cpp` reads LHE files and produces sets of histograms
   * `read_03.cpp` reads LHE files and produces sets of ntuples
 
+### fit
 
+This is where the plain ntuples get analysed and fits performed.
 
 ## useful commands
 
