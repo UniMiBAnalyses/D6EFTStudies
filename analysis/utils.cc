@@ -402,6 +402,11 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max)
           swap (etaj1, etaj2) ;
         }
 
+      TLorentzVector ME = v_f_neutrinos.at (0) + v_f_neutrinos.at (1) ;
+      TLorentzVector v_jj = v_f_quarks.at (0) + v_f_quarks.at (1) ;
+      TLorentzVector v_ll = v_f_leptons.at (0) + v_f_leptons.at (1) ;
+
+/*
       if (ptj1 < 30) continue ;
       if (ptj2 < 30) continue ;
 
@@ -416,7 +421,7 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max)
       if (v_ll.M () < 20) continue ;
       if (fabs (zetaStar (v_f_quarks.at (0).Eta (), v_f_quarks.at (1).Eta (), v_f_leptons.at (0).Eta ())) > 0.75) continue ;
       if (fabs (zetaStar (v_f_quarks.at (0).Eta (), v_f_quarks.at (1).Eta (), v_f_leptons.at (1).Eta ())) > 0.75) continue ;
-
+*/
       //PG fill histograms
       //PG ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
       
