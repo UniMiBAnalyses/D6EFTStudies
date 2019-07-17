@@ -1,4 +1,4 @@
-// c++ -o fit_01 `root-config --flags --libs --cflags` -lm fit_01.cpp
+// c++ -o fit_01 `root-config --glibs --cflags` CfgParser.cc  -lm fit_01.cpp
 /**
 Perform a test fit on a SM-like toy experiment, 
 differential in the variables indicated in a config file,
@@ -12,9 +12,28 @@ deciding automatically the binning of the variables.
 #include "TNtuple.h"
 #include "TFile.h"
 
+#include "CfgParser.h"
+
+using namespace std ;
+
+
 
 int main (int argc, char ** argv)
 {
+  if (argc < 2)
+    {
+      cerr << "Forgot to put the cfg file --> exit " << endl ;
+      return 1 ;
+    }
+
+  CfgParser * gConfigParser = new CfgParser (argv[1]) ;
+
+  //PG get the list of variables to be plotted,
+  //PG assuming some code exists to calculate them
+  //PG using the same cfg file used for the ntuple production
+  vector<string> variables = gConfigParser->readStringListOpt ("general::variables") ;
+
+
 /*
  - get input from a from config file:
 	- var list
