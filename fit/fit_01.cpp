@@ -2,11 +2,13 @@
 /**
 Perform a test fit on a SM-like toy experiment, 
 differential in the variables indicated in a config file,
-deciding automatically the binning of the variables.
+deciding automatically the binning of the variables
+on the basis of the differences between SM and BSM behaviour.
 */
 
 
 #include <iostream>
+#include <string>
 
 #include "TH1.h"
 #include "TNtuple.h"
@@ -30,16 +32,44 @@ int main (int argc, char ** argv)
 
   //PG get the list of variables to be plotted,
   //PG assuming some code exists to calculate them
-  //PG using the same cfg file used for the ntuple production
+  //PG ideally using the same cfg file sintax used for the ntuple production
   vector<string> variables = gConfigParser->readStringListOpt ("general::variables") ;
+  //PG integrated luminosity
+  float lumi = gConfigParser->readFloatOpt ("general::lumi") ;
 
 
+  string SMNtupleFileName = gConfigParser->readStringOpt ("samples::SMNtupleFileName") ;
+  TFile SMNtupleFile (SMNtupleFileName.c_str (), "READ") ;
+  string SMNtupleName = gConfigParser->readStringOpt ("samples::SMNtupleName") ;
+  string SMNumsHistoName = gConfigParser->readStringOpt ("samples::SMNumsHistoName") ;
+  TNtuple * SMNtuple = (TNtuple *) SMNtupleFile.Get (SMNtupleName.c_str ()) ;
+  cout << "SM events number: " << SMNtuple->GetEntries () << endl ;
+  TH1F * SMNumsHisto = (TH1F *) SMNtupleFile.Get (SMNumsHistoName.c_str ()) ;
+  cout << "SM cross-section: " << SMNumsHisto->GetBinContent (1) << " fb" << endl ;
+  
+  string BSMNtupleFileName = gConfigParser->readStringOpt ("samples::BSMNtupleFileName") ;
+  TFile BSMNtupleFile (BSMNtupleFileName.c_str (), "READ") ;
+  string BSMNtupleName = gConfigParser->readStringOpt ("samples::BSMNtupleName") ;
+  string BSMNumsHistoName = gConfigParser->readStringOpt ("samples::BSMNumsHistoName") ;
+  TNtuple * BSMNtuple = (TNtuple *) BSMNtupleFile.Get (BSMNtupleName.c_str ()) ;
+  cout << "BSM events number: " << BSMNtuple->GetEntries () << endl ;
+  TH1F * BSMNumsHisto = (TH1F *) BSMNtupleFile.Get (BSMNumsHistoName.c_str ()) ;
+  cout << "BSM cross-section: " << BSMNumsHisto->GetBinContent (1) << endl ;
+  
+  string INTNtupleName = gConfigParser->readStringOpt ("samples::INTNtupleName") ;
+  string INTNumsHistoName = gConfigParser->readStringOpt ("samples::INTNumsHistoName") ;
+  TNtuple * INTNtuple = (TNtuple *) BSMNtupleFile.Get (INTNtupleName.c_str ()) ;
+  cout << "INT events number: " << INTNtuple->GetEntries () << endl ;
+  TH1F * INTNumsHisto = (TH1F *) BSMNtupleFile.Get (INTNumsHistoName.c_str ()) ;
+  cout << "INT cross-section: " << INTNumsHisto->GetBinContent (1) << " fb" << endl ;
+  
+
+ 
 /*
  - get input from a from config file:
 	- var list
 	- sm sample file and name
 	- bsm sample file and names
-	- wilson coeff to be tested c_w
 	- lumi
 	- expected sensitivity on the Wilson coefficient (in terms of its value)
 	- selection applied
