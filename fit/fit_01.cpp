@@ -37,7 +37,6 @@ int main (int argc, char ** argv)
   //PG integrated luminosity
   float lumi = gConfigParser->readFloatOpt ("general::lumi") ;
 
-
   string SMNtupleFileName = gConfigParser->readStringOpt ("samples::SMNtupleFileName") ;
   TFile SMNtupleFile (SMNtupleFileName.c_str (), "READ") ;
   string SMNtupleName = gConfigParser->readStringOpt ("samples::SMNtupleName") ;
@@ -45,7 +44,11 @@ int main (int argc, char ** argv)
   TNtuple * SMNtuple = (TNtuple *) SMNtupleFile.Get (SMNtupleName.c_str ()) ;
   cout << "SM events number: " << SMNtuple->GetEntries () << endl ;
   TH1F * SMNumsHisto = (TH1F *) SMNtupleFile.Get (SMNumsHistoName.c_str ()) ;
-  cout << "SM cross-section: " << SMNumsHisto->GetBinContent (1) << " fb" << endl ;
+  float SMXS = SMNumsHisto->GetBinContent (1) ;   // sample cross-section
+  float SMtotW = SMNumsHisto->GetBinContent (2) ; // weighted sum of events in the sample
+  float SM_weight = lumi * SMXS / SMtotW ;
+
+  cout << "SM cross-section: " << SMXS << " fb" << endl ;
   
   string BSMNtupleFileName = gConfigParser->readStringOpt ("samples::BSMNtupleFileName") ;
   TFile BSMNtupleFile (BSMNtupleFileName.c_str (), "READ") ;
@@ -54,14 +57,18 @@ int main (int argc, char ** argv)
   TNtuple * BSMNtuple = (TNtuple *) BSMNtupleFile.Get (BSMNtupleName.c_str ()) ;
   cout << "BSM events number: " << BSMNtuple->GetEntries () << endl ;
   TH1F * BSMNumsHisto = (TH1F *) BSMNtupleFile.Get (BSMNumsHistoName.c_str ()) ;
-  cout << "BSM cross-section: " << BSMNumsHisto->GetBinContent (1) << endl ;
+  float BSMXS = BSMNumsHisto->GetBinContent (1) ;
+  float BSMtotW = BSMNumsHisto->GetBinContent (2) ;
+  cout << "BSM cross-section: " << BSMXS << endl ;
   
   string INTNtupleName = gConfigParser->readStringOpt ("samples::INTNtupleName") ;
   string INTNumsHistoName = gConfigParser->readStringOpt ("samples::INTNumsHistoName") ;
   TNtuple * INTNtuple = (TNtuple *) BSMNtupleFile.Get (INTNtupleName.c_str ()) ;
   cout << "INT events number: " << INTNtuple->GetEntries () << endl ;
   TH1F * INTNumsHisto = (TH1F *) BSMNtupleFile.Get (INTNumsHistoName.c_str ()) ;
-  cout << "INT cross-section: " << INTNumsHisto->GetBinContent (1) << " fb" << endl ;
+  float INTXS = INTNumsHisto->GetBinContent (1) ;
+  float INTtotW = INTNumsHisto->GetBinContent (2) ;
+  cout << "INT cross-section: " << INTXS << " fb" << endl ;
   
 
  
