@@ -1,5 +1,6 @@
 // c++ -o read_03 `root-config --glibs --cflags` CfgParser.cc utils.cc LHEF.cc -lm read_03.cpp
 /*
+read LHE files and produce ntuples
 apply basic VBS selections
 http://govoni.web.cern.ch/govoni/tesi/docs/Alessandro_Tarabini_Tesi.pdf
 */
@@ -67,10 +68,6 @@ int main (int argc, char ** argv)
       samples[collections.at (i)] = pair<float, vector<string> > (XS, inputfiles) ;
     } // loop over samples
 
-
-  //PG prepare the histogram structs to be filled,
-  //PG fill the histograms looping on LHE events
-
   // loop over samples
   map<string, pair<float, vector<string> > >::iterator it ;
   vector<ntuple> Ntuples ;
@@ -78,6 +75,9 @@ int main (int argc, char ** argv)
     {
       cout << "sample: " << it->first << endl ;
       Ntuples.push_back (ntuple (variables, it->first, it->second.first)) ;
+      //                                       ^^^             ^^^
+      //                                   sample-name     cross-section
+
       // loop over files
       int events = 0 ;
       for (int ifile = 0 ; ifile < it->second.second.size () ; ++ifile)
@@ -94,7 +94,7 @@ int main (int argc, char ** argv)
         } // loop over files
     } // loop over samples
 
-  //PG save histograms
+  //PG save ntuples
   string outfilename = gConfigParser->readStringOpt ("general::outputFile") ;
   TFile outFile (outfilename.c_str (), "recreate") ;
   for (int i = 0 ; i < Ntuples.size () ; ++i) Ntuples.at (i).save (outFile) ;
