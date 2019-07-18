@@ -1,4 +1,4 @@
-// c++ -o fit_01 `root-config --glibs --cflags` CfgParser.cc  -lm fit_01.cpp
+// c++ -o fit_02 `root-config --glibs --cflags` CfgParser.cc  -lm fit_02.cpp
 /**
 Perform a test fit on a SM-like toy experiment, 
 differential in the variables indicated in a config file,
@@ -14,43 +14,11 @@ on the basis of the differences between SM and BSM behaviour.
 #include "TH1.h"
 #include "TNtuple.h"
 #include "TFile.h"
+#include "ROOT/RDataFrame.hxx"
 
 #include "CfgParser.h"
 
 using namespace std ;
-
-
-float getVarSum (TNtuple * nt, string varname)
-{
-  float sum = 0. ; 
-//  for (int i = 0 ; i < nt->GetEntries () ; ++i)
-//
-//
-  return sum ;
-}
-
-float getVarSumSq (TNtuple * nt, string varname)
-{
-  float sumsq = 0. ; 
-//  for (int i = 0 ; i < nt->GetEntries () ; ++i)
-//
-//
-  return sumsq ;
-}
-
-float getVarMean (TNtuple * nt, string varname)
-{
-  return getVarSum (nt, varname) / nt->GetEntries () ;
-}
-
-
-float getVarSigma (TNtuple * nt, string varname)
-{
-  float dummy = getVarMean (nt, varname) ;
-  dummy *= dummy ;
-  return sqrt (getVarSumSq (nt, varname) / nt->GetEntries () - dummy) ;
-}
-
 
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -70,38 +38,51 @@ int main (int argc, char ** argv)
   //PG assuming some code exists to calculate them
   //PG ideally using the same cfg file sintax used for the ntuple production
   vector<string> variables = gConfigParser->readStringListOpt ("general::variables") ;
+  string vars = "" ;
+  for (int i = 0 ; i < variables.size () ; ++i)
+    {
+      vars += variables.at (i) ;
+      vars += "," ;
+    }
+  vars = vars.substr (0, vars.size () - 1) ;
+
   //PG integrated luminosity
   float lumi = gConfigParser->readFloatOpt ("general::lumi") ;
 
+  //PG standard model sample
   string SMNtupleFileName = gConfigParser->readStringOpt ("samples::SMNtupleFileName") ;
-  TFile SMNtupleFile (SMNtupleFileName.c_str (), "READ") ;
   string SMNtupleName = gConfigParser->readStringOpt ("samples::SMNtupleName") ;
-  string SMNumsHistoName = gConfigParser->readStringOpt ("samples::SMNumsHistoName") ;
-  TNtuple * SMNtuple = (TNtuple *) SMNtupleFile.Get (SMNtupleName.c_str ()) ;
-  cout << "SM events number: " << SMNtuple->GetEntries () << endl ;
+  ROOT::RDataFrame SMdf (SMNtupleName, SMNtupleFileName, {vars});
+  cout << "SM events number: " << *SMdf.Count () << endl ;
+
+  string SMNumsHistoName = gConfigParser->readStringOpt ("samples::BSMNumsHistoName") ;
+  TFile SMNtupleFile (SMNtupleFileName.c_str (), "READ") ;
   TH1F * SMNumsHisto = (TH1F *) SMNtupleFile.Get (SMNumsHistoName.c_str ()) ;
   float SMXS = SMNumsHisto->GetBinContent (1) ;   // sample cross-section
   float SMtotW = SMNumsHisto->GetBinContent (2) ; // weighted sum of events in the sample
   float SM_weight = lumi * SMXS / SMtotW ;
-
   cout << "SM cross-section: " << SMXS << " fb" << endl ;
-  
+
+  //PG squared BSM term  
   string BSMNtupleFileName = gConfigParser->readStringOpt ("samples::BSMNtupleFileName") ;
-  TFile BSMNtupleFile (BSMNtupleFileName.c_str (), "READ") ;
   string BSMNtupleName = gConfigParser->readStringOpt ("samples::BSMNtupleName") ;
+  ROOT::RDataFrame BSMdf (BSMNtupleName, BSMNtupleFileName, {vars});
+  cout << "BSM events number: " << *BSMdf.Count () << endl ;
+
   string BSMNumsHistoName = gConfigParser->readStringOpt ("samples::BSMNumsHistoName") ;
-  TNtuple * BSMNtuple = (TNtuple *) BSMNtupleFile.Get (BSMNtupleName.c_str ()) ;
-  cout << "BSM events number: " << BSMNtuple->GetEntries () << endl ;
+  TFile BSMNtupleFile (BSMNtupleFileName.c_str (), "READ") ;
   TH1F * BSMNumsHisto = (TH1F *) BSMNtupleFile.Get (BSMNumsHistoName.c_str ()) ;
   float BSMXS = BSMNumsHisto->GetBinContent (1) ;
   float BSMtotW = BSMNumsHisto->GetBinContent (2) ;
   float BSM_weight = lumi * BSMXS / BSMtotW ;
   cout << "BSM cross-section: " << BSMXS << endl ;
   
+  //PG interference term
   string INTNtupleName = gConfigParser->readStringOpt ("samples::INTNtupleName") ;
+  ROOT::RDataFrame INTdf (INTNtupleName, BSMNtupleFileName, {vars});
+  cout << "INT events number: " << *INTdf.Count () << endl ;
+
   string INTNumsHistoName = gConfigParser->readStringOpt ("samples::INTNumsHistoName") ;
-  TNtuple * INTNtuple = (TNtuple *) BSMNtupleFile.Get (INTNtupleName.c_str ()) ;
-  cout << "INT events number: " << INTNtuple->GetEntries () << endl ;
   TH1F * INTNumsHisto = (TH1F *) BSMNtupleFile.Get (INTNumsHistoName.c_str ()) ;
   float INTXS = INTNumsHisto->GetBinContent (1) ;
   float INTtotW = INTNumsHisto->GetBinContent (2) ;
