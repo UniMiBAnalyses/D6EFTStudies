@@ -13,6 +13,7 @@ TTreeReader example: https://root.cern.ch/doc/v608/classTTreeReader.html
 #include <iostream>
 #include <string>
 #include <cmath>
+#include <algorithm>
 
 #include "TH1.h"
 #include "TNtuple.h"
@@ -142,6 +143,121 @@ float getVarMax (TTreeReader & nt, string varname)
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 
+/**
+dump one specific variable in a vector containing that variable
+and the event weight.
+to be used when sorting becomes handy.
+the order relation for the sorting is defined below.
+*/
+void dumpVar (vector<pair<float, float> > & cont, TTreeReader & nt, string varname)
+{
+  nt.Restart () ;
+  TTreeReaderValue<Float_t> myVar (nt, varname.c_str ());
+  TTreeReaderValue<Float_t> weight (nt, "w");
+
+  cont.reserve (nt.GetEntries (true)) ;
+  while (nt.Next()) 
+    {
+      cont.push_back (pair<float, float> (*myVar, *weight)) ;
+    } 
+
+  return ;
+}
+
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
+/**
+get the mean value of the content of a container,
+weigting the variable with the weight
+*/
+float getContMean (vector<pair<float, float> > & cont)
+{
+  float sum = 0. ;
+  float norm = 0. ;
+  for (int i = 0 ; i < cont.size () ; ++i)
+    {
+      sum += cont.at (i).first * cont.at (i).second ;
+      norm += cont.at (i).second ;
+
+    }
+  return sum / norm ;
+}
+
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
+/**
+get the mean value of the content of a container,
+weigting the variable with the weight
+*/
+float getContWeightSum (vector<pair<float, float> > & cont)
+{
+  float norm = 0. ;
+  for (int i = 0 ; i < cont.size () ; ++i)
+    {
+      norm += cont.at (i).second ;
+
+    }
+  return norm ;
+}
+
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
+/**
+get the squared mean value of the content of a container,
+weigting the variable with the weight
+*/
+float getContSqMean (vector<pair<float, float> > & cont)
+{
+  float sqsum = 0. ;
+  float norm = 0. ;
+  for (int i = 0 ; i < cont.size () ; ++i)
+    {
+      sqsum += cont.at (i).first * cont.at (i).first * cont.at (i).second ;
+      norm += cont.at (i).second ;
+
+    }
+  return sqsum / norm ;
+}
+
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
+/**
+get the sigma of the content of a container,
+weigting the variable with the weight
+*/
+float getContSigma (vector<pair<float, float> > & cont)
+{
+  float dummy = getContMean (cont) ;
+  dummy *= dummy ;
+  return sqrt (getContSqMean (cont) - dummy) ;
+}
+
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
+/**
+order relation between pairs of elements of the variable container,
+used to sort the container
+*/
+bool contSorting (pair<float, float> i, pair<float, float> j) 
+{ 
+  return i.first < j.first ; 
+}
+
+
+
+// ==== ==== ==== ==== ==== ==== ==== ==== ==== ==== ==== ==== ====
+
+
 int main (int argc, char ** argv)
 {
   if (argc < 2)
@@ -204,23 +320,43 @@ int main (int argc, char ** argv)
   cout << "INT weighted mean for " << var << ":  " << getVarMean (INTtr, var) << endl ;
   cout << "    weighted sigma for " << var << ": " << getVarSigma (INTtr, var) << endl ;
 
-  float min = getVarMin (SMtr, var) ;
+  float Hmin = getVarMin (SMtr, var) ;
   float dummy = getVarMin (BSMtr, var) ;
-  if (dummy < min) min = dummy ;
+  if (dummy < Hmin) Hmin = dummy ;
   
-  float max = getVarMax (SMtr, var) ;
+  float Hmax = getVarMax (SMtr, var) ;
   dummy = getVarMax (BSMtr, var) ;
-  if (dummy > max) max = dummy ;
+  if (dummy > Hmax) Hmax = dummy ;
 
-  cout << "minimum of the range for " << var << ": " << min << endl ;
-  cout << "maximum of the range for " << var << ": " << max << endl ;
+  cout << "minimum of the range for " << var << ": " << Hmin << endl ;
+  cout << "maximum of the range for " << var << ": " << Hmax << endl ;
+
+  vector<pair<float, float> > SMcont ;
+  dumpVar (SMcont, SMtr, var) ;
+  cout << SMcont.size () << " " << SMtr.GetEntries (true) << endl ;
+  cout << "SM container mean for " << var << ": " << getContMean (SMcont) << endl ;
+  cout << "SM container sigma for " << var << ": " << getContSigma (SMcont) << endl ;
+  sort (SMcont.begin (), SMcont.end (), contSorting) ;
+  cout << "SM container min for " << var << ": " << SMcont.begin ()->first << endl ;
+  cout << "SM container max for " << var << ": " << SMcont.back ().first << endl ;
+ 
+  vector<pair<float, float> > BSMcont ;
+  dumpVar (BSMcont, BSMtr, var) ;
+  cout << BSMcont.size () << " " << BSMtr.GetEntries (true) << endl ;
+  cout << "BSM container mean for " << var << ": " << getContMean (BSMcont) << endl ;
+  cout << "BSM container sigma for " << var << ": " << getContSigma (BSMcont) << endl ;
+  sort (BSMcont.begin (), BSMcont.end (), contSorting) ;
+  cout << "BSM container min for " << var << ": " << BSMcont.begin ()->first << endl ;
+  cout << "BSM container max for " << var << ": " << BSMcont.back ().first << endl ;
+ 
+  // minimal variance between SM and BSM
+  float var_size = min (getContSigma (BSMcont), getContSigma (SMcont)) ;
+
+
+
 
 /*
- - get input from a from config file:
-	- var list
-	- sm sample file and name
-	- bsm sample file and names
-	- lumi
+
 	- expected sensitivity on the Wilson coefficient (in terms of its value)
 	- selection applied
 
