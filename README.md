@@ -85,12 +85,22 @@ This is where the plain ntuples get analysed and fits performed.
    * `fit_01.cpp` reads ntuples and creates histograms with range and binning
                   optimised as a function of the expected number of envents,
                   given a certain integrated luminosity
+   * `fit_02.cpp` reads ntuples and creates histograms with range and binning
+                  optimised as a function of the expected number of envents,
+                  given a certain integrated luminosity
+      * an attempt to use RootDataFrame to read ntuples was done, it does not seem to be very useful since it's too rigid in the interface                  
+   * `fit_03.cpp` reads ntuples and creates histograms with range and binning
+                  optimised as a function of the expected number of envents,
+                  given a certain integrated luminosity
+      * using a TTreeReader to read the ntuples                  
       * if the single event weight is $e_i$, 
         histograms are filled with events, which populate them with the expected statistics
         in given the sample cross-section $\sigma$ input integrated luminosity $\mathcal{L}$.
         The final weights are calculated as $w_i = e_i \mathcal{L} \sigma{} / \Sum{e_j}$,
         where the $\Sum{e_j}$ runs over all generated events (i.e. prior to any preselections),
         so that the preselection efficiency is also taken into account for.
+   * `smartNtuple*` an unfinished attempt to write a wrapper of TNtuple which simplifies
+                    the reading of a TNtuple, automatising all the hassle with branches
 
 ## useful commands
 
