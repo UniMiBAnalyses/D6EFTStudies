@@ -24,6 +24,26 @@ TTreeReader example: https://root.cern.ch/doc/v608/classTTreeReader.html
 using namespace std ;
 
 
+
+
+float getWeightSum (TTreeReader & nt)
+{
+  float sum = 0. ; 
+  nt.Restart () ;
+  TTreeReaderValue<Float_t> weight (nt, "w");
+
+  while (nt.Next()) 
+    {
+      sum += *weight ;
+    } 
+
+  return sum ;
+}
+
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
 float getVarSum (TTreeReader & nt, string varname)
 {
   float sum = 0. ; 
@@ -52,7 +72,7 @@ float getVarSumSq (TTreeReader & nt, string varname)
 
   while (nt.Next()) 
     {
-      sumsq += *myVar * *myVar * *weight * *weight ;
+      sumsq += *myVar * *myVar * *weight ;
     } 
 
   return sumsq ;
@@ -64,7 +84,8 @@ float getVarSumSq (TTreeReader & nt, string varname)
 
 float getVarMean (TTreeReader & nt, string varname)
 {
-  return getVarSum (nt, varname) / nt.GetEntries (true) ;
+//  return getVarSum (nt, varname) / nt.GetEntries (true) ;
+  return getVarSum (nt, varname) / getWeightSum (nt) ;
 }
 
 
@@ -75,7 +96,46 @@ float getVarSigma (TTreeReader & nt, string varname)
 {
   float dummy = getVarMean (nt, varname) ;
   dummy *= dummy ;
-  return sqrt (getVarSumSq (nt, varname) / nt.GetEntries (true) - dummy) ;
+//  return sqrt (getVarSumSq (nt, varname) / nt.GetEntries (true) - dummy) ;
+  return sqrt (getVarSumSq (nt, varname) / getWeightSum (nt) - dummy) ;
+}
+
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
+float getVarMin (TTreeReader & nt, string varname)
+{
+  nt.Restart () ;
+  TTreeReaderValue<Float_t> myVar (nt, varname.c_str ());
+  nt.Next () ;
+  float min = *myVar ; 
+
+  while (nt.Next()) 
+    {
+      if (min > *myVar) min = *myVar ; 
+    } 
+
+  return min ;
+}
+
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
+float getVarMax (TTreeReader & nt, string varname)
+{
+  nt.Restart () ;
+  TTreeReaderValue<Float_t> myVar (nt, varname.c_str ());
+  nt.Next () ;
+  float max = *myVar ; 
+
+  while (nt.Next()) 
+    {
+      if (max < *myVar) max = *myVar ; 
+    } 
+
+  return max ;
 }
 
 
@@ -135,13 +195,26 @@ int main (int argc, char ** argv)
 
   string var = "ptl1" ;
 
-  cout << "SM weighted mean for ptl1: " << getVarMean (SMtr, var) << endl ;
-  cout << "   weighted sigma for ptl1: " << getVarSigma (SMtr, var) << endl ;
+  cout << "SM weighted mean for " << var << ":  " << getVarMean (SMtr, var) << endl ;
+  cout << "   weighted sigma for " << var << ": " << getVarSigma (SMtr, var) << endl ;
 
-  cout << "BSM weighted mean for ptl1: " << getVarMean (BSMtr, var) << endl ;
-  cout << "    weighted sigma for ptl1: " << getVarSigma (BSMtr, var) << endl ;
+  cout << "BSM weighted mean for " << var << ":  " << getVarMean (BSMtr, var) << endl ;
+  cout << "    weighted sigma for " << var << ": " << getVarSigma (BSMtr, var) << endl ;
 
+  cout << "INT weighted mean for " << var << ":  " << getVarMean (INTtr, var) << endl ;
+  cout << "    weighted sigma for " << var << ": " << getVarSigma (INTtr, var) << endl ;
+
+  float min = getVarMin (SMtr, var) ;
+  float dummy = getVarMin (BSMtr, var) ;
+  if (dummy < min) min = dummy ;
   
+  float max = getVarMax (SMtr, var) ;
+  dummy = getVarMax (BSMtr, var) ;
+  if (dummy > max) max = dummy ;
+
+  cout << "minimum of the range for " << var << ": " << min << endl ;
+  cout << "maximum of the range for " << var << ": " << max << endl ;
+
 /*
  - get input from a from config file:
 	- var list
