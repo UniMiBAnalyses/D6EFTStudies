@@ -4,6 +4,7 @@ Perform a test fit on a SM-like toy experiment,
 differential in the variables indicated in a config file,
 deciding automatically the binning of the variables
 on the basis of the differences between SM and BSM behaviour.
+
 */
 
 
@@ -32,9 +33,13 @@ float getVarSum (TNtuple * nt, string varname)
 float getVarSumSq (TNtuple * nt, string varname)
 {
   float sumsq = 0. ; 
-//  for (int i = 0 ; i < nt->GetEntries () ; ++i)
-//
-//
+  for (int i = 0 ; i < nt->GetEntries () ; ++i)
+    {
+
+
+    }
+
+
   return sumsq ;
 }
 
@@ -73,26 +78,26 @@ int main (int argc, char ** argv)
   //PG integrated luminosity
   float lumi = gConfigParser->readFloatOpt ("general::lumi") ;
 
-  string SMNtupleFileName = gConfigParser->readStringOpt ("samples::SMNtupleFileName") ;
-  TFile SMNtupleFile (SMNtupleFileName.c_str (), "READ") ;
+  string SMInputFileName = gConfigParser->readStringOpt ("samples::SMInputFileName") ;
+  TFile SMInputFile (SMInputFileName.c_str (), "READ") ;
   string SMNtupleName = gConfigParser->readStringOpt ("samples::SMNtupleName") ;
   string SMNumsHistoName = gConfigParser->readStringOpt ("samples::SMNumsHistoName") ;
-  TNtuple * SMNtuple = (TNtuple *) SMNtupleFile.Get (SMNtupleName.c_str ()) ;
+  TNtuple * SMNtuple = (TNtuple *) SMInputFile.Get (SMNtupleName.c_str ()) ;
   cout << "SM events number: " << SMNtuple->GetEntries () << endl ;
-  TH1F * SMNumsHisto = (TH1F *) SMNtupleFile.Get (SMNumsHistoName.c_str ()) ;
+  TH1F * SMNumsHisto = (TH1F *) SMInputFile.Get (SMNumsHistoName.c_str ()) ;
   float SMXS = SMNumsHisto->GetBinContent (1) ;   // sample cross-section
   float SMtotW = SMNumsHisto->GetBinContent (2) ; // weighted sum of events in the sample
   float SM_weight = lumi * SMXS / SMtotW ;
 
   cout << "SM cross-section: " << SMXS << " fb" << endl ;
   
-  string BSMNtupleFileName = gConfigParser->readStringOpt ("samples::BSMNtupleFileName") ;
-  TFile BSMNtupleFile (BSMNtupleFileName.c_str (), "READ") ;
+  string BSMInputFileName = gConfigParser->readStringOpt ("samples::BSMInputFileName") ;
+  TFile BSMInputFile (BSMInputFileName.c_str (), "READ") ;
   string BSMNtupleName = gConfigParser->readStringOpt ("samples::BSMNtupleName") ;
   string BSMNumsHistoName = gConfigParser->readStringOpt ("samples::BSMNumsHistoName") ;
-  TNtuple * BSMNtuple = (TNtuple *) BSMNtupleFile.Get (BSMNtupleName.c_str ()) ;
+  TNtuple * BSMNtuple = (TNtuple *) BSMInputFile.Get (BSMNtupleName.c_str ()) ;
   cout << "BSM events number: " << BSMNtuple->GetEntries () << endl ;
-  TH1F * BSMNumsHisto = (TH1F *) BSMNtupleFile.Get (BSMNumsHistoName.c_str ()) ;
+  TH1F * BSMNumsHisto = (TH1F *) BSMInputFile.Get (BSMNumsHistoName.c_str ()) ;
   float BSMXS = BSMNumsHisto->GetBinContent (1) ;
   float BSMtotW = BSMNumsHisto->GetBinContent (2) ;
   float BSM_weight = lumi * BSMXS / BSMtotW ;
@@ -100,9 +105,9 @@ int main (int argc, char ** argv)
   
   string INTNtupleName = gConfigParser->readStringOpt ("samples::INTNtupleName") ;
   string INTNumsHistoName = gConfigParser->readStringOpt ("samples::INTNumsHistoName") ;
-  TNtuple * INTNtuple = (TNtuple *) BSMNtupleFile.Get (INTNtupleName.c_str ()) ;
+  TNtuple * INTNtuple = (TNtuple *) BSMInputFile.Get (INTNtupleName.c_str ()) ;
   cout << "INT events number: " << INTNtuple->GetEntries () << endl ;
-  TH1F * INTNumsHisto = (TH1F *) BSMNtupleFile.Get (INTNumsHistoName.c_str ()) ;
+  TH1F * INTNumsHisto = (TH1F *) BSMInputFile.Get (INTNumsHistoName.c_str ()) ;
   float INTXS = INTNumsHisto->GetBinContent (1) ;
   float INTtotW = INTNumsHisto->GetBinContent (2) ;
   float INT_weight = lumi * INTXS / INTtotW ;

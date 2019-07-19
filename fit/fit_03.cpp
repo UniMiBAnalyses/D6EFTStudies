@@ -1,9 +1,12 @@
-// c++ -o fit_02 `root-config --glibs --cflags` CfgParser.cc  -lm fit_02.cpp
+// c++ -o fit_03 `root-config --glibs --cflags` CfgParser.cc  -lm fit_03.cpp
 /**
 Perform a test fit on a SM-like toy experiment, 
 differential in the variables indicated in a config file,
 deciding automatically the binning of the variables
-on the basis of the differences between SM and BSM behaviour.
+on the basis of the differences between SM and INT behaviour.
+
+TTreeReader example: https://root.cern.ch/doc/v608/classTTreeReader.html
+
 */
 
 
@@ -14,11 +17,48 @@ on the basis of the differences between SM and BSM behaviour.
 #include "TH1.h"
 #include "TNtuple.h"
 #include "TFile.h"
-#include "ROOT/RDataFrame.hxx"
+#include "TTreeReader.h"
 
 #include "CfgParser.h"
 
 using namespace std ;
+
+
+float getVarSum (TNtuple * nt, string varname)
+{
+  float sum = 0. ; 
+//  for (int i = 0 ; i < nt->GetEntries () ; ++i)
+//
+//
+  return sum ;
+}
+
+float getVarSumSq (TNtuple * nt, string varname)
+{
+  float sumsq = 0. ; 
+  for (int i = 0 ; i < nt->GetEntries () ; ++i)
+    {
+
+
+    }
+
+
+  return sumsq ;
+}
+
+float getVarMean (TNtuple * nt, string varname)
+{
+  return getVarSum (nt, varname) / nt->GetEntries () ;
+}
+
+
+float getVarSigma (TNtuple * nt, string varname)
+{
+  float dummy = getVarMean (nt, varname) ;
+  dummy *= dummy ;
+  return sqrt (getVarSumSq (nt, varname) / nt->GetEntries () - dummy) ;
+}
+
 
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -38,70 +78,45 @@ int main (int argc, char ** argv)
   //PG assuming some code exists to calculate them
   //PG ideally using the same cfg file sintax used for the ntuple production
   vector<string> variables = gConfigParser->readStringListOpt ("general::variables") ;
-  string vars = "" ;
-  for (int i = 0 ; i < variables.size () ; ++i)
-    {
-      vars += variables.at (i) ;
-      vars += "," ;
-    }
-  vars = vars.substr (0, vars.size () - 1) ;
-
   //PG integrated luminosity
   float lumi = gConfigParser->readFloatOpt ("general::lumi") ;
 
-  //PG standard model sample
   string SMInputFileName = gConfigParser->readStringOpt ("samples::SMInputFileName") ;
-  string SMNtupleName = gConfigParser->readStringOpt ("samples::SMNtupleName") ;
-  ROOT::RDataFrame SMdf (SMNtupleName, SMInputFileName, {vars});
-  cout << "SM events number: " << *SMdf.Count () << endl ;
-
-  string SMNumsHistoName = gConfigParser->readStringOpt ("samples::SMNumsHistoName") ;
   TFile SMInputFile (SMInputFileName.c_str (), "READ") ;
+  string SMNtupleName = gConfigParser->readStringOpt ("samples::SMNtupleName") ;
+  TTreeReader SMtr (SMNtupleName.c_str (), &SMInputFile) ;
+  cout << "SM events number: " << SMtr.GetEntries (true) << endl ;
+  string SMNumsHistoName = gConfigParser->readStringOpt ("samples::SMNumsHistoName") ;
   TH1F * SMNumsHisto = (TH1F *) SMInputFile.Get (SMNumsHistoName.c_str ()) ;
   float SMXS = SMNumsHisto->GetBinContent (1) ;   // sample cross-section
   float SMtotW = SMNumsHisto->GetBinContent (2) ; // weighted sum of events in the sample
-  float SMweight = lumi * SMXS / SMtotW ;
+  float SM_weight = lumi * SMXS / SMtotW ;
+
   cout << "SM cross-section: " << SMXS << " fb" << endl ;
 
-  //PG squared BSM term  
   string BSMInputFileName = gConfigParser->readStringOpt ("samples::BSMInputFileName") ;
-  string BSMNtupleName = gConfigParser->readStringOpt ("samples::BSMNtupleName") ;
-  ROOT::RDataFrame BSMdf (BSMNtupleName, BSMInputFileName, {vars});
-  cout << "BSM events number: " << *BSMdf.Count () << endl ;
-
-  string BSMNumsHistoName = gConfigParser->readStringOpt ("samples::BSMNumsHistoName") ;
   TFile BSMInputFile (BSMInputFileName.c_str (), "READ") ;
+  string BSMNtupleName = gConfigParser->readStringOpt ("samples::BSMNtupleName") ;
+  TTreeReader BSMtr (BSMNtupleName.c_str (), &BSMInputFile) ;
+  cout << "BSM events number: " << BSMtr.GetEntries (true) << endl ;
+  string BSMNumsHistoName = gConfigParser->readStringOpt ("samples::BSMNumsHistoName") ;
   TH1F * BSMNumsHisto = (TH1F *) BSMInputFile.Get (BSMNumsHistoName.c_str ()) ;
   float BSMXS = BSMNumsHisto->GetBinContent (1) ;
   float BSMtotW = BSMNumsHisto->GetBinContent (2) ;
-  float BSMweight = lumi * BSMXS / BSMtotW ;
-  cout << "BSM cross-section: " << BSMXS << " fb" << endl ;
+  float BSM_weight = lumi * BSMXS / BSMtotW ;
+  cout << "BSM cross-section: " << BSMXS << endl ;
   
-  //PG interference term
   string INTNtupleName = gConfigParser->readStringOpt ("samples::INTNtupleName") ;
-  ROOT::RDataFrame INTdf (INTNtupleName, BSMInputFileName, {vars});
-  cout << "INT events number: " << *INTdf.Count () << endl ;
-
+  TTreeReader INTtr (INTNtupleName.c_str (), &BSMInputFile) ;
+  cout << "INT events number: " << INTtr.GetEntries (true) << endl ;
   string INTNumsHistoName = gConfigParser->readStringOpt ("samples::INTNumsHistoName") ;
   TH1F * INTNumsHisto = (TH1F *) BSMInputFile.Get (INTNumsHistoName.c_str ()) ;
   float INTXS = INTNumsHisto->GetBinContent (1) ;
   float INTtotW = INTNumsHisto->GetBinContent (2) ;
-  float INTweight = lumi * INTXS / INTtotW ;
+  float INT_weight = lumi * INTXS / INTtotW ;
   cout << "INT cross-section: " << INTXS << " fb" << endl ;
 
-
-  //PG FIXME this will become a loop later
-  string var = variables.at (0) ; 
-
   
-  //PG get the range of the distributions
-  float hMIN = *SMdf.Min (var) ;
-  if (hMIN > min (*BSMdf.Min (var), *INTdf.Min (var))) 
-    hMIN = min (*BSMdf.Min (var), *INTdf.Min (var)) ;
-
-  float hMAX = *SMdf.Max (var) ;
-  if (hMAX < max (*BSMdf.Min (var), *INTdf.Min (var))) 
-    hMAX = max (*BSMdf.Min (var), *INTdf.Min (var)) ;
 
   
 /*
@@ -144,11 +159,11 @@ int main (int argc, char ** argv)
         - define the range as the one which includes all the bins,
           for which the SM expected number of events or the total_bsm expected n of events
           for the case of the expected Wilson coefficient sensitivity is larger than one
-   - fill histograms from the ntuple, of SM, INT, BSM, with the maximum stats available,
+   - fill histograms from the ntuple, of SM, INT, INT, with the maximum stats available,
      to define the initial model, after the selections applied
    - fill a SM histogram (toy experiment) with the number of events expected with the lumi, 
      after selection applied
-   - define a BSM model with SM + c_w * INT + c_w^2 * BSM, where in INT and BSM
+   - define a INT model with SM + c_w * INT + c_w^2 * INT, where in INT and INT
      the right normalisation is inserted in order to have all renormalised to the right
      value of c_w
    - perform a Likelihood fit of the model on the toy experiment
