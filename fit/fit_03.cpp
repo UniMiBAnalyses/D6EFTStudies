@@ -24,41 +24,59 @@ TTreeReader example: https://root.cern.ch/doc/v608/classTTreeReader.html
 using namespace std ;
 
 
-float getVarSum (TNtuple * nt, string varname)
+float getVarSum (TTreeReader & nt, string varname)
 {
   float sum = 0. ; 
-//  for (int i = 0 ; i < nt->GetEntries () ; ++i)
-//
-//
+  nt.Restart () ;
+  TTreeReaderValue<Float_t> myVar (nt, varname.c_str ());
+  TTreeReaderValue<Float_t> weight (nt, "w");
+
+  while (nt.Next()) 
+    {
+      sum += *myVar * *weight ;
+    } 
+
   return sum ;
 }
 
-float getVarSumSq (TNtuple * nt, string varname)
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
+float getVarSumSq (TTreeReader & nt, string varname)
 {
   float sumsq = 0. ; 
-  for (int i = 0 ; i < nt->GetEntries () ; ++i)
+  nt.Restart () ;
+  TTreeReaderValue<float> myVar (nt, varname.c_str ());
+  TTreeReaderValue<float> weight (nt, "w");
+
+  while (nt.Next()) 
     {
-
-
-    }
-
+      sumsq += *myVar * *myVar * *weight * *weight ;
+    } 
 
   return sumsq ;
 }
 
-float getVarMean (TNtuple * nt, string varname)
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
+float getVarMean (TTreeReader & nt, string varname)
 {
-  return getVarSum (nt, varname) / nt->GetEntries () ;
+  return getVarSum (nt, varname) / nt.GetEntries (true) ;
 }
 
 
-float getVarSigma (TNtuple * nt, string varname)
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
+float getVarSigma (TTreeReader & nt, string varname)
 {
   float dummy = getVarMean (nt, varname) ;
   dummy *= dummy ;
-  return sqrt (getVarSumSq (nt, varname) / nt->GetEntries () - dummy) ;
+  return sqrt (getVarSumSq (nt, varname) / nt.GetEntries (true) - dummy) ;
 }
-
 
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -91,7 +109,6 @@ int main (int argc, char ** argv)
   float SMXS = SMNumsHisto->GetBinContent (1) ;   // sample cross-section
   float SMtotW = SMNumsHisto->GetBinContent (2) ; // weighted sum of events in the sample
   float SM_weight = lumi * SMXS / SMtotW ;
-
   cout << "SM cross-section: " << SMXS << " fb" << endl ;
 
   string BSMInputFileName = gConfigParser->readStringOpt ("samples::BSMInputFileName") ;
@@ -116,7 +133,13 @@ int main (int argc, char ** argv)
   float INT_weight = lumi * INTXS / INTtotW ;
   cout << "INT cross-section: " << INTXS << " fb" << endl ;
 
-  
+  string var = "ptl1" ;
+
+  cout << "SM weighted mean for ptl1: " << getVarMean (SMtr, var) << endl ;
+  cout << "   weighted sigma for ptl1: " << getVarSigma (SMtr, var) << endl ;
+
+  cout << "BSM weighted mean for ptl1: " << getVarMean (BSMtr, var) << endl ;
+  cout << "    weighted sigma for ptl1: " << getVarSigma (BSMtr, var) << endl ;
 
   
 /*
