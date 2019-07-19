@@ -72,11 +72,12 @@ To submit a job:
   * `read_03.cpp` reads LHE files and produces sets of ntuples, 
                   possibly applying preselections,
                   and including for each ntuple an histogram containing:
- | bin  | variable                                   |
- | :--- |:------------------------------------------ |
- | 1    | cross-section                              |
- | 2    | total sum of event weights                 |
- | 3    | sum of event weights of preselected events |
+                  
+| bin  | variable                                   |
+| :--- |:------------------------------------------ |
+| 1    | cross-section                              |
+| 2    | total sum of event weights                 |
+| 3    | sum of event weights of preselected events |
 
 ### fit
 
