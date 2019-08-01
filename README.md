@@ -65,6 +65,11 @@ To submit a job:
   * the line `queue 100` specifies how many identical jobs will be submitted
     (random seeds are changed though)
   * to actually submit jobs, run `condor_submit SSeu_RcW.sub`
+  * when the samples have been produced, the total XS can be calculated with the script `calcXS.py`,
+    which averages the results present in the banner files produced by each Madgraph job.
+    Used with the argument of the folder containing the banner files,
+    finds them, extracts the XS and averages it. 
+    With a third argument, it becomes verbose and shows the averaged values as well.
 
 ### analysis
 
@@ -85,6 +90,7 @@ This is where the plain ntuples get analysed and fits performed.
    ```
    find . -name "*lhe" | sed -e s%\.%`pwd`% | tr "\n" ","
    ```
+  * calculate the cross-section of the sample from the generated events
 
 
 
