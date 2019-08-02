@@ -45,6 +45,8 @@ the process generated, the type of generation:
     produce events with massless light leptons and quarks,
     diagonal CKM matrix and rigorously zero value for all the Wilson coefficients, 
     but the one present in the file name.
+  * the restriction `restrict_VBS_massless.dat` allows to modify cW, cHW, cHDD, cHbox, cHB, cHWB, cll, cHl3, 
+    which are the ones marked as relevant for TGC/QGC and hVV in I. Brivio sildes at 19/01/2019 VBSCan WG1 meeting.
   * the process is generated according to the Madgraph syntax. In particular:
     * NP=1 means that no more than a single BSM operator is introduced in each diagram
     * NP^2==1, when present, means that only the interference is calculated
