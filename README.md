@@ -34,6 +34,15 @@ To produce a sample:
     output SSeu_RcW_test
     quit
     ```
+    Example of generation of VBF Higgs > WW > fully leptonic:
+    ```
+    ./bin/mg5_aMC
+    import model SMEFTsim_A_U35_MwScheme_UFO_v2_1-SMlimit_massless
+    define q = u c d s u~ c~ d~ s~
+    generate p p > q q H, (H > W+ W-, W+ > l+ vl, W- > l- vl~) QCD=0
+    output VBFHWW_SMlimit
+    quit
+    ```    
 The comments issued in the Madgraph shell correspond to the model used, 
 the process generated, the type of generation:
   * the model used for the generation is issued with the command `import`, 
