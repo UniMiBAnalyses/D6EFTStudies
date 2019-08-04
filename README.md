@@ -26,6 +26,7 @@ To produce a sample:
     ```
     cp ../../../D6EFTStudies/madgraph_model/* .
     ```
+  * trivial examples of Madgraph syntax can be found [here](https://www.niu.edu/spmartin/madgraph/madsyntax.html)
   * get back to the Madgraph folder and prepare the process folder:
     ```
     ./bin/mg5_aMC
@@ -34,15 +35,25 @@ To produce a sample:
     output SSeu_RcW_test
     quit
     ```
-    Example of generation of VBF Higgs > WW > fully leptonic:
+    Example of generation of VBF Higgs > WW > fully leptonic.
+    The following syntax allows for having EFT entering both in the production
+    and decay vertices of the Higgs boson, 
+    while it remains not present in the W decays.
+    NB with the W decay, no restrictions on NP^2 are accepted by Madgraph apparently
     ```
     ./bin/mg5_aMC
-    import model SMEFTsim_A_U35_MwScheme_UFO_v2_1-SMlimit_massless
+    import model SMEFTsim_A_U35_MwScheme_UFO_v2_1-cHW_massless
     define q = u c d s u~ c~ d~ s~
-    generate p p > q q H, (H > W+ W-, W+ > l+ vl, W- > l- vl~) QCD=0
-    output VBFHWW_SMlimit
+    generate p p > q q W+ W- QCD=0 SMHLOOP=0 NP=1, W+ > l+ vl, W- > l- vl~ 
+    output VBFHWW_RcHW_WWdecay_fs
     quit
-    ```    
+    ```
+    One operator of interest which enters in the W decay is Hl3, 
+    therefore for productions involving that operator
+    one needs to generate the full VBS process:
+    ```
+    working on it
+    ```
 The comments issued in the Madgraph shell correspond to the model used, 
 the process generated, the type of generation:
   * the model used for the generation is issued with the command `import`, 
