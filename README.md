@@ -39,7 +39,10 @@ To produce a sample:
     The following syntax allows for having EFT entering both in the production
     and decay vertices of the Higgs boson, 
     while it remains not present in the W decays.
-    NB with the W decay, no restrictions on NP^2 are accepted by Madgraph apparently
+      * NB1 with the W decay, no restrictions on NP^2 are accepted by Madgraph apparently
+      * NB2 SMHLOOP not zero turns on loops coupling with gluons and bosons,
+            hence one should most probably turn it off with no expected big impact,
+            as its impact is O(alpha^8)
     ```
     ./bin/mg5_aMC
     import model SMEFTsim_A_U35_MwScheme_UFO_v2_1-cHW_massless

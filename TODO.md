@@ -17,8 +17,8 @@ _existing samples so far_
  | 0.3 |   0   | quadratic   | SSeu_RcW_bsm  |    1M    |   [link](http://govoni.web.cern.ch/govoni/EFT/ntuple_RcW_0p3_HS.root) |
  |  0  |  0.3  |   interf    | SSeu_RcHW_int |    1M    |   [link](http://govoni.web.cern.ch/govoni/EFT/ntuple_RcHW_0p3.root) |
  |  0  |  0.3  | quadratic   | SSeu_RcHW_bsm |    1M    |   [link](http://govoni.web.cern.ch/govoni/EFT/ntuple_RcHW_0p3.root) |
- | 0.3 |  0.3  |   interf    | SSeu_VBS_int  |    1M    |   [link]() |
- | 0.3 |  0.3  | quadratic   | SSeu_VBS_bsm  |    1M    |   [link]() |
+ | 0.3 |  0.3  |   interf    | SSeu_VBS_int  |    1M    |   [link](http://govoni.web.cern.ch/govoni/EFT/ntuple_RcWcHW_0p30p3.root) |
+ | 0.3 |  0.3  | quadratic   | SSeu_VBS_bsm  |    1M    |   [link](http://govoni.web.cern.ch/govoni/EFT/ntuple_RcWcHW_0p30p3.root) |
  |     |       |             |               |          |   [link]() |
  
 _samples with two coefficients at a time_
@@ -60,6 +60,7 @@ _generation attempts_
     output OSWW_SMlimit
     quit
     ```
+  * quanto conta SMLOOP nel diagramma precedente? circa nulla immagino, ci sono due alpha_EW in piu'
   * VBS generation with stable W's, quadratic EFT term only for the cW coefficient, 
     does not work because of the W decays
     ```
@@ -71,36 +72,62 @@ _generation attempts_
     quit
     ```
   * VBS generation with stable fermions in the final state:
+    * SMHLOOP=0 put here to avoid getting also the SM loop effective vertex in
+    ```
+    ./bin/mg5_aMC
+    import model SMEFTsim_A_U35_MwScheme_UFO_v2_1-SMlimit_massless
+    define q = u c d s u~ c~ d~ s~
+    generate p p > e+ ve mu- vm~ p p QCD=0 SMHLOOP=0 @0
+    generate p p > e- ve~ mu+ vm p p QCD=0 SMHLOOP=0 @1
+    output OSeu_SMlimit
+    quit
+    ```
     ```
     ./bin/mg5_aMC
     import model SMEFTsim_A_U35_MwScheme_UFO_v2_1-cW_massless
     define q = u c d s u~ c~ d~ s~
-    generate p p > e+ ve mu- vm~ p p QCD=0 NP=1
-    generate p p > e- ve~ mu+ vm p p QCD=0 NP=1
-    output OSeu_RcW_test
+    generate p p > e+ ve mu- vm~ p p QCD=0 NP=1 SMHLOOP=0 @0 NP^2==1
+    generate p p > e- ve~ mu+ vm p p QCD=0 NP=1 SMHLOOP=0 @1 NP^2==1
+    output OSeu_RcW_int
+    quit
+    ```
+    ```
+    ./bin/mg5_aMC
+    import model SMEFTsim_A_U35_MwScheme_UFO_v2_1-cW_massless
+    define q = u c d s u~ c~ d~ s~
+    generate p p > e+ ve mu- vm~ p p QCD=0 NP=1 SMHLOOP=0 @0 NP^2==2
+    generate p p > e- ve~ mu+ vm p p QCD=0 NP=1 SMHLOOP=0 @1 NP^2==2
+    output OSeu_RcW_bsm
     quit
     ```
     ```
     ./bin/mg5_aMC
     import model SMEFTsim_A_U35_MwScheme_UFO_v2_1-cHW_massless
     define q = u c d s u~ c~ d~ s~
-    generate p p > e+ ve mu- vm~ p p QCD=0 NP=1
-    generate p p > e- ve~ mu+ vm p p QCD=0 NP=1
-    output OSeu_RcHW_test
+    generate p p > e+ ve mu- vm~ p p QCD=0 NP=1 SMHLOOP=0 @0 NP^2==1
+    generate p p > e- ve~ mu+ vm p p QCD=0 NP=1 SMHLOOP=0 @1 NP^2==1
+    output OSeu_RcHW_int
     quit
     ```
     ```
     ./bin/mg5_aMC
-    import model SMEFTsim_A_U35_MwScheme_UFO_v2_1-cHl3_massless
+    import model SMEFTsim_A_U35_MwScheme_UFO_v2_1-cHW_massless
     define q = u c d s u~ c~ d~ s~
-    generate p p > e+ ve mu- vm~ p p QCD=0 NP=1
-    generate p p > e- ve~ mu+ vm p p QCD=0 NP=1
-    output OSeu_RcHl3_test
+    generate p p > e+ ve mu- vm~ p p QCD=0 NP=1 SMHLOOP=0 @0 NP^2==2
+    generate p p > e- ve~ mu+ vm p p QCD=0 NP=1 SMHLOOP=0 @1 NP^2==2
+    output OSeu_RcHW_bsm
     quit
     ```
-  * folders ready, TODO:
-    * check the diagrams: 
-      * where are the EFT operators in each of the three cases?
-      * is NP=1 respected?
-    * if diagrams OK, prepare interference and quadratic separated
-    * and then submit event generation
+  * events generation: submitted to condor
+
+
+## longer term
+
+  * how do I submit mg folder generation non-interactively?
+  * the intereference between two different coefficients has to be separated 
+    from the one of each single coefficient and the SM.
+    There's no way of doing it in Madgraph as of now 
+    (it may be possibile in the future with a modification of the model, apparently),
+    so the only recipe is to do it by subtraction, 
+    for which stats tests are needed
+  * the importance of the interference: is it really relevant, or not?  
