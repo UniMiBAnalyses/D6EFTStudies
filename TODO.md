@@ -17,9 +17,8 @@ _existing samples so far_
  | 0.3 |   0   | quadratic   | SSeu_RcW_bsm  |    1M    |   [link](http://govoni.web.cern.ch/govoni/EFT/ntuple_RcW_0p3_HS.root) |
  |  0  |  0.3  |   interf    | SSeu_RcHW_int |    1M    |   [link](http://govoni.web.cern.ch/govoni/EFT/ntuple_RcHW_0p3.root) |
  |  0  |  0.3  | quadratic   | SSeu_RcHW_bsm |    1M    |   [link](http://govoni.web.cern.ch/govoni/EFT/ntuple_RcHW_0p3.root) |
-[//]: <>  |  0  |   0   |     SM      | SSeu_SMlimit  |    1M    |   [link]() |
+ |     |       |             |               |          |   [link]() |
  
-
 _samples with two coefficients at a time_
 
   * generate the events of interference and pure bsm with both the coefficients cW and cHW at 0.3
