@@ -123,6 +123,7 @@ _generation attempts_
 
 ## longer term
 
+  * compare XS and put them in a table!
   * how do I submit mg folder generation non-interactively?
   * the intereference between two different coefficients has to be separated 
     from the one of each single coefficient and the SM.
@@ -130,4 +131,5 @@ _generation attempts_
     (it may be possibile in the future with a modification of the model, apparently),
     so the only recipe is to do it by subtraction, 
     for which stats tests are needed
-  * the importance of the interference: is it really relevant, or not?  
+  * the importance of the interference: is it really relevant, or not?
+    

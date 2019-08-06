@@ -35,7 +35,9 @@ if __name__ == '__main__':
     	for i in range (len(XS)):
     		print (myfilenames[i] + ':\t' + str (XS[i]) + ' pb')
         print ('\n')
+        print ('number of files: ' + str (len (XS)))
         print ('average XS: ' + str (sum (XS) / len (XS)) + ' pb')
+        print ('average XS: ' + str (1000. * sum (XS) / len (XS)) + ' fb')
 
 
 
