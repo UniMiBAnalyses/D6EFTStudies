@@ -131,6 +131,7 @@ _generation attempts_
 
   * compare XS and put them in a table!
   * generate the mixed cW cHW for OSeu as well
+  * fix the XS calculation adding the uncertainty in the XS itself
   * how do I submit mg folder generation non-interactively?
   * the intereference between two different coefficients has to be separated 
     from the one of each single coefficient and the SM.

@@ -1,5 +1,8 @@
 #!/usr/bin/python
 
+# FIXME improve using the job.out file, which contains the uncertainty as well
+
+
 import sys
 import fnmatch
 import os
