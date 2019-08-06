@@ -10,16 +10,21 @@ _existing samples so far_
 
   * same-sign W+W+ with one electron and one muon
 
- | cW  |  cHW  |  EFT level  |  MG folder    |  events  |  ntuple |
- |-----|-------|-------------|---------------|----------|---------|
- |  0  |   0   |     SM      | SSeu_SMlimit  |    1M    |   [link](http://govoni.web.cern.ch/govoni/EFT/ntuple_SMlimit_HS.root) |
- | 0.3 |   0   |   interf    | SSeu_RcW_int  |    1M    |   [link](http://govoni.web.cern.ch/govoni/EFT/ntuple_RcW_0p3_HS.root) |
- | 0.3 |   0   | quadratic   | SSeu_RcW_bsm  |    1M    |   [link](http://govoni.web.cern.ch/govoni/EFT/ntuple_RcW_0p3_HS.root) |
- |  0  |  0.3  |   interf    | SSeu_RcHW_int |    1M    |   [link](http://govoni.web.cern.ch/govoni/EFT/ntuple_RcHW_0p3.root) |
- |  0  |  0.3  | quadratic   | SSeu_RcHW_bsm |    1M    |   [link](http://govoni.web.cern.ch/govoni/EFT/ntuple_RcHW_0p3.root) |
- | 0.3 |  0.3  |   interf    | SSeu_VBS_int  |    1M    |   [link](http://govoni.web.cern.ch/govoni/EFT/ntuple_RcWcHW_0p30p3.root) |
- | 0.3 |  0.3  | quadratic   | SSeu_VBS_bsm  |    1M    |   [link](http://govoni.web.cern.ch/govoni/EFT/ntuple_RcWcHW_0p30p3.root) |
- |     |       |             |               |          |   [link]() |
+ | channel | cW  |  cHW  |  EFT level  |  MG folder    |  events  |  ntuple |
+ |---------|-----|-------|-------------|---------------|----------|---------|
+ |  e+u+jj |  0  |   0   |     SM      | SSeu_SMlimit  |    1M    |   [link](http://govoni.web.cern.ch/govoni/EFT/ntuple_SMlimit_HS.root) |
+ |  e+u+jj | 0.3 |   0   |   interf    | SSeu_RcW_int  |    1M    |   [link](http://govoni.web.cern.ch/govoni/EFT/ntuple_RcW_0p3_HS.root) |
+ |  e+u+jj | 0.3 |   0   | quadratic   | SSeu_RcW_bsm  |    1M    |   [link](http://govoni.web.cern.ch/govoni/EFT/ntuple_RcW_0p3_HS.root) |
+ |  e+u+jj |  0  |  0.3  |   interf    | SSeu_RcHW_int |    1M    |   [link](http://govoni.web.cern.ch/govoni/EFT/ntuple_RcHW_0p3.root) |
+ |  e+u+jj |  0  |  0.3  | quadratic   | SSeu_RcHW_bsm |    1M    |   [link](http://govoni.web.cern.ch/govoni/EFT/ntuple_RcHW_0p3.root) |
+ |  e+u+jj | 0.3 |  0.3  |   interf    | SSeu_VBS_int  |    1M    |   [link](http://govoni.web.cern.ch/govoni/EFT/ntuple_RcWcHW_0p30p3.root) |
+ |  e+u+jj | 0.3 |  0.3  | quadratic   | SSeu_VBS_bsm  |    1M    |   [link](http://govoni.web.cern.ch/govoni/EFT/ntuple_RcWcHW_0p30p3.root) |
+ |  euOSjj |  0  |   0   |     SM      | OSeu_SMlimit  |    1M    |   [link]() |
+ |  euOSjj | 0.3 |   0   |   interf    | OSeu_RcW_int  |    1M    |   [link]() |
+ |  euOSjj | 0.3 |   0   | quadratic   | OSeu_RcW_bsm  |    1M    |   [link]() |
+ |  euOSjj |  0  |  0.3  |   interf    | OSeu_RcHW_int |    1M    |   [link]() |
+ |  euOSjj |  0  |  0.3  | quadratic   | OSeu_RcHW_bsm |    1M    |   [link]() |
+ |         |     |       |             |               |          |   [link]() |
  
 _samples with two coefficients at a time_
 
@@ -118,12 +123,14 @@ _generation attempts_
     output OSeu_RcHW_bsm
     quit
     ```
-  * events generation: submitted to condor
+  * events generation: finished, producing ntuples
+  * CRTL SM ones, one job apparently has too few events??
 
 
 ## longer term
 
   * compare XS and put them in a table!
+  * generate the mixed cW cHW for OSeu as well
   * how do I submit mg folder generation non-interactively?
   * the intereference between two different coefficients has to be separated 
     from the one of each single coefficient and the SM.

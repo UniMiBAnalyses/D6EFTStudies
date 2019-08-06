@@ -101,6 +101,7 @@ To submit a job:
 
   * `read_02.cpp` reads LHE files and produces sets of histograms
   * `read_03.cpp` reads LHE files and produces sets of ntuples
+  # `checkEntries.cpp` checks the number of entries of all ntuples stored in a root file
 
 ### fit
 
