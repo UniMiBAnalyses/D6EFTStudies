@@ -8,22 +8,58 @@
 # if asked, remove log files
 
 
-# FIXME improve using the job.out file, which contains the uncertainty as well
-
-
 import sys
 import fnmatch
 import os
 import subprocess
+from math import sqrt 
 
 
-def getFilesList (basefolder, pattern):
+usual_errors = []
+usual_errors.append ('stty: standard input: Inappropriate ioctl for device')
+
+
+# check whether in the err file there are unexpected errors,
+# or solely some known irrelevant ones,
+# listed in usual_errors
+# True = there is a problem
+# False = everything is OK
+def errFileHasIssues (filename):
+    counter = 0
+    with open (filename, 'r') as file:
+        for line in file:
+            known = 0
+            for err in usual_errors:
+                if err in line: 
+                    known = 1
+                    break
+            if known == 1: continue
+            counter = counter + 1
+    if counter > 0: return [True, filename.split('.')[-2]]
+    return [False, filename.split('.')[-2]]
+  
+
+# ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
+
+
+# get the list of files ending with the "pattern"
+# in the folder "basefolder",
+# if the file name does not contain any of the ID's
+# listed in "discard"
+def getFilesList (basefolder, pattern, discard):
     matches = []
     myfilenames = []
     for root, dirnames, filenames in os.walk (sys.argv[1]):
         for filename in fnmatch.filter(filenames, pattern):
-            matches.append (os.path.join (root, filename))
-            myfilenames.append (root+'/'+filename)
+            fullname = os.path.join (root, filename)
+            count = 0
+            for elem in discard:
+                if ('.'+elem+'.' in fullname) or ('_'+elem+'/' in fullname): 
+                    count = 1
+                    break
+            if count > 0 : continue
+            matches.append (os.path.join (os.getcwd (), root, filename))
+            myfilenames.append (filename)
     return [matches, myfilenames]        
 
 
@@ -77,11 +113,43 @@ def findXSwE (filename):
 # ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
 
 
+# this function runs on a list of outputs
+# of the findXSwE function,
+# i.e. a list of tuples
+# from the tuples the relavant info is the XS and the XS uncertainty
+def calcTotXS (singleGenInfoList):
+#    XSs = [info[0] for info in singleGenInfoList] # single cross sections
+#    Ws = [ 1. / (info[1] * info[1]) for info in singleGenInfoList] # weights
+#    sumW = sum (Ws)
+
+    XS = sum (x / (e*e) for x, e, n in singleGenInfoList)
+    sumW = sum (1. / (e*e) for x, e, n in singleGenInfoList)
+    XS = XS / sumW
+    XSe = sqrt (1. / sumW)
+
+    return [XS, XSe]
+
+
+# ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
+
+
 if __name__ == '__main__':
 
     if len (sys.argv) < 2:
         print ('base folder of the sample missing')
         sys.exit ()
+
+    # collect the list of err files
+    # ---- ---- ---- ---- ---- ---- ---- ---- ---- 
+
+    files_err = getFilesList (sys.argv[1], '*.err', [])
+    issues = [errFileHasIssues (file) for file in files_err[0]]
+    discard = [ID for prob, ID in issues if prob == True]
+
+    files_run = getFilesList (sys.argv[1], '*running', [])
+    discard = discard + [name.split ('_')[3] for name in files_run[1]]
+
+    for elem in discard: print ('ignoring job ' + elem)
 
     # unzip LHE files
     # ---- ---- ---- ---- ---- ---- ---- ---- ---- 
@@ -92,7 +160,7 @@ if __name__ == '__main__':
     # check lhe files integrity
     # ---- ---- ---- ---- ---- ---- ---- ---- ---- 
 
-    files_lhe = getFilesList (sys.argv[1], '*.lhe')
+    files_lhe = getFilesList (sys.argv[1], '*.lhe', discard)
     closure = [checkClosure (file) for file in files_lhe[0]]
 
     allOK = 0
@@ -105,57 +173,23 @@ if __name__ == '__main__':
     else:
         print ('all files closed regularly') 
 
-    sys.exit ()
-
+    print ('\nLIST OF LHE FILES:')
+    print (','.join (files_lhe[0]))
+    print ('\n')
 
     # get number of events from LHE files
     # ---- ---- ---- ---- ---- ---- ---- ---- ---- 
+    # this returns a list with the same elements found in findWSwE, but with different ordering
+#    NB = [int (countEvents (file)) for file in files_lhe[0]]
 
-    NB = [float (countEvents (file)) for file in files_lhe[0]]
 
     # collect the list of out files
     # ---- ---- ---- ---- ---- ---- ---- ---- ---- 
 
-    files_out = getFilesList (sys.argv[1], '*.out')
+    files_out = getFilesList (sys.argv[1], '*.out', discard)
+    XSs = [findXSwE (file) for file in files_out[0]]
 
-
-# - get XS, XSe, N from .out files
-# - calculate the total XS as weighted average, and provide uncertainty as well
-# - compare the number of generated events with the ones present in the lhe files,
-#   this is more complicated as requires matching of outfile and lhe file
-
-
-    # collect the list of banner files
-    # ---- ---- ---- ---- ---- ---- ---- ---- ---- 
-
-#     files_banner = getFilesList (sys.argv[1], '*banner.txt')
-
- 
-    # calculate the cross-section
-    # ---- ---- ---- ---- ---- ---- ---- ---- ---- 
-
-#     matches_log = []
-#     for root, dirnames, filenames in os.walk (sys.argv[1]):
-#         for filename in fnmatch.filter(filenames, '*banner.txt'):
-#             matches.append (os.path.join (root, filename))
-#             myfilenames.append (filename)
-# 
-# 
-# 
-# 
-# 
-#     XS = [float (findXS (file)) for file in matches]
-#     print sum (XS) / len (XS)
-# 
-# 
-#     if len (sys.argv) > 2:
-#     	print ('\n')
-#     	for i in range (len(XS)):
-#     		print (myfilenames[i] + ':\t' + str (XS[i]) + ' pb')
-#         print ('\n')
-#         print ('number of files: ' + str (len (XS)))
-#         print ('average XS: ' + str (sum (XS) / len (XS)) + ' pb')
-#         print ('average XS: ' + str (1000. * sum (XS) / len (XS)) + ' fb')
-
-
+    totXS = calcTotXS (XSs)
+    print ('average XS: ' + str (totXS[0]) + ' +- ' + str (totXS[1]) + ' pb')
+    print ('average XS: ' + str (1000. * totXS[0]) + ' +- ' + str (1000. * totXS[1]) + ' fb')
 
