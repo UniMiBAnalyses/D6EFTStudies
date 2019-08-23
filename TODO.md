@@ -19,19 +19,14 @@ _existing samples so far_
  |  e+u+jj |  0  |  0.3  | quadratic   | SSeu_RcHW_bsm |    1M    |   [link](http://govoni.web.cern.ch/govoni/EFT/ntuple_RcHW_0p3.root) |
  |  e+u+jj | 0.3 |  0.3  |   interf    | SSeu_VBS_int  |    1M    |   [link](http://govoni.web.cern.ch/govoni/EFT/ntuple_RcWcHW_0p30p3.root) |
  |  e+u+jj | 0.3 |  0.3  | quadratic   | SSeu_VBS_bsm  |    1M    |   [link](http://govoni.web.cern.ch/govoni/EFT/ntuple_RcWcHW_0p30p3.root) |
- |  euOSjj |  0  |   0   |     SM      | OSeu_SMlimit  |    1M    |   [link](http://govoni.web.cern.ch/govoni/EFT/ntuple_OSeu_SMlimit_HS.root) |
- |  euOSjj | 0.3 |   0   |   interf    | OSeu_RcW_int  |    1M    |   [link](http://govoni.web.cern.ch/govoni/EFT/ntuple_OSeu_RcW_0p3.root) |
- |  euOSjj | 0.3 |   0   | quadratic   | OSeu_RcW_bsm  |    1M    |   [link](http://govoni.web.cern.ch/govoni/EFT/ntuple_OSeu_RcW_0p3.root) |
- |  euOSjj |  0  |  0.3  |   interf    | OSeu_RcHW_int |    1M    |   [link](http://govoni.web.cern.ch/govoni/EFT/ntuple_OSeu_RcHW_0p3.root) |
- |  euOSjj |  0  |  0.3  | quadratic   | OSeu_RcHW_bsm |    1M    |   [link](http://govoni.web.cern.ch/govoni/EFT/ntuple_OSeu_RcHW_0p3.root) |
- |         |     |       |             |               |          |   [link]() |
  
 _samples with two coefficients at a time_
 
   * generate the events of interference and pure bsm with both the coefficients cW and cHW at 0.3
     * the interference contains terms with power 1/lambda^2 (1 coefficient and SM)
     * the interference should contain also terms with 1/lambda^4 (2 different coefficients)
-      * how can I isolate this term?
+      * how can I isolate this term? Subtract the interference terms of the single coefficient samples
+        from the one of the two-coefficient sample 
       * how does it compare to the terms with two EFT operators in the same diagram, 
         which are usually neglected?
     * the pure bsm contains terms with power 1/lambda^4
@@ -43,6 +38,21 @@ _samples with two coefficients at a time_
 
 
 ### VBS OS ntuples (with VBF Higgs focus as well)
+
+_existing samples so far_
+
+  * opposite sign W+W- with one electron and one muon: these samples should contain both VBS and VBF Higgs
+    (remember that the only way to get interference and pure BSM terms separated 
+     is to generate final state stable particles)
+
+ | channel | cW  |  cHW  |  EFT level  |  MG folder    |  events  |  ntuple |
+ |---------|-----|-------|-------------|---------------|----------|---------|
+ |  euOSjj |  0  |   0   |     SM      | OSeu_SMlimit  |    1M    |   [link](http://govoni.web.cern.ch/govoni/EFT/ntuple_OSeu_SMlimit_HS.root) |
+ |  euOSjj | 0.3 |   0   |   interf    | OSeu_RcW_int  |    1M    |   [link](http://govoni.web.cern.ch/govoni/EFT/ntuple_OSeu_RcW_0p3.root) |
+ |  euOSjj | 0.3 |   0   | quadratic   | OSeu_RcW_bsm  |    1M    |   [link](http://govoni.web.cern.ch/govoni/EFT/ntuple_OSeu_RcW_0p3.root) |
+ |  euOSjj |  0  |  0.3  |   interf    | OSeu_RcHW_int |    1M    |   [link](http://govoni.web.cern.ch/govoni/EFT/ntuple_OSeu_RcHW_0p3.root) |
+ |  euOSjj |  0  |  0.3  | quadratic   | OSeu_RcHW_bsm |    1M    |   [link](http://govoni.web.cern.ch/govoni/EFT/ntuple_OSeu_RcHW_0p3.root) |
+ |         |     |       |             |               |          |   [link]() |
 
 _attempts to produce VBF in production times decay, lessons learned_
 
