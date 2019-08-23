@@ -19,11 +19,11 @@ _existing samples so far_
  |  e+u+jj |  0  |  0.3  | quadratic   | SSeu_RcHW_bsm |    1M    |   [link](http://govoni.web.cern.ch/govoni/EFT/ntuple_RcHW_0p3.root) |
  |  e+u+jj | 0.3 |  0.3  |   interf    | SSeu_VBS_int  |    1M    |   [link](http://govoni.web.cern.ch/govoni/EFT/ntuple_RcWcHW_0p30p3.root) |
  |  e+u+jj | 0.3 |  0.3  | quadratic   | SSeu_VBS_bsm  |    1M    |   [link](http://govoni.web.cern.ch/govoni/EFT/ntuple_RcWcHW_0p30p3.root) |
- |  euOSjj |  0  |   0   |     SM      | OSeu_SMlimit  |    1M    |   [link]() |
- |  euOSjj | 0.3 |   0   |   interf    | OSeu_RcW_int  |    1M    |   [link]() |
- |  euOSjj | 0.3 |   0   | quadratic   | OSeu_RcW_bsm  |    1M    |   [link]() |
- |  euOSjj |  0  |  0.3  |   interf    | OSeu_RcHW_int |    1M    |   [link]() |
- |  euOSjj |  0  |  0.3  | quadratic   | OSeu_RcHW_bsm |    1M    |   [link]() |
+ |  euOSjj |  0  |   0   |     SM      | OSeu_SMlimit  |    1M    |   [link](http://govoni.web.cern.ch/govoni/EFT/ntuple_OSeu_SMlimit_HS.root) |
+ |  euOSjj | 0.3 |   0   |   interf    | OSeu_RcW_int  |    1M    |   [link](http://govoni.web.cern.ch/govoni/EFT/ntuple_OSeu_RcW_0p3.root) |
+ |  euOSjj | 0.3 |   0   | quadratic   | OSeu_RcW_bsm  |    1M    |   [link](http://govoni.web.cern.ch/govoni/EFT/ntuple_OSeu_RcW_0p3.root) |
+ |  euOSjj |  0  |  0.3  |   interf    | OSeu_RcHW_int |    1M    |   [link](http://govoni.web.cern.ch/govoni/EFT/ntuple_OSeu_RcHW_0p3.root) |
+ |  euOSjj |  0  |  0.3  | quadratic   | OSeu_RcHW_bsm |    1M    |   [link](http://govoni.web.cern.ch/govoni/EFT/ntuple_OSeu_RcHW_0p3.root) |
  |         |     |       |             |               |          |   [link]() |
  
 _samples with two coefficients at a time_
