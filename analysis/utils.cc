@@ -396,10 +396,14 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max)
       float etaj1 = v_f_quarks.at (0).Eta () ;
       float etaj2 = v_f_quarks.at (1).Eta () ;
 
+      float phij1 = v_f_quarks.at (0).Phi () ;
+      float phij2 = v_f_quarks.at (1).Phi () ;
+
       if (ptj1 < ptj2) 
         {
           swap (ptj1, ptj2) ;
           swap (etaj1, etaj2) ;
+          swap (phij1, phij2) ;
         }
 
       TLorentzVector ME = v_f_neutrinos.at (0) + v_f_neutrinos.at (1) ;
@@ -432,6 +436,8 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max)
       Ntuple.setvalue ("ptj2", ptj2) ;
       Ntuple.setvalue ("etaj1", etaj1) ;
       Ntuple.setvalue ("etaj2", etaj2) ;
+      Ntuple.setvalue ("phij1", phij1) ;
+      Ntuple.setvalue ("phij2", phij2) ;
 
       float ptl1 = v_f_leptons.at (0).Pt () ;
       float ptl2 = v_f_leptons.at (1).Pt () ;

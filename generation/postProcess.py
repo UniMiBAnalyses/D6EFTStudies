@@ -142,10 +142,12 @@ if __name__ == '__main__':
     # collect the list of err files
     # ---- ---- ---- ---- ---- ---- ---- ---- ---- 
 
+    print ('checking error reports...')
     files_err = getFilesList (sys.argv[1], '*.err', [])
     issues = [errFileHasIssues (file) for file in files_err[0]]
     discard = [ID for prob, ID in issues if prob == True]
 
+    print ('checking not finished runs...')
     files_run = getFilesList (sys.argv[1], '*running', [])
     discard = discard + [name.split ('_')[3] for name in files_run[1]]
 
@@ -154,17 +156,19 @@ if __name__ == '__main__':
     # unzip LHE files
     # ---- ---- ---- ---- ---- ---- ---- ---- ---- 
 
+    print ('unzipping...')
     # https://linuxhandbook.com/execute-shell-command-python/
     os.system ('for fil in  `find  ' + sys.argv[1] + ' -name \"*gz\"` ; do gunzip $fil ; done')
     
     # check lhe files integrity
     # ---- ---- ---- ---- ---- ---- ---- ---- ---- 
 
+    print ('checking LHE files integrity...')
     files_lhe = getFilesList (sys.argv[1], '*.lhe', discard)
     closure = [checkClosure (file) for file in files_lhe[0]]
 
     allOK = 0
-    for i in range (len(closure)):
+    for i in range (len (closure)):
         if (closure[i] == False):
             print (files_lhe[1] + 'not properly closed')
             allOK = allOK + 1
@@ -193,3 +197,7 @@ if __name__ == '__main__':
     print ('average XS: ' + str (totXS[0]) + ' +- ' + str (totXS[1]) + ' pb')
     print ('average XS: ' + str (1000. * totXS[0]) + ' +- ' + str (1000. * totXS[1]) + ' fb')
 
+    outputfile = open (sys.argv[1]+'/postProcess.txt' ,'w')
+    outputfile.write ('average XS: ' + str (totXS[0]) + ' +- ' + str (totXS[1]) + ' pb\n')
+    outputfile.write ('average XS: ' + str (1000. * totXS[0]) + ' +- ' + str (1000. * totXS[1]) + ' fb\n\n')
+    outputfile.write ('LHE files list:\n' + ','.join (files_lhe[0]) + '\n')

@@ -101,6 +101,8 @@ To submit a job:
 
   * `read_02.cpp` reads LHE files and produces sets of histograms
   * `read_03.cpp` reads LHE files and produces sets of ntuples
+    * takes as input argument a config file: ```./read_03 cfg/ntuple_SSeu_RcW_0p3.cfg```
+    * an additional argument sets the total number of events read per sample: ```./read_03 cfg/ntuple_SSeu_RcW_0p3.cfg 100```
   * `checkEntries.cpp` checks the number of entries of all ntuples stored in a root file
 
 ### fit
@@ -117,8 +119,10 @@ This is where the plain ntuples get analysed and fits performed.
    ```
    find . -name "*lhe" | sed -e s%\.%`pwd`% | tr "\n" ","
    ```
-  * calculate the cross-section of the sample from the generated events
-
+  * calculate the cross-section of the sample from the generated events, in the generation folder:
+   ```
+   ./postProcess.py [folder containing the job outputs and lhe files]
+   ```
 
 
 

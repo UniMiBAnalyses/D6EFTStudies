@@ -150,4 +150,9 @@ _generation attempts_
     so the only recipe is to do it by subtraction, 
     for which stats tests are needed
   * the importance of the interference: is it really relevant, or not?
+  * understand the impact of the interfence: why is so small, in the plots, for SSWW?
+     * may it be realted to what stated in the introduction [here](https://arxiv.org/abs/1902.11262), 
+       because of helicity correlations?
+     * may it be, since BSM effects happen at high energy, while SM ones at low energy?
+     * a mix of the two?  
     
