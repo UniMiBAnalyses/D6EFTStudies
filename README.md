@@ -102,6 +102,7 @@ Config file examples can be found in the subfolders `generation/SSeu_RcW/Cards/`
 where the `param_card.dat`, `run_card.dat` and `proc_card.dat` examples for same-sign WW
 and `cW` non zero are reported. The three folders refer to the SM case, the interference between SM and BSM
 and the BSM case respectively. 
+Operators of interest are listed [here](https://www.dropbox.com/s/e5yvvzzo98bwdg3/2019-06-ongoing_dim6.pdf?dl=0)
 
 ### analysis
 
