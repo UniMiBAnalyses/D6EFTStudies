@@ -97,6 +97,12 @@ To submit a job:
     With a third argument, it becomes verbose and shows the averaged values as well.
     WARNING: it does not work after `cmsenv`.
 
+Config file examples can be found in the subfolders `generation/SSeu_RcW/Cards/`, 
+`generation/SSeu_RcW_int/Cards/`, `generation/SSeu_RcW_bsm/Cards/`, 
+where the `param_card.dat`, `run_card.dat` and `proc_card.dat` examples for same-sign WW
+and `cW` non zero are reported. The three folders refer to the SM case, the interference between SM and BSM
+and the BSM case respectively. 
+
 ### analysis
 
   * `read_02.cpp` reads LHE files and produces sets of histograms
