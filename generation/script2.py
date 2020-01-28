@@ -14,7 +14,6 @@ import os
 import subprocess
 from math import sqrt
 
-
 usual_errors = []
 usual_errors.append ('stty: standard input: Inappropriate ioctl for device')
 
@@ -208,29 +207,7 @@ if __name__ == '__main__':
             print(XS)
         total_xs.append(xs)
 
-        """
-        matches = []
-        myfilenames = []
-        for root, dirnames, filenames in os.walk ('/Users/giorgio/'+str(EVENT_NAME)+'_'+str(i)+'/Events/run_01/run_01_tag_1_banner.txt'):
-            for filename in fnmatch.filter(filenames, '*banner.txt'):
-                matches.append (os.path.join (root, filename))
-                myfilenames.append (filename)
-
-        XS = [float (findXS (file)) for file in matches]
-        print(XS)"""
-
-        #xs=findXS('/Users/giorgio/'+str(EVENT_NAME)+'_'+str(i)+'/Events/run_01/run_01_tag_1_banner.txt')
-
-        """
-        files_banner = getFilesList ('/Users/giorgio/'+str(EVENT_NAME)+'_'+str(i)+'/Events/run_01/', '*.txt', discard)
-        print(files_banner)
-        XS=[float(findXS(file)) for file in files_banner[0]]
-        if len(XS)!=0:
-            xs=sum(XS)/len(XS)
-        else:
-            xs=0
-        total_xs.append(xs)
-"""
+    
 
 
     outputfile = open ('/Users/giorgio/Desktop/tesi/D6EFTStudies/analysis/cfg/'+EVENT_NAME+'.cfg' ,'w')
@@ -246,6 +223,7 @@ if __name__ == '__main__':
     os.chdir('/Users/giorgio/Desktop/tesi/D6EFTStudies/analysis/')
     if os.path.exists("/Users/giorgio/Desktop/tesi/D6EFTStudies/analysis/read_03"):
         print('eccoci')
+        subprocess.call(['c++',])
         os.system("./read_03 "+'cfg/'+EVENT_NAME+'.cfg')
     else:
         os.chdir('/Users/giorgio/Desktop/tesi/D6EFTStudies/analysis/')
