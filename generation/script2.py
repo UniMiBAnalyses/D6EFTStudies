@@ -223,9 +223,7 @@ if __name__ == '__main__':
     os.chdir('/Users/giorgio/Desktop/tesi/D6EFTStudies/analysis/')
     if os.path.exists("/Users/giorgio/Desktop/tesi/D6EFTStudies/analysis/read_03"):
         print('eccoci')
-        subprocess.call(['c++',])
-        os.system("./read_03 "+'cfg/'+EVENT_NAME+'.cfg')
+        subprocess.check_call('./read_03 cfg/'+EVENT_NAME+'.cfg', shell = True)
     else:
-        os.chdir('/Users/giorgio/Desktop/tesi/D6EFTStudies/analysis/')
-        os.system('c++ -o read_03 `root-config --glibs --cflags` CfgParser.cc utils.cc LHEF.cc -lm read_03.cpp')
-        os.system('./read_03 cfg/'+EVENT_NAME+'.cfg')
+        subprocess.check_call('c++ -o read_03 `root-config --glibs --cflags` CfgParser.cc utils.cc LHEF.cc -lm read_03.cpp;./read_03 cfg/'+EVENT_NAME+'.cfg', shell = True)
+        
