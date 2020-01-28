@@ -14,7 +14,7 @@ def findXS (filename):
     return fileContent[-4]
 
 
-# ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
+# ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 
 if __name__ == '__main__':
@@ -22,15 +22,15 @@ if __name__ == '__main__':
     if len (sys.argv) < 2:
         print ('base folder of the sample missing')
         sys.exit ()
-        
+
     matches = []
     myfilenames = []
-    for root, dirnames, filenames in os.walk (sys.argv[1]):
+    for root, dirnames, filenames in os.walk ('/Users/giorgio/'+str(EVENT_NAME)+'_'+str(i)):
         for filename in fnmatch.filter(filenames, '*banner.txt'):
             matches.append (os.path.join (root, filename))
             myfilenames.append (filename)
 
-   
+
     XS = [float (findXS (file)) for file in matches]
     print sum (XS) / len (XS)
 
@@ -43,6 +43,3 @@ if __name__ == '__main__':
         print ('number of files: ' + str (len (XS)))
         print ('average XS: ' + str (sum (XS) / len (XS)) + ' pb')
         print ('average XS: ' + str (1000. * sum (XS) / len (XS)) + ' fb')
-
-
-
