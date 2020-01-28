@@ -144,12 +144,12 @@ if __name__ == '__main__':
     total_xs=[]
     for i in distributions:
         print ('checking error reports...')
-        files_err = getFilesList ('/Users/giorgio/'+EVENT_NAME+'_'+i, '*.err', [])
+        files_err = getFilesList ('/Users/giorgio/madgraph_generations/'+EVENT_NAME+'_'+i, '*.err', [])
         issues = [errFileHasIssues (file) for file in files_err[0]]
         discard = [ID for prob, ID in issues if prob == True]
 
         print ('checking not finished runs...')
-        files_run = getFilesList ('/Users/giorgio/'+str(EVENT_NAME)+'_'+str(i), '*running', [])
+        files_run = getFilesList ('/Users/giorgio/madgraph_generations/'+str(EVENT_NAME)+'_'+str(i), '*running', [])
         discard = discard + [name.split ('_')[3] for name in files_run[1]]
 
         for elem in discard: print ('ignoring job ' + elem)
@@ -159,13 +159,13 @@ if __name__ == '__main__':
 
         print ('unzipping...')
         # https://linuxhandbook.com/execute-shell-command-python/
-        os.system ('for fil in  `find  ' + '/Users/giorgio/'+str(EVENT_NAME)+'_'+str(i)+ ' -name \"*gz\"` ; do gunzip $fil ; done')
+        os.system ('for fil in  `find  ' + '/Users/giorgio/madgraph_generations/'+str(EVENT_NAME)+'_'+str(i)+ ' -name \"*gz\"` ; do gunzip $fil ; done')
 
         # check lhe files integrity
         # ---- ---- ---- ---- ---- ---- ---- ---- ----
 
         print ('checking LHE files integrity...')
-        files_lhe = getFilesList ('/Users/giorgio/'+str(EVENT_NAME)+'_'+str(i), '*.lhe', discard)
+        files_lhe = getFilesList ('/Users/giorgio/madgraph_generations/'+str(EVENT_NAME)+'_'+str(i), '*.lhe', discard)
         closure = [checkClosure (file) for file in files_lhe[0]]
 
         allOK = 0
@@ -194,7 +194,7 @@ if __name__ == '__main__':
 
         matches = []
         myfilenames = []
-        for root, dirnames, filenames in os.walk ('/Users/giorgio/'+str(EVENT_NAME)+'_'+str(i)):
+        for root, dirnames, filenames in os.walk ('/Users/giorgio/madgraph_generations/'+str(EVENT_NAME)+'_'+str(i)):
             for filename in fnmatch.filter(filenames, '*banner.txt'):
                 matches.append (os.path.join (root, filename))
                 myfilenames.append (filename)
@@ -207,23 +207,15 @@ if __name__ == '__main__':
             print(XS)
         total_xs.append(xs)
 
-    
+
 
 
     outputfile = open ('/Users/giorgio/Desktop/tesi/D6EFTStudies/analysis/cfg/'+EVENT_NAME+'.cfg' ,'w')
-    text='[general]\nsamples=sm,lin,quad\nvariables=ptl1, ptl2, ptj1, ptj2, mjj, mll, met, etaj1, etaj2, etal1, etal2'
+    text='[general]\nsamples=sm,lin,quad\nvariables=ptl1, ptl2, ptj1, ptj2, mjj, mll, met, etaj1, etaj2, phij1,phij2'
 
-    outputfile.write(text+"\noutfile="+EVENT_NAME+'.root\n')
+    filename=EVENT_NAME.split('/')[1]
+    outputfile.write(text+"\noutputFile="+filename+'.root\n')
     for i in range(3):
         outputfile.write('['+distributions[i]+']\nXS='+str(total_xs[i])+'\nfiles='+','.join(total_files[i])+'\n')
 
     outputfile.close()
-
-    #now that we have a cfg file we should convert it with read_03
-    os.chdir('/Users/giorgio/Desktop/tesi/D6EFTStudies/analysis/')
-    if os.path.exists("/Users/giorgio/Desktop/tesi/D6EFTStudies/analysis/read_03"):
-        print('eccoci')
-        subprocess.check_call('./read_03 cfg/'+EVENT_NAME+'.cfg', shell = True)
-    else:
-        subprocess.check_call('c++ -o read_03 `root-config --glibs --cflags` CfgParser.cc utils.cc LHEF.cc -lm read_03.cpp;./read_03 cfg/'+EVENT_NAME+'.cfg', shell = True)
-        
