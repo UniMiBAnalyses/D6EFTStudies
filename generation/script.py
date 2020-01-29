@@ -1,6 +1,6 @@
 #script.py
 
-#the script moves the datacards from a certain folder to this git repo
+#the script moves the datacards from a certain folder to this git repo in order to sync them
 
 import fnmatch
 import os

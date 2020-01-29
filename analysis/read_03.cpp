@@ -3,6 +3,10 @@
 read LHE files and produce ntuples
 apply basic VBS selections
 http://govoni.web.cern.ch/govoni/tesi/docs/Alessandro_Tarabini_Tesi.pdf
+
+in this version of the program one should call the program like this
+./read03 OPERATOR event_name wilson_coeff (max event sample)
+with the last argument being optional
 */
 
 
@@ -33,7 +37,15 @@ using namespace std ;
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 
-int main (int argc, char ** argv) 
+bool replace(std::string& str, const std::string& from, const std::string& to) {
+    size_t start_pos = str.find(from);
+    if(start_pos == std::string::npos)
+        return false;
+    str.replace(start_pos, from.length(), to);
+    return true;
+}
+
+int main (int argc, char ** argv)
 {
 
   if (argc < 2)
@@ -41,21 +53,31 @@ int main (int argc, char ** argv)
       cerr << "Forgot to put the cfg file --> exit " << endl ;
       return 1 ;
     }
-
-  int maxEventsPerSample = -1 ;
-  if (argc >= 3)
+    int maxEventsPerSample=-1;
+    if (argc >= 5)
     {
-      maxEventsPerSample = atoi (argv[2]) ;
+      maxEventsPerSample = atoi (argv[4]) ;
     }
-  cout << "reading " << maxEventsPerSample << " events per sample" << endl ;
-
-  CfgParser * gConfigParser = new CfgParser (argv[1]) ;
+  const char* OPERATOR;
+  const char* event_name;
+  const char* wc;
+  if (argc > 1){
+      OPERATOR = argv[1];
+      event_name=argv[2];
+      wc=argv[3];
+  }
+  string wc_string(wc);
+  replace(wc_string, ".", "p");
+  float wilson_coeff=stof(wc);
+  cout << wc_string <<"\n"<<wilson_coeff<<endl;
+  string path="cfg/"+string(OPERATOR)+"_"+string(event_name)+"_"+wc_string+".cfg";
+  CfgParser * gConfigParser = new CfgParser (path.c_str());
 
   //PG get the list of variables to be plotted,
   //PG assuming some code exists to calculate them
   vector<string> variables = gConfigParser->readStringListOpt ("general::variables") ;
 
-  //PG get the samples to be analised, 
+  //PG get the samples to be analised,
   //PG including collection of LHE files and the relative XS
   vector<string> collections = gConfigParser->readStringListOpt ("general::samples") ;
 

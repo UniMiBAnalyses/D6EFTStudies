@@ -4,8 +4,9 @@
 # calculate the XS of the samples in a generation
 # verify the integrity of all LHE files
 # compare the number of generated events present in the lhe file to the ones reported in the log
-# prepare list of files for CFG file
-# if asked, remove log files
+# it writes the cfg file
+# one should call it with this syntax:
+# python script2.py OPERATOR EVENT_NAME WILSON_COEFF 
 
 
 import sys
@@ -220,6 +221,6 @@ if __name__ == '__main__':
     #filename=EVENT_NAME.split('/')[1]
     outputfile.write(text+"\noutputFile="+OPERATOR+'_'+EVENT_NAME+'_'+WILSON_COEFF+'.root\n')
     for i in range(3):
-        outputfile.write('['+distributions[i]+']\nXS='+str(total_xs[i])+'\nfiles='+','.join(total_files[i])+'\n')
+        outputfile.write('['+distributions[i]+']\nXS='+str(total_xs[i]*10**3)+'\nfiles='+','.join(total_files[i])+'\n')
 
     outputfile.close()
