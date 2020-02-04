@@ -1,0 +1,110 @@
+<file>######################################################################
+## VALIDITY RULE FOR THE PARAM_CARD   ####
+######################################################################
+<zero>
+     ckmblock 1 # 
+     ckmblock 2 # 
+     ckmblock 3 # 
+     ckmblock 4 # 
+     ckmblock 5 # 
+     frblock 1 # 
+     frblock 2 # 
+     frblock 3 # 
+     frblock 4 # 
+     frblock 5 # 
+     frblock 6 # 
+     frblock 7 # 
+     frblock 8 # 
+     frblock 9 # 
+     frblock 10 # 
+     frblock 11 # 
+     frblock 12 # 
+     frblock 13 # 
+     frblock 14 # 
+     frblock 15 # 
+     frblock 16 # 
+     frblock 17 # 
+     frblock 19 # 
+     frblock 20 # 
+     frblock 21 # 
+     frblock 22 # 
+     frblock 23 # 
+     frblock 24 # 
+     frblock 25 # 
+     frblock 26 # 
+     frblock 27 # 
+     frblock 28 # 
+     frblock 29 # 
+     frblock 30 # 
+     frblock 31 # 
+     frblock 32 # 
+     frblock 33 # 
+     frblock 34 # 
+     frblock 35 # 
+     frblock 36 # 
+     frblock 37 # 
+     frblock 38 # 
+     frblock 39 # 
+     frblock 40 # 
+     frblock 41 # 
+     frblock 42 # 
+     frblock 43 # 
+     frblock 44 # 
+     frblock 45 # 
+     frblock 46 # 
+     frblock 48 # 
+     frblock 49 # 
+     frblock 50 # 
+     frblock 51 # 
+     frblock 52 # 
+     frblock 53 # 
+     frblock 54 # 
+     frblock 55 # 
+     frblock 56 # 
+     frblock 57 # 
+     frblock 58 # 
+     frblock 59 # 
+     frblock 60 # 
+     frblock 61 # 
+     frblock 62 # 
+     frblock 63 # 
+     frblock 64 # 
+     frblock 65 # 
+     frblock 66 # 
+     frblock 67 # 
+     frblock 68 # 
+     frblock 69 # 
+     frblock 70 # 
+     frblock 71 # 
+     frblock 72 # 
+     frblock 73 # 
+     frblock 74 # 
+     frblock 75 # 
+     frblock 76 # 
+     frblock 77 # 
+     frblock 78 # 
+     frblock 79 # 
+     frblock 80 # 
+     frblock 81 # 
+     frblock 82 # 
+     mass 11 # 
+     mass 13 # 
+     mass 2 # 
+     mass 4 # 
+     mass 1 # 
+     mass 3 # 
+</zero>
+<one>
+</one>
+<identical>
+     yukawa 2 : 1 # 
+     yukawa 3 : 1 # 
+     yukawa 4 : 1 # 
+     yukawa 11 : 1 # 
+     yukawa 13 : 1 # 
+</identical>
+<opposite>
+</opposite>
+<constraint>
+</constraint>
+</file>
