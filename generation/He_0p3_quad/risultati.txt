@@ -1,0 +1,131 @@
+Type "launch" to generate events from this process, or see
+/Users/giorgio/Desktop/tesi/D6EFTStudies/generation/He_0p3_quad/README
+Run "open index.html" to see more information about this process.
+MG5_aMC>launch
+************************************************************
+*                                                          *
+*                      W E L C O M E to                    *
+*             M A D G R A P H 5 _ a M C @ N L O            *
+*                      M A D E V E N T                     *
+*                                                          *
+*                 *                       *                *
+*                   *        * *        *                  *
+*                     * * * * 5 * * * *                    *
+*                   *        * *        *                  *
+*                 *                       *                *
+*                                                          *
+*         VERSION 2.6.5                 2018-02-03         *
+*                                                          *
+*    The MadGraph5_aMC@NLO Development Team - Find us at   *
+*    https://server06.fynu.ucl.ac.be/projects/madgraph     *
+*                                                          *
+*               Type 'help' for in-line help.              *
+*                                                          *
+************************************************************
+INFO: load configuration from /Users/giorgio/Desktop/tesi/D6EFTStudies/generation/He_0p3_quad/Cards/me5_configuration.txt  
+INFO: load configuration from /Users/giorgio/Downloads/MG5_aMC_v2_6_5/input/mg5_configuration.txt  
+INFO: load configuration from /Users/giorgio/Desktop/tesi/D6EFTStudies/generation/He_0p3_quad/Cards/me5_configuration.txt  
+Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
+generate_events run_01
+The following switches determine which programs are run:
+/===========================================================================\
+| 1. Choose the shower/hadronization program     shower = Not Avail.        |
+| 2. Choose the detector simulation program    detector = Not Avail.        |
+| 3. Choose an analysis package (plot/convert) analysis = Not Avail.        |
+| 4. Decay onshell particles                    madspin = OFF               |
+| 5. Add weights to events for new hypp.       reweight = Not Avail.        |
+\===========================================================================/
+Either type the switch number (1 to 5) to change its setting,
+Set any switch explicitly (e.g. type 'madspin=ON' at the prompt)
+Type 'help' for the list of all valid option
+Type '0', 'auto', 'done' or just press enter when you are done.[60s to answer] 
+>
+Do you want to edit a card (press enter to bypass editing)?
+/------------------------------------------------------------\
+|  1. param : param_card.dat                                 |
+|  2. run   : run_card.dat                                   |
+\------------------------------------------------------------/
+ you can also
+   - enter the path to a valid card or banner.
+   - use the 'set' command to modify a parameter directly.
+     The set option works only for param_card and run_card.
+     Type 'help set' for more information on this command.
+   - call an external program (ASperGE/MadWidth/...).
+     Type 'help' for the list of available command
+ [0, done, 1, param, 2, run, enter path][90s to answer] 
+>1
+open /Users/giorgio/Desktop/tesi/D6EFTStudies/generation/He_0p3_quad/Cards/param_card.dat
+Do you want to edit a card (press enter to bypass editing)?
+/------------------------------------------------------------\
+|  1. param : param_card.dat                                 |
+|  2. run   : run_card.dat                                   |
+\------------------------------------------------------------/
+ you can also
+   - enter the path to a valid card or banner.
+   - use the 'set' command to modify a parameter directly.
+     The set option works only for param_card and run_card.
+     Type 'help set' for more information on this command.
+   - call an external program (ASperGE/MadWidth/...).
+     Type 'help' for the list of available command
+ [0, done, 1, param, 2, run, enter path] 
+>2
+open /Users/giorgio/Desktop/tesi/D6EFTStudies/generation/He_0p3_quad/Cards/run_card.dat
+Do you want to edit a card (press enter to bypass editing)?
+/------------------------------------------------------------\
+|  1. param : param_card.dat                                 |
+|  2. run   : run_card.dat                                   |
+\------------------------------------------------------------/
+ you can also
+   - enter the path to a valid card or banner.
+   - use the 'set' command to modify a parameter directly.
+     The set option works only for param_card and run_card.
+     Type 'help set' for more information on this command.
+   - call an external program (ASperGE/MadWidth/...).
+     Type 'help' for the list of available command
+ [0, done, 1, param, 2, run, enter path] 
+>0
+INFO: Update the dependent parameter of the param_card.dat 
+Generating 100 events with run name run_01
+survey  run_01 
+INFO: compile directory 
+compile Source Directory
+Using random number seed offset = 21
+INFO: Running Survey 
+Creating Jobs
+Working on SubProcesses
+INFO:     P1_qq_lvllvlqq  
+INFO:  Idle: 31,  Running: 4,  Completed: 0 [ current time: 16h13 ] 
+INFO:  Idle: 30,  Running: 4,  Completed: 1 [  17.4s  ] 
+INFO:  Idle: 26,  Running: 4,  Completed: 5 [  28.3s  ] 
+INFO:  Idle: 23,  Running: 4,  Completed: 8 [  31.9s  ] 
+INFO:  Idle: 22,  Running: 4,  Completed: 9 [  39.6s  ] 
+INFO:  Idle: 20,  Running: 4,  Completed: 11 [  43.3s  ] 
+INFO:  Idle: 18,  Running: 4,  Completed: 13 [  50.8s  ] 
+INFO:  Idle: 16,  Running: 4,  Completed: 15 [  56s  ] 
+INFO:  Idle: 14,  Running: 4,  Completed: 17 [  1m 1s  ] 
+INFO:  Idle: 12,  Running: 4,  Completed: 19 [  1m 7s  ] 
+INFO:  Idle: 10,  Running: 4,  Completed: 21 [  1m 14s  ] 
+INFO:  Idle: 8,  Running: 4,  Completed: 23 [  1m 19s  ] 
+INFO:  Idle: 6,  Running: 4,  Completed: 25 [  1m 24s  ] 
+INFO:  Idle: 4,  Running: 4,  Completed: 27 [  1m 32s  ] 
+INFO:  Idle: 3,  Running: 4,  Completed: 28 [  1m 36s  ] 
+INFO:  Idle: 1,  Running: 4,  Completed: 30 [  1m 40s  ] 
+INFO:  Idle: 0,  Running: 4,  Completed: 31 [  1m 46s  ] 
+INFO:  Idle: 0,  Running: 3,  Completed: 32 [  1m 54s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 35 [  2m 0s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 35 [  2m 0s  ] 
+INFO: End survey 
+refine 100
+Creating Jobs
+INFO: Refine results to 100 
+INFO: Generating 100.0 unweigthed events. 
+INFO: Effective Luminosity 1.2e+101 pb^-1 
+INFO: need to improve 0 channels 
+Survey return zero cross section. 
+   Typical reasons are the following:
+   1) A massive s-channel particle has a width set to zero.
+   2) The pdf are zero for at least one of the initial state particles
+      or you are using maxjetflavor=4 for initial state b:s.
+   3) The cuts are too strong.
+   Please check/correct your param_card and/or your run_card.
+Zero result detected: See https://cp3.irmp.ucl.ac.be/projects/madgraph/wiki/FAQ-General-14

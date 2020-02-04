@@ -6,7 +6,7 @@
 # compare the number of generated events present in the lhe file to the ones reported in the log
 # it writes the cfg file
 # one should call it with this syntax:
-# python script2.py OPERATOR EVENT_NAME WILSON_COEFF 
+# python script2.py OPERATOR EVENT_NAME WILSON_COEFF
 
 
 import sys
@@ -164,22 +164,22 @@ if __name__ == '__main__':
 
         print ('unzipping...')
         # https://linuxhandbook.com/execute-shell-command-python/
-        os.system ('for fil in  `find  ' + '/Users/giorgio/madgraph_generations/'+OPERATOR+'/'+str(EVENT_NAME)+'_'+WILSON_COEFF+'_'+str(i)+ ' -name \"*gz\"` ; do gunzip $fil ; done')
+        os.system ('for fil in  `find  ' + '/Users/giorgio/madgraph_generations/'+OPERATOR+'/'+str(EVENT_NAME)+'_'+WILSON_COEFF+'_'+str(i)+ '/ -name \"*gz\"` ; do gunzip $fil ; done')
 
         # check lhe files integrity
         # ---- ---- ---- ---- ---- ---- ---- ---- ----
 
         print ('checking LHE files integrity...')
-        files_lhe = getFilesList ('/Users/giorgio/madgraph_generations/'+OPERATOR+'/'+str(EVENT_NAME)+'_'+WILSON_COEFF+'_'+str(i), '*.lhe', discard)
+        files_lhe = getFilesList ('/Users/giorgio/madgraph_generations/'+OPERATOR+'/'+str(EVENT_NAME)+'_'+WILSON_COEFF+'_'+str(i), '*unweighted_events.lhe', discard)
         closure = [checkClosure (file) for file in files_lhe[0]]
 
         allOK = 0
         for j in range (len (closure)):
             if (closure[j] == False):
-                print (files_lhe[1] + 'not properly closed')
+                print (','.join(files_lhe[1]) + 'not properly closed')
                 allOK = allOK + 1
         if allOK > 0:
-            print ('found ' + allOK + ' files not properly closed')
+            print ('found ' + str(allOK) + ' files not properly closed')
         else:
             print ('all files closed regularly')
 
