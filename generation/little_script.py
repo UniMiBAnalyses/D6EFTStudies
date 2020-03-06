@@ -141,67 +141,104 @@ if __name__ == '__main__':
     # ---- ---- ---- ---- ---- ---- ---- ---- ----
     # python script.py HD VBS_e+_mu+ 0.02
 
-    discard=[]
-    print ('checking LHE files integrity...')
-    files_lhe = getFilesList ('/Users/giorgio/madgraph_generations/', '*unweighted_events.lhe', [])
-    for path in files_lhe[0]:
-        print(type(path))
-        search = re.search(".*sm/.*",path)
-        found=False
+    #op_list=['Hl1','Hq3','HW','ll1','qq11','qq31','qq3','HDD','W','Hbox','HWB','ll','qq1','Hl3','Hq1']
+    #for op in op_list:
+    total_files=[]
+    total_xs=[]
+    #xs=[-5.1216162e-05,1.5928681e-06] # this is for HWB
+    #xs=[-5.9245262e-05, 2.274168e-06] #this is for HDD
+    #xs=[0.00016516602,0.0025452691] #this is for W
+    #xs=[8.28590797619e-05,2.5177002e-05] #this is for HW
+    #xs=[-1.9591292e-05,3.7160972e-06] #this is for Hbox
+    #xs=[6.9489613e-07,5.5387031e-07] #this is for Hl1
+    #xs=[-1.6932688e-08,8.92019818182e-08] #this is for ll
+    #xs=[-0.0022319754,0.00027206436] #this is for Hl3
+    #xs=[-0.0057684027,0.03220203125] #this is for qq3
+    xs=[0.00162001420561,0.000515397896226] #this is Hq3
+    #xs=[-0.000817703,0.01023] #this is for qq1
+    #xs=[0.00166737,0.0001518175] #this is for ll1
+    #xs=[-0.000979841,0.0100638] #this is for qq11
+    #xs=[-0.00458404,0.0329421] #this is for qq31
+    #xs=[8.3041389e-05,8.46956018963e-05] #this is for Hq1
+
+    op='Hq3'
+    path = '/Users/giorgio/madgraph_generations/'+op+'/'+op+'_0p3_'
+    distributions=['lin','quad']
+    for i in distributions:
+        print ('checking error reports...')
+        files_err = getFilesList (path+str(i)+'/Events/', '*.err', [])
+        issues = [errFileHasIssues (file) for file in files_err[0]]
+        discard = [ID for prob, ID in issues if prob == True]
+
+        print ('checking not finished runs...')
+        files_run = getFilesList (path+str(i), '*running', [])
+        discard = discard + [name.split ('_')[3] for name in files_run[1]]
+
+        for elem in discard: print ('ignoring job ' + elem)
+
+        # unzip LHE files
+        # ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+        print ('unzipping...')
+         #https://linuxhandbook.com/execute-shell-command-python/
+        os.system ('for fil in  `find  ' + path+str(i)+'/ -name \"*gz\"` ; do gunzip -f $fil ; done')
+
+
+        print ('checking LHE files integrity...')
+        files_lhe = getFilesList (path+str(i)+'/Events/', '*.lhe', discard)
+        closure = [checkClosure (file) for file in files_lhe[0]]
+
+        allOK = 0
+        for j in range (len (closure)):
+            if (closure[j] == False):
+                print (','.join(files_lhe[1]) + 'not properly closed')
+                allOK = allOK + 1
+        if allOK > 0:
+            print ('found ' + str(allOK) + ' files not properly closed')
+        else:
+            print ('all files closed regularly')
+
+        print ('\nLIST OF LHE FILES:')
+        print (','.join (files_lhe[0]))
+        print ('\n')
+
+        total_files.append(files_lhe[0])
+
+
+
+        # get number of events from LHE files
+        # ---- ---- ---- ---- ---- ---- ---- ---- ----
+        # this returns a list with the same elements found in findWSwE, but with different ordering
+        #    NB = [int (countEvents (file)) for file in files_lhe[0]]
+
+
+        # calculate crossSection
+        # ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+        """matches = []
+        myfilenames = []
+        for root, dirnames, filenames in os.walk (path+str(i)+'/Events_0/'):
+            for filename in fnmatch.filter(filenames, '*banner.txt'):
+                matches.append (os.path.join (root, filename))
+                myfilenames.append (filename)
+        XS = [float (findXS (file)) for file in matches]
         try:
-            found=search.group()
-        except:
-            discard.append(path)
-        if not found:
-            if path not in discard:
-                discard.append(path)
+            xs= sum (XS) / len (XS)
+        except ZeroDivisionError:
+            xs=XS
+            print(XS)
+        total_xs.append(xs)"""
+    #print(total_xs[0])
+    #print(total_xs[1])
+    print(total_files[0])
+    print(total_files[1])
 
-    total_files=[i for i in files_lhe[0] if i not in discard]
+    outputfile = open ('/Users/giorgio/Desktop/tesi/D6EFTStudies/analysis/cfg/'+op+'_0p3.cfg' ,'w')
+    text='[general]\nsamples='+','.join(distributions)+'\nvariables=ptl1, ptl2, ptj1, ptj2, mjj, mll, met, etaj1, etaj2, phij1,phij2'
 
-    # get number of events from LHE files
-    # ---- ---- ---- ---- ---- ---- ---- ---- ----
-    # this returns a list with the same elements found in findWSwE, but with different ordering
-    #    NB = [int (countEvents (file)) for file in files_lhe[0]]
-
-
-    # calculate crossSection
-    # ---- ---- ---- ---- ---- ---- ---- ---- ----
-    discard=[]
-    matches = []
-    myfilenames = []
-    for root, dirnames, filenames in os.walk ('/Users/giorgio/madgraph_generations/'):
-        for filename in fnmatch.filter(filenames, '*banner.txt'):
-            path=os.path.join (root, filename)
-            matches.append(path)
-            search = re.search(".*sm/.*",path)
-            found=False
-            try:
-                found=search.group()
-            except:
-                discard.append(path)
-            if not found:
-                if path not in discard:
-                    discard.append(path)
-
-    matches=[i for i in matches if i not in discard]
-    print('\n\n'.join(matches))
-    XS = [float (findXS (file)) for file in matches]
-    prova=[str (findXS (file)) for file in matches]
-    print('\n\n'.join(prova))
-    try:
-        xs= sum (XS) / len (XS)
-    except ZeroDivisionError:
-        xs=XS
-        print(XS)
-    total_xs=xs
-    print(total_xs)
-
-
-    outputfile = open ('/Users/giorgio/Desktop/tesi/D6EFTStudies/analysis/cfg/pure_sm.cfg' ,'w')
-    text='[general]\nsamples=sm\nvariables=ptl1, ptl2, ptj1, ptj2, mjj, mll, met, etaj1, etaj2, phij1,phij2'
-
-    outputfile.write(text+'\noutputFile=pure_sm.root\n')
-
-    outputfile.write('[sm]\nXS='+str(total_xs*10**3)+'\nfiles='+','.join(total_files)+'\n')
+    outputfile.write(text+'\noutputFile='+op+'_0p3.root\n')
+    for i in range(2):
+        outputfile.write('['+distributions[i]+']\nXS='+str(xs[i]*10**3)+'\nfiles='+','.join(total_files[i])+'\n')
+    #outputfile.write('[quad]\nXS='+str(xs*10**3)+'\nfiles='+','.join(total_files)+'\n')
 
     outputfile.close()
