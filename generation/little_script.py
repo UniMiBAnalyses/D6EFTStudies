@@ -153,15 +153,15 @@ if __name__ == '__main__':
     #xs=[6.9489613e-07,5.5387031e-07] #this is for Hl1
     #xs=[-1.6932688e-08,8.92019818182e-08] #this is for ll
     #xs=[-0.0022319754,0.00027206436] #this is for Hl3
-    #xs=[-0.0057684027,0.03220203125] #this is for qq3
-    xs=[0.00162001420561,0.000515397896226] #this is Hq3
-    #xs=[-0.000817703,0.01023] #this is for qq1
-    #xs=[0.00166737,0.0001518175] #this is for ll1
-    #xs=[-0.000979841,0.0100638] #this is for qq11
-    #xs=[-0.00458404,0.0329421] #this is for qq31
+    xs=[-0.0057684027,0.0322345407407] #this is for qq3
+    #xs=[0.00162001420561,0.000515397896226] #this is Hq3
+    #xs=[-0.000812370326733,0.0102571792308] #this is for qq1
+    #xs=[0.00167207356436,0.000152297176471] #this is for ll1
+    #xs=[-0.000977960841584,0.0100415628] #this is for qq11
+    #xs=[-0.00456990115702,0.0329335475248] #this is for qq31
     #xs=[8.3041389e-05,8.46956018963e-05] #this is for Hq1
 
-    op='Hq3'
+    op='qq3'
     path = '/Users/giorgio/madgraph_generations/'+op+'/'+op+'_0p3_'
     distributions=['lin','quad']
     for i in distributions:
