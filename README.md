@@ -18,7 +18,7 @@ To produce a sample:
   * outside of the project, download a Madgraph release and the existing SMEFTSim model:
     ```
     wget https://cms-project-generators.web.cern.ch/cms-project-generators/MG5_aMC_v2.6.5.tar.gz
-    cd MG5_aMC_v2_6_0/models
+    cd MG5_aMC_v2_6_5/models
     wget http://feynrules.irmp.ucl.ac.be/raw-attachment/wiki/SMEFT/SMEFTsim_A_U35_MwScheme_UFO_v2.1.tar.gz
     tar xzf SMEFTsim_A_U35_MwScheme_UFO_v2.1.tar.gz
     ```
