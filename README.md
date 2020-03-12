@@ -22,9 +22,10 @@ To produce a sample:
     wget http://feynrules.irmp.ucl.ac.be/raw-attachment/wiki/SMEFT/SMEFTsim_A_U35_MwScheme_UFO_v2.1.tar.gz
     tar xzf SMEFTsim_A_U35_MwScheme_UFO_v2.1.tar.gz
     ```
-  * copy in the model folder the additional files present in the D6EFTStudies project:
+  * copy in the model folder the additional files present in the D6EFTStudies project, 
+    from the right folder depending on the version of the UFO:
     ```
-    cp ../../../D6EFTStudies/madgraph_model/* .
+    cp ../../../D6EFTStudies/madgraph_model/[folder]/* .
     ```
   * trivial examples of Madgraph syntax can be found [here](https://www.niu.edu/spmartin/madgraph/madsyntax.html)
   * get back to the Madgraph folder and prepare the process folder:
