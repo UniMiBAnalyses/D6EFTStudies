@@ -8,14 +8,17 @@ EFT studies with Dim6 Warsaw basis
 
 Modification to the existing SMEFTSim () Madgraph model used for the generation of events.
 To produce a sample:
-  * source a recent environment, for example outside of the D6EFTStudies project do:
+  * to prepare the environment
+    on lxplus is to use [LCG environments](http://lcginfo.cern.ch/release_packages/x86_64-centos7-gcc62-opt/96/),
+    for example (this alredy has a version of lhapdf as well):
     ```
-    cmsrel CMSSW_10_6_0
-    cd CMSSW_10_6_0/src
-    cmsenv
-    cd -
-    ```
-  * outside of the project, download a Madgraph release and the existing SMEFTSim model:
+    source /cvmfs/sft.cern.ch/lcg/views/LCG_96/x86_64-centos7-gcc8-opt/setup.sh 
+    ``` 
+  * change the location of the pdf data cards
+    ``` 
+    export LHAPDF_DATA_PATH=/cvmfs/sft.cern.ch/lcg/external/lhapdfsets/current/
+    ``` 
+  * download a Madgraph release and the existing SMEFTSim model:
     ```
     wget https://cms-project-generators.web.cern.ch/cms-project-generators/MG5_aMC_v2.6.5.tar.gz
     cd MG5_aMC_v2_6_5/models
