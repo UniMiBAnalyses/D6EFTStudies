@@ -79,6 +79,18 @@ the process generated, the type of generation:
     * NP=1 means that no more than a single BSM operator is introduced in each diagram
     * NP^2==1, when present, means that only the interference is calculated
     * NP^2==2, when present, means that only the squared bsm part is calculated
+  * the default run_card.dat produced by Madgraph may be changed by modifying the file
+    ```Template/LO/Cards/run_card.dat``` in the Madgraph folder
+  * besides the interactive operation, Madgraph may be used with instruction scripts, containing for example:
+    ```
+    import model SMEFTsim_A_U35_MwScheme_UFO_v3_1-cW_massless
+    generate p p > e+ ve mu- vm~ NP=1 NP^2==1
+    add process p p > e- ve~ mu+ vm NP=1 NP^2==1
+    output WW_LI
+    ```  
+  * the script ```create1Dfolders.py``` generates the Madgpraph code for the event generation
+    with one Wilson coefficient different from zero, for the linear and quadratic EFT terms,
+    according to the list of operators siwtched on in the script.
 
 ### generation
 
