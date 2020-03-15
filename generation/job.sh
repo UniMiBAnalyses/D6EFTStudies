@@ -9,8 +9,7 @@
 # $4 = events_folder
 # $5 = madgraph_folder
 # $6 = results_folder
-# $7 = cmssw_folder
-# $8 = events_number
+# $7 = events_number
 
 # copy the madgraph folder in the job temporary folder
 # and enter the folder
@@ -23,18 +22,15 @@ echo "copying from "$5 >> $6/$1/$4_running
 cp -r $5 .
 cd $3
 
-if ! [ -z "$7" ]
-  then
-  	cd $7
-  	eval `scram run -sh`
-  	cd -
-    echo "CMSSW env setup from :"$7 >> $6/$1/$4_running
-fi
+source /cvmfs/sft.cern.ch/lcg/views/LCG_96/x86_64-centos7-gcc8-opt/setup.sh 
+export LHAPDF_DATA_PATH=/cvmfs/sft.cern.ch/lcg/external/lhapdfsets/current/
+export LHAPDF_DATA_PATH=/cvmfs/sft.cern.ch/lcg/views/LCG_96/x86_64-centos7-gcc8-opt/share/LHAPDF/:$LHAPDF_DATA_PATH
 
 events_number=10000
-if ! [ -z "$8" ]
+# check existence of the variable
+if ! [ -z "$7" ]
   then
-  	events_number=$8 
+  	events_number=$7 
 fi
 
 echo "working dir:" >> $6/$1/$4_running
@@ -46,6 +42,7 @@ pwd >> $6/$1/$4_running
 echo "submitting: printf \"0\\n set iseed $RANDOM\\n set nevents $events_number\\n done\\n\" |./bin/generate_events "$4 >> $6/$1/$4_running
 printf "0\n set iseed $RANDOM\n set nevents $events_number\n done\n" | ./bin/generate_events $4
 echo "event generation done" >> $6/$1/$4_running
+
 # syntax: generate_events [run_name] [options]
 # -- Launch the full chain of script for the generation of events
 #    Including possible plotting, shower and detector resolution.

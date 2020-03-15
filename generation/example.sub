@@ -1,0 +1,54 @@
+# HT condor test job
+# ------------------
+#
+# tutorial: http://batchdocs.web.cern.ch/batchdocs/local/index.html
+# how to run: condor_submit job.sub
+# how to monitor: condor_q
+
+executable            = EXECUTABLE_CHANGEME
+# must be executable, i.e. chmod 755
+
+process_name          = PROCESS_NAME_CHANGEME
+madgraph_folder       = BASE_FOLDER_CHANGEME/$(process_name)
+# the results_folder should exist
+results_folder        = BASE_FOLDER_CHANGEME/$(process_name)_results
+events_folder         = $(process_name)_$(ProcId)
+events_number         = EVENTS_NUMBER_CHANGEME
+
+arguments             = $(ClusterId) $(ProcId) $(process_name) $(events_folder) $(madgraph_folder) $(results_folder) $(events_number)
+# ClusterId = the submitted job
+# ProcId = subjobs in which the cluster may be divided
+
+# input  = jobinput.txt
+
+output                = $(results_folder)/job.$(ClusterId).$(ProcId).out
+error                 = $(results_folder)/job.$(ClusterId).$(ProcId).err
+log                   = $(results_folder)/job.$(ClusterId).log
+# NB condor does not create folders!
+
++JobFlavour = "workday"
+# NB it's real time
+# espresso     = 20 minutes (default)
+# microcentury = 1 hour
+# longlunch    = 2 hours
+# workday      = 8 hours
+# tomorrow     = 1 day
+# testmatch    = 3 days
+# nextweek     = 1 week
+# Setting manually can be achieved by placing the following in your submit file:
+# MaxRuntime = Number of seconds
+
+queue JOBS_NUMBER_REPLACEME
+# The queue directive can take an integer to submit multiple jobs,
+# each job will have an incremental $ProcId
+# Note that the queue command has many other features, 
+# relevant for several job submission in a single cluster of jobs
+
+
+# if I wanted to run the job again, with changed arguments:
+# https://research.cs.wisc.edu/htcondor/tutorials/fermi-2005/submit_first.html
+# arguments = 4 11
+# queue
+# arguments = 4 12
+# queue
+

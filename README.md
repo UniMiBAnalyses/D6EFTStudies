@@ -100,20 +100,10 @@ To submit a job:
    ```
    cp -r ../../MG5_aMC_v2_6_0/SSeu_RcW_test .
    ```
-  * create a cfg file starting from the example `SSeu_RcW.sub`.
-    Here, the `process_name` corresponds to he madgraph folder name, 
-    and full paths have to be specified when needed.
-  * the results folder has to exist before submitting any job
-  * the line `queue 100` specifies how many identical jobs will be submitted
-    (random seeds are changed though)
-  * to actually submit jobs, run `condor_submit SSeu_RcW.sub`
-  * when the samples have been produced, the total XS can be calculated with the script `calcXS.py`,
-    which averages the results present in the banner files produced by each Madgraph job.
-    Used with the argument of the folder containing the banner files,
-    finds them, extracts the XS and averages it. 
-    With a third argument, it becomes verbose and shows the averaged values as well.
-    WARNING: it does not work after `cmsenv`.
-
+  * run the submission script
+   ```
+   ./submit.py SSeu_RcW_test
+   ```
 Config file examples can be found in the subfolders `generation/SSeu_RcW/Cards/`, 
 `generation/SSeu_RcW_int/Cards/`, `generation/SSeu_RcW_bsm/Cards/`, 
 where the `param_card.dat`, `run_card.dat` and `proc_card.dat` examples for same-sign WW
