@@ -137,10 +137,28 @@ if __name__ == '__main__':
 
     if len (sys.argv) < 2:
         print ('base folder of the sample missing')
-        sys.exit ()
+        sys.exit (1)
+
+    if len (sys.argv) > 2:
+
+        if sys.argv[2] == 'clean' :
+            print ('cleaning folder ' + sys.argv[1] + ' from job reports...\n')
+            postprocess_file = getFilesList (sys.argv[1], 'postProcess.txt', [])
+            if (len (postprocess_file[0]) == 0):
+                print 'no postProcess.txt file found, quitting\n'
+                sys.exit (0)
+
+            files_err = getFilesList (sys.argv[1], '*.err', [])
+            for file in files_err[0]: os.remove (file)
+
+            files_out = getFilesList (sys.argv[1], '*.out', [])
+            for file in files_out[0]: os.remove (file)
+        sys.exit (0)
 
     # collect the list of err files
     # ---- ---- ---- ---- ---- ---- ---- ---- ---- 
+
+    print ('reading folder ' + sys.argv[1] + '\n')
 
     print ('checking error reports...')
     files_err = getFilesList (sys.argv[1], '*.err', [])
@@ -201,3 +219,4 @@ if __name__ == '__main__':
     outputfile.write ('average XS: ' + str (totXS[0]) + ' +- ' + str (totXS[1]) + ' pb\n')
     outputfile.write ('average XS: ' + str (1000. * totXS[0]) + ' +- ' + str (1000. * totXS[1]) + ' fb\n\n')
     outputfile.write ('LHE files list:\n' + ','.join (files_lhe[0]) + '\n')
+    outputfile.close ()
