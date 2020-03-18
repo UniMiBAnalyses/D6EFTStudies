@@ -83,123 +83,6 @@ void histos::save (TFile & outfile)
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 
-ntuple::ntuple (std::vector<std::string> variables, TString name, double XS, double lumi) :
-  m_values (variables.size () + 1., 0.),
-  m_varcounter (0),
-  m_nums (new TH1F (name + "_nums", "global numbers", 3, 0, 3)), 
-  m_total (0.),
-  m_selected (0.)
-{
-  sort (variables.begin (), variables.end ()) ;
-  string listForNtuple ;
-  //PG prepare TNtuple definition string 
-  //PG and remove spaces from strings and prepare TNtuple definition string
-  //PG FIXME how do I preserve the sorting of the cfg file?
-  //PG I don't: just use alphabetical ordering
-  for (int i = 0 ; i < variables.size () ; ++i)
-    {
-      // remove spaces 
-      variables.at (i).erase (
-          remove (variables.at (i).begin (), variables.at (i).end (), ' '), 
-          variables.at (i).end ()
-        ) ;
-      listForNtuple += variables.at (i) + ":" ;
-      varpos[variables.at (i)] = i ;
-    }
-  // the last element is the event weight  
-  listForNtuple += "w" ;
-  varpos["w"] = variables.size () ;
-  m_it = varpos.end () ;
-  m_ntuple = new TNtuple (name, name, listForNtuple.c_str ()) ;
-  m_nums->SetBinContent (1, XS) ;
-}
-  
-
-/**
- This function retains the value only if it's requested
- in the initial list of variables.
- In this way, in the fill function the setvalue is always called,
- as anyways the test should be done in one place or another.
-*/
-void ntuple::setvalue (std::string varname, double value)
-{
-//FIXME
-  m_it = varpos.find (varname) ;
-  if (m_it != varpos.end ())
-    {
-      m_values.at (m_it->second) = value ;
-      ++m_varcounter ; //PG this is a sloppy check, as it's a global counting only
-    }
-  return ;
-}
-
-
-// transfer values in the ntuple
-void ntuple::fill (double eventWeight)
-{
-  if (++m_varcounter != m_values.size ()) 
-    {
-      cout << "WARNING not all variables filled" << endl ;
-    }
-  m_values.back () = eventWeight ;
-  m_ntuple->Fill (&m_values[0]) ;
-  m_varcounter = 0 ;
-  m_selected += eventWeight ;
-//  reset (m_values) ;
-  return ;
-}
-
-
-// to be called at each event, before any selections, 
-// for a proper normalisation of the histograms
-double ntuple::increaseNorm (double eventweight) 
-  {
-     m_total += eventweight ;
-     return m_total ;
-  }
- 
-
-// save ntuples in the outfile
-void ntuple::save (TFile & outfile)
-  {
-    m_nums->SetBinContent (2, m_total) ;
-    m_nums->SetBinContent (3, m_selected) ;
-    outfile.cd () ;
-    m_ntuple->Write () ;
-    m_nums->Write () ;
-    return ;
-  }
-
-
-//dtor
-ntuple::~ntuple () 
-{
-  //PG for the time being no destructions
-  //PG since objects are allocated dinamically
-  //PG and when filling containers one should properly
-  //PG pass around the ownership of pointers
-} 
-
-
-// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-
-
-TLorentzVector buildLP (LHEF::Reader & reader, int iPart)
-{
-  TLorentzVector tlv
-    (
-      reader.hepeup.PUP.at (iPart).at (0), //PG px
-      reader.hepeup.PUP.at (iPart).at (1), //PG py
-      reader.hepeup.PUP.at (iPart).at (2), //PG pz
-      reader.hepeup.PUP.at (iPart).at (3)  //PG E
-    ) ;
-  return tlv ;
-}
-
-
-// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-
-
 // Fill the histograms for a single sample
 // histograms will not get normalised, since the same sample
 // could be split in several LHE files and this function
@@ -322,7 +205,124 @@ fillHistos (LHEF::Reader & reader, histos & Histos, int max)
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 
-double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max)
+ntuple::ntuple (std::vector<std::string> variables, TString name, double XS, double lumi) :
+  m_values (variables.size () + 1., 0.),
+  m_varcounter (0),
+  m_nums (new TH1F (name + "_nums", "global numbers", 3, 0, 3)), 
+  m_total (0.),
+  m_selected (0.)
+{
+  sort (variables.begin (), variables.end ()) ;
+  string listForNtuple ;
+  //PG prepare TNtuple definition string 
+  //PG and remove spaces from strings and prepare TNtuple definition string
+  //PG FIXME how do I preserve the sorting of the cfg file?
+  //PG I don't: just use alphabetical ordering
+  for (int i = 0 ; i < variables.size () ; ++i)
+    {
+      // remove spaces 
+      variables.at (i).erase (
+          remove (variables.at (i).begin (), variables.at (i).end (), ' '), 
+          variables.at (i).end ()
+        ) ;
+      listForNtuple += variables.at (i) + ":" ;
+      varpos[variables.at (i)] = i ;
+    }
+  // the last element is the event weight  
+  listForNtuple += "w" ;
+  varpos["w"] = variables.size () ;
+  m_it = varpos.end () ;
+  m_ntuple = new TNtuple (name, name, listForNtuple.c_str ()) ;
+  m_nums->SetBinContent (1, XS) ;
+}
+  
+
+/**
+ This function retains the value only if it's requested
+ in the initial list of variables.
+ In this way, in the fill function the setvalue is always called,
+ as anyways the test should be done in one place or another.
+*/
+void ntuple::setvalue (std::string varname, double value)
+{
+//FIXME
+  m_it = varpos.find (varname) ;
+  if (m_it != varpos.end ())
+    {
+      m_values.at (m_it->second) = value ;
+      ++m_varcounter ; //PG this is a sloppy check, as it's a global counting only
+    }
+  return ;
+}
+
+
+// transfer values in the ntuple
+void ntuple::fill (double eventWeight)
+{
+  if (++m_varcounter != m_values.size ()) 
+    {
+      cout << "WARNING not all variables filled" << endl ;
+    }
+  m_values.back () = eventWeight ;
+  m_ntuple->Fill (&m_values[0]) ;
+  m_varcounter = 0 ;
+  m_selected += eventWeight ;
+//  reset (m_values) ;
+  return ;
+}
+
+
+// to be called at each event, before any selections, 
+// for a proper normalisation of the histograms
+double ntuple::increaseNorm (double eventweight) 
+  {
+     m_total += eventweight ;
+     return m_total ;
+  }
+ 
+
+// save ntuples in the outfile
+void ntuple::save (TFile & outfile)
+  {
+    m_nums->SetBinContent (2, m_total) ;
+    m_nums->SetBinContent (3, m_selected) ;
+    outfile.cd () ;
+    m_ntuple->Write () ;
+    m_nums->Write () ;
+    return ;
+  }
+
+
+//dtor
+ntuple::~ntuple () 
+{
+  //PG for the time being no destructions
+  //PG since objects are allocated dinamically
+  //PG and when filling containers one should properly
+  //PG pass around the ownership of pointers
+} 
+
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
+TLorentzVector buildLP (LHEF::Reader & reader, int iPart)
+{
+  TLorentzVector tlv
+    (
+      reader.hepeup.PUP.at (iPart).at (0), //PG px
+      reader.hepeup.PUP.at (iPart).at (1), //PG py
+      reader.hepeup.PUP.at (iPart).at (2), //PG pz
+      reader.hepeup.PUP.at (iPart).at (3)  //PG E
+    ) ;
+  return tlv ;
+}
+
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
+double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max, bool applyCuts)
 {
   int events = 0 ;
    
@@ -367,11 +367,12 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max)
 
       //generic controls
       int warnNum = 0 ;
-      if (v_f_quarks.size () < 2)
-        {
-          cout << "warning, not enough quarks" << endl ;
-          ++warnNum ;
-        }
+      //PG commenting these lines, to allow for the code to run also in the inclusve case
+      // if (v_f_quarks.size () < 2)
+      //   {
+      //     cout << "warning, not enough quarks" << endl ;
+      //     ++warnNum ;
+      //   }
       if (v_f_leptons.size () < 2)
         {
           cout << "warning, not enough leptons" << endl ;
@@ -390,46 +391,63 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max)
       float eventWeight = reader.hepeup.XWGTUP ;
       Ntuple.increaseNorm (eventWeight) ;
 
-      float ptj1 = v_f_quarks.at (0).Pt () ;
-      float ptj2 = v_f_quarks.at (1).Pt () ;
+      float ptj1  = -1. ;
+      float ptj2  = -1. ;
+      float etaj1 = -1. ;
+      float etaj2 = -1. ;
+      float phij1 = -1. ;
+      float phij2 = -1. ;
 
-      float etaj1 = v_f_quarks.at (0).Eta () ;
-      float etaj2 = v_f_quarks.at (1).Eta () ;
+      if (v_f_quarks.size () >= 1)
+        { 
+          float ptj1  = v_f_quarks.at (0).Pt () ;
+          float etaj1 = v_f_quarks.at (0).Eta () ;
+          float phij1 = v_f_quarks.at (0).Phi () ;
+        }
 
-      float phij1 = v_f_quarks.at (0).Phi () ;
-      float phij2 = v_f_quarks.at (1).Phi () ;
-
-      if (ptj1 < ptj2) 
-        {
-          swap (ptj1, ptj2) ;
-          swap (etaj1, etaj2) ;
-          swap (phij1, phij2) ;
+      float mjj = -1. ;
+      if (v_f_quarks.size () >= 2)
+        { 
+          float ptj2  = v_f_quarks.at (1).Pt () ;
+          float etaj2 = v_f_quarks.at (1).Eta () ;
+          float phij2 = v_f_quarks.at (1).Phi () ;
+          if (ptj1 < ptj2) 
+            {
+              swap (ptj1, ptj2) ;
+              swap (etaj1, etaj2) ;
+              swap (phij1, phij2) ;
+            }
+          TLorentzVector v_jj = v_f_quarks.at (0) + v_f_quarks.at (1) ;
+          mjj = v_jj.M () ;
         }
 
       TLorentzVector ME = v_f_neutrinos.at (0) + v_f_neutrinos.at (1) ;
-      TLorentzVector v_jj = v_f_quarks.at (0) + v_f_quarks.at (1) ;
       TLorentzVector v_ll = v_f_leptons.at (0) + v_f_leptons.at (1) ;
 
-/*
-      if (ptj1 < 30) continue ;
-      if (ptj2 < 30) continue ;
+      if (applyCuts)
+        {
+          if (v_f_quarks.size () < 2)
+            {
+              cerr << "cannot apply VBS selections without two jets, exiting\n" ;
+              exit (1) ;
+            }
+          if (ptj1 < 30) continue ;
+          if (ptj2 < 30) continue ;
 
-      TLorentzVector ME = v_f_neutrinos.at (0) + v_f_neutrinos.at (1) ;
-      if (ME.Pt () < 40) continue ;
+          if (ME.Pt () < 40) continue ;
 
-      TLorentzVector v_jj = v_f_quarks.at (0) + v_f_quarks.at (1) ;
-      if (fabs (v_f_quarks.at (0).Eta () - v_f_quarks.at (1).Eta ()) < 2.5 ) continue ;
-      if (v_jj.M () < 500) continue ;
+          if (fabs (v_f_quarks.at (0).Eta () - v_f_quarks.at (1).Eta ()) < 2.5 ) continue ;
+          if (mjj < 500) continue ;
 
-      TLorentzVector v_ll = v_f_leptons.at (0) + v_f_leptons.at (1) ;
-      if (v_ll.M () < 20) continue ;
-      if (fabs (zetaStar (v_f_quarks.at (0).Eta (), v_f_quarks.at (1).Eta (), v_f_leptons.at (0).Eta ())) > 0.75) continue ;
-      if (fabs (zetaStar (v_f_quarks.at (0).Eta (), v_f_quarks.at (1).Eta (), v_f_leptons.at (1).Eta ())) > 0.75) continue ;
-*/
-      //PG fill histograms
+          if (v_ll.M () < 20) continue ;
+          if (fabs (zetaStar (v_f_quarks.at (0).Eta (), v_f_quarks.at (1).Eta (), v_f_leptons.at (0).Eta ())) > 0.75) continue ;
+          if (fabs (zetaStar (v_f_quarks.at (0).Eta (), v_f_quarks.at (1).Eta (), v_f_leptons.at (1).Eta ())) > 0.75) continue ;
+        }
+
+      //PG fill variables
       //PG ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
       
-      Ntuple.setvalue ("mjj", v_jj.M ()) ;
+      Ntuple.setvalue ("mjj", mjj) ;
       Ntuple.setvalue ("mll", v_ll.M ()) ;
 
       Ntuple.setvalue ("ptj1", ptj1) ;

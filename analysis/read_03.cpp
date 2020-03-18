@@ -51,6 +51,10 @@ int main (int argc, char ** argv)
 
   CfgParser * gConfigParser = new CfgParser (argv[1]) ;
 
+  // if the variable is true, 
+  // some VBS cuts are applied (and the presence of two jets in the event is required)
+  bool applyCuts = gConfigParser->readBoolOpt ("general::variables") ;
+
   //PG get the list of variables to be plotted,
   //PG assuming some code exists to calculate them
   vector<string> variables = gConfigParser->readStringListOpt ("general::variables") ;
@@ -86,7 +90,7 @@ int main (int argc, char ** argv)
           std::ifstream ifs (it->second.second.at (ifile).c_str ()) ;
           LHEF::Reader reader (ifs) ;
 
-          events += fillNtuple (reader, Ntuples.back (), maxEventsPerSample) ;
+          events += fillNtuple (reader, Ntuples.back (), maxEventsPerSample, applyCuts) ;
 
           if (maxEventsPerSample > 0 && events >= maxEventsPerSample) break ;
           cout << "    read: " << events << " events" << endl ;

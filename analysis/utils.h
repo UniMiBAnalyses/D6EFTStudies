@@ -124,7 +124,7 @@ struct ntuple
 /**
  Fill the class ntuple for a single sample.
 */
-double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max = -1) ;
+double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max = -1, bool applyCuts = false) ;
 
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
