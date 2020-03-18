@@ -73,7 +73,7 @@ if __name__ == '__main__':
     outf.write ('samples = ' + processName + '\n')
     outf.write ('variables = mjj, mll, ptj1, ptj2, etaj1, etaj2, phij1, phij2, ptl1, ptl2, etal1, etal2, met\n')
     outf.write ('outputFile = ntuple_' + processName + '.root\n')
-    outf.write ('applycuts = 0\n')
+    outf.write ('applycuts = false\n')
     outf.write ('\n')
     outf.write ('[' + processName + ']\n')
     outf.write ('XS = ' + XS + '\n')
