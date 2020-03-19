@@ -90,7 +90,10 @@ the process generated, the type of generation:
     ```  
   * the script ```create1Dfolders.py``` generates the Madgpraph code for the event generation
     with one Wilson coefficient different from zero, for the linear and quadratic EFT terms,
-    according to the list of operators siwtched on in the script.
+    according to the list of operators switched on in the script.
+  * the script ```create2Dfolders.py``` generates the Madgpraph code for the event generation
+    with two Wilson coefficients interfering between each other,
+    according to the list of operators switched on in the script.
 
 ### generation
 
@@ -110,9 +113,16 @@ where the `param_card.dat`, `run_card.dat` and `proc_card.dat` examples for same
 and `cW` non zero are reported. The three folders refer to the SM case, the interference between SM and BSM
 and the BSM case respectively. 
 Operators of interest are listed [here](https://www.dropbox.com/s/e5yvvzzo98bwdg3/2019-06-ongoing_dim6.pdf?dl=0)
+  * The script ```postProcess.py``` takes as input a ```*_results``` folder,
+    controls some basic parameters for the success of the generation,
+    unpacks the LHE files, creates a summary of the run,
+    and cleans the folder from unnecessary log files when called with the ```clean``` option.
 
 ### analysis
 
+  * The script ```makeCfg.py``` creates the input cfg file for ```read_03.cpp``` starting from a
+    post-processed ```*_results``` folder,
+    adding the cfg file to the folder itself
   * `read_02.cpp` reads LHE files and produces sets of histograms
   * `read_03.cpp` reads LHE files and produces sets of ntuples
     * takes as input argument a config file: ```./read_03 cfg/ntuple_SSeu_RcW_0p3.cfg```
