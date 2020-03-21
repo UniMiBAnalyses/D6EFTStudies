@@ -53,7 +53,7 @@ int main (int argc, char ** argv)
 
   // if the variable is true, 
   // some VBS cuts are applied (and the presence of two jets in the event is required)
-  bool applyCuts = gConfigParser->readBoolOpt ("general::variables") ;
+  bool applyCuts = gConfigParser->readBoolOpt ("general::applycuts") ;
 
   //PG get the list of variables to be plotted,
   //PG assuming some code exists to calculate them
@@ -103,6 +103,7 @@ int main (int argc, char ** argv)
   TFile outFile (outfilename.c_str (), "recreate") ;
   for (int i = 0 ; i < Ntuples.size () ; ++i) Ntuples.at (i).save (outFile) ;
   outFile.Close () ;
+  cout << "file " << outfilename << " created\n" ;
 
   return 0 ;
 }

@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # prepare command files to be passed to Madgraph to produce the folders
 # for the event generation, for linear and quadratic BSM components
 # when a single EFT operator is turned on.
@@ -6,6 +8,7 @@
 # to submit the folder generation:  for fil in `ls | grep launch_` ; do ./bin/mg5_aMC $fil ;done
 
 import os
+import sys
 
 
 if __name__ == "__main__":
@@ -97,25 +100,33 @@ if __name__ == "__main__":
       ('82', 'clequ3Abs')
     ]
 
-
   # generate the linear component folders
   for param in params:
     if param[0] not in switchOn : continue   
-    f_launchfile = open ('launch_' + param[1] + '_LI.txt', 'w')
+    f_launchfile = open ('launch_SSWW_' + param[1] + '_LI.txt', 'w')
     f_launchfile.write ('import model SMEFTsim_A_U35_MwScheme_UFO_v3_1-' + param[1] + '_massless\n')
-    f_launchfile.write ('generate p p > e+ ve mu- vm~ NP=1 NP^2==1\n')
-    f_launchfile.write ('add process p p > e- ve~ mu+ vm NP=1 NP^2==1\n')
-    f_launchfile.write ('output WW_' + param[1] + '_LI')
+    f_launchfile.write ('generate p p > e+ ve mu+ vm j j QCD=0 NP=1 NP^2==1\n')
+    f_launchfile.write ('add process p p > e- ve~ mu- vm~ j j QCD=0 NP=1 NP^2==1\n')
+    f_launchfile.write ('output SSWW_' + param[1] + '_LI')
     f_launchfile.close ()
 
   # generate the quadratic component folders
   for param in params:
     if param[0] not in switchOn : continue   
-    f_launchfile = open ('launch_' + param[1] + '_QU.txt', 'w')
+    f_launchfile = open ('launch_SSWW_' + param[1] + '_QU.txt', 'w')
     f_launchfile.write ('import model SMEFTsim_A_U35_MwScheme_UFO_v3_1-' + param[1] + '_massless\n')
-    f_launchfile.write ('generate p p > e+ ve mu- vm~ NP=1 NP^2==2\n')
-    f_launchfile.write ('add process p p > e- ve~ mu+ vm NP=1 NP^2==2\n')
-    f_launchfile.write ('output WW_' + param[1] + '_QU')
+    f_launchfile.write ('generate p p > e+ ve mu+ vm j j QCD=0 NP=1 NP^2==2\n')
+    f_launchfile.write ('add process p p > e- ve~ mu- vm~ j j QCD=0 NP=1 NP^2==2\n')
+    f_launchfile.write ('output SSWW_' + param[1] + '_QU')
+    f_launchfile.close ()
+
+  # generate the SM component
+  if (len (sys.argv) > 1):
+    f_launchfile = open ('launch_SSWW_SM.txt', 'w')
+    f_launchfile.write ('import model SMEFTsim_A_U35_MwScheme_UFO_v3_1-SMlimit_massless\n')
+    f_launchfile.write ('generate p p > e+ ve mu+ vm j j QCD=0\n')
+    f_launchfile.write ('add process p p > e- ve~ mu- vm~ j j QCD=0\n')
+    f_launchfile.write ('output SSWW_SM')
     f_launchfile.close ()
 
 

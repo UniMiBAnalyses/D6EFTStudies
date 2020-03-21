@@ -121,6 +121,12 @@ struct ntuple
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 
+float deltaPhi (float phi, float phi2) ;
+
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
 /**
  Fill the class ntuple for a single sample.
 */

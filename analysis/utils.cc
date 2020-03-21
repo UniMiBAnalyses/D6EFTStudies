@@ -322,6 +322,17 @@ TLorentzVector buildLP (LHEF::Reader & reader, int iPart)
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 
+float deltaPhi (float phi1, float phi2)
+{
+  float delta = abs (phi1 - phi2) ;
+  if (delta > M_PI) delta = 2. * M_PI - delta ;
+  return delta ;
+}
+
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
 double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max, bool applyCuts)
 {
   int events = 0 ;
@@ -456,6 +467,8 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max, bool applyCu
       Ntuple.setvalue ("etaj2", etaj2) ;
       Ntuple.setvalue ("phij1", phij1) ;
       Ntuple.setvalue ("phij2", phij2) ;
+      Ntuple.setvalue ("deltaetajj", fabs (etaj1 - etaj2)) ;
+      Ntuple.setvalue ("deltaphijj", deltaPhi (phij1, phij2)) ;
 
       float ptl1 = v_f_leptons.at (0).Pt () ;
       float ptl2 = v_f_leptons.at (1).Pt () ;
@@ -475,6 +488,7 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max, bool applyCu
       Ntuple.setvalue ("etal2", etal2) ;
 
       Ntuple.setvalue ("met", ME.Pt ()) ;
+      Ntuple.setvalue ("ptll", v_ll.Pt ()) ;
 
       Ntuple.fill (eventWeight) ;
 
