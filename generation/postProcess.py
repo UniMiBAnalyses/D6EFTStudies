@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # unzip LHE files in a folder
 # calculate the XS of the samples in a generation
@@ -35,8 +35,8 @@ def errFileHasIssues (filename):
                     break
             if known == 1: continue
             counter = counter + 1
-    if counter > 0: return [True, filename.split('.')[-2]]
-    return [False, filename.split('.')[-2]]
+    if counter > 0: return [True, filename.split('.')[-2], filename]
+    return [False, filename.split('.')[-2], filename]
   
 
 # ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
@@ -139,21 +139,36 @@ if __name__ == '__main__':
         print ('base folder of the sample missing')
         sys.exit (1)
 
+    print ('folder:\t', sys.argv[1])
+    print ('---------------------------------------------')
+
     if len (sys.argv) > 2:
 
-        if sys.argv[2] == 'clean' :
+        if sys.argv[2] == 'check' :
+            print ('checking errors\n')
+
+            files_err = getFilesList (sys.argv[1], '*.err', [])
+            issues = [errFileHasIssues (file) for file in files_err[0]]
+            discard = [ID for prob, ID, filename in issues if prob == True]
+            for elem in discard: print ('ignoring job ' + elem)
+
+        elif sys.argv[2] == 'clean' :
             print ('cleaning folder ' + sys.argv[1] + ' from job reports...\n')
             postprocess_file = getFilesList (sys.argv[1], 'postProcess.txt', [])
             if (len (postprocess_file[0]) == 0):
                 print 'no postProcess.txt file found, quitting\n'
                 sys.exit (0)
 
+            # remove the .out and .err only for successful jobs
             files_err = getFilesList (sys.argv[1], '*.err', [])
-            for file in files_err[0]: os.remove (file)
+            issues = [errFileHasIssues (file) for file in files_err[0]]
+            removeError = [filename for prob, ID, filename in issues if prob == False]
+            for file in removeError: os.remove (file)
+            removeOutput = [filename.replace ('.err','.out') for filename in removeError]
+            for file in removeOutput: os.remove (file)
 
-            files_out = getFilesList (sys.argv[1], '*.out', [])
-            for file in files_out[0]: os.remove (file)
         sys.exit (0)
+
 
     # collect the list of err files
     # ---- ---- ---- ---- ---- ---- ---- ---- ---- 
@@ -163,7 +178,7 @@ if __name__ == '__main__':
     print ('checking error reports...')
     files_err = getFilesList (sys.argv[1], '*.err', [])
     issues = [errFileHasIssues (file) for file in files_err[0]]
-    discard = [ID for prob, ID in issues if prob == True]
+    discard = [ID for prob, ID, filename in issues if prob == True]
 
     print ('checking not finished runs...')
     files_run = getFilesList (sys.argv[1], '*running', [])
