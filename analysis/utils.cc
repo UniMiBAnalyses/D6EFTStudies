@@ -411,17 +411,17 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max, bool applyCu
 
       if (v_f_quarks.size () >= 1)
         { 
-          float ptj1  = v_f_quarks.at (0).Pt () ;
-          float etaj1 = v_f_quarks.at (0).Eta () ;
-          float phij1 = v_f_quarks.at (0).Phi () ;
+          ptj1  = v_f_quarks.at (0).Pt () ;
+          etaj1 = v_f_quarks.at (0).Eta () ;
+          phij1 = v_f_quarks.at (0).Phi () ;
         }
 
       float mjj = -1. ;
       if (v_f_quarks.size () >= 2)
         { 
-          float ptj2  = v_f_quarks.at (1).Pt () ;
-          float etaj2 = v_f_quarks.at (1).Eta () ;
-          float phij2 = v_f_quarks.at (1).Phi () ;
+          ptj2  = v_f_quarks.at (1).Pt () ;
+          etaj2 = v_f_quarks.at (1).Eta () ;
+          phij2 = v_f_quarks.at (1).Phi () ;
           if (ptj1 < ptj2) 
             {
               swap (ptj1, ptj2) ;
