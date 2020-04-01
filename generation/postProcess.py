@@ -133,6 +133,33 @@ def calcTotXS (singleGenInfoList):
 # ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
 
 
+def makeNtupleProdCfg (basefolder, LHEfiles, XS):
+
+    processName = sys.argv[1].split ('/')[-1]
+    processName = processName.replace ('_results', '')
+
+    configFileName = basefolder + '/read_03_input.cfg'
+    outf = open (configFileName, 'w')
+
+    outf.write ('[general]\n')
+    outf.write ('samples = ' + processName + '\n')
+    outf.write ('variables = mjj, mll, ptj1, ptj2, etaj1, etaj2, phij1, phij2, ptl1, ptl2, etal1, etal2, met, ptll, deltaetajj, deltaphijj\n')
+    outf.write ('outputFile = ntuple_' + processName + '.root\n')
+    outf.write ('applycuts = false\n')
+    outf.write ('\n')
+    outf.write ('[' + processName + ']\n')
+    outf.write ('XS = ' + XS + '\n')
+    outf.write ('# pb\n')
+    outf.write ('files = ' + LHEfiles + '\n')
+
+    outf.close ()
+
+    print (configFileName + ' generated\n')
+
+
+# ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
+
+
 if __name__ == '__main__':
 
     if len (sys.argv) < 2:
@@ -219,8 +246,7 @@ if __name__ == '__main__':
     # this returns a list with the same elements found in findWSwE, but with different ordering
 #    NB = [int (countEvents (file)) for file in files_lhe[0]]
 
-
-    # collect the list of out files
+    # add final report to the results folder
     # ---- ---- ---- ---- ---- ---- ---- ---- ---- 
 
     files_out = getFilesList (sys.argv[1], '*.out', discard)
@@ -235,3 +261,9 @@ if __name__ == '__main__':
     outputfile.write ('average XS: ' + str (1000. * totXS[0]) + ' +- ' + str (1000. * totXS[1]) + ' fb\n\n')
     outputfile.write ('LHE files list:\n' + ','.join (files_lhe[0]) + '\n')
     outputfile.close ()
+
+    # add cfg file for read_03 to the results folder
+    # ---- ---- ---- ---- ---- ---- ---- ---- ---- 
+
+    makeNtupleProdCfg (sys.argv[1], ','.join (files_lhe[0]), str (totXS[0]))
+
