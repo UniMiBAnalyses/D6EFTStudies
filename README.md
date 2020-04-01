@@ -2,9 +2,7 @@
 
 EFT studies with Dim6 Warsaw basis
 
-## folder structure and content
-
-### madgraph_model
+## madgraph_model
 
 Modification to the existing SMEFTSim () Madgraph model used for the generation of events.
 To produce a sample:
@@ -95,7 +93,7 @@ the process generated, the type of generation:
     with two Wilson coefficients interfering between each other,
     according to the list of operators switched on in the script.
 
-### generation
+## generation
 
 Scripts to submit jobs to condor, for the generation of events in Madgraph.
 To submit a job:
@@ -121,7 +119,7 @@ Operators of interest are listed [here](https://www.dropbox.com/s/e5yvvzzo98bwdg
     It also creates the input cfg file for ```read_03.cpp```,
     adding the cfg file to the folder itself
 
-### analysis
+## analysis
 
   * `read_02.cpp` reads LHE files and produces sets of histograms, NOT MAINTAINED
   * `read_03.cpp` reads LHE files and produces sets of ntuples
@@ -130,9 +128,56 @@ Operators of interest are listed [here](https://www.dropbox.com/s/e5yvvzzo98bwdg
     * all variables used later on are created here, for the time being
   * `checkEntries.cpp` checks the number of entries of all ntuples stored in a root file
 
-### fit
+<!-- ### fit
 
 This is where the plain ntuples get analysed and fits performed.
+ -->
+## DatacarCreator
+
+### datacard\_creator\_2.cpp
+
+The code has been mostly taken from ```datacard_creator.cpp```. 
+Fragmented in subfunctions implemented in ```dcutils.*```,
+reads a config file containing the list of variables to be studied,
+the selections to be applied,
+the files to be read and some detailed configuration parameters
+  * files have to be produced with ```read_03.cpp```, 
+    which is where variables are built. 
+    If a new variable is needed,
+    for the time being a new run of ```read_03.cpp``` is required.
+  * for each variable as an input in the cfg file,   
+    ```datacard_creator_2.cpp``` produces a pair of files:
+    a root file containing histograms and a datacard for Combine.
+  * In the folder where datacards are stored, a shell script gets created,
+    that contains the commands to be run to create the roofit workspaces
+    needed by Combine, as well as one to issue the combine fit.
+    The script should be sourced from an environment built according to the indications
+    present in EFT/Fit.
+    Single .sub and .sh files to be launched with condor get created as well.
+
+### datacard\_TwoOp\_creator\_2.cpp
+
+  * Prepares the combine datacards for 2D ```combine``` fits.
+  * In the folder where datacards are stored, a shell script gets created,
+    that contains the commands to be run to create the roofit workspaces
+    needed by Combine, as well as one to issue the combine fit.
+    The script should be sourced from an environment built according to the indications
+    present in EFT/Fit.
+    Single .sub and .sh files to be launched with condor get created as well.
+
+### Condor submission
+
+To submit to condor the creation of the workspaces and the ```combine``` fitting procedure,
+launch ```condor_submit``` with as argument the submit\*.sub file of interest
+from the created datacard folders.
+
+### read_results.cpp
+
+Runs over the rootfiles resulting from the ```combine``` fits and produces 1D likelihood scans
+
+## PostPlots
+
+  * summary plots from the existing results produced by ```read_results.cpp```
 
 ## useful commands
 
