@@ -50,7 +50,7 @@ def getFilesList (basefolder, pattern, discard):
     matches = []
     myfilenames = []
     for root, dirnames, filenames in os.walk (sys.argv[1]):
-        for filename in fnmatch.filter(filenames, pattern):
+        for filename in fnmatch.filter (filenames, pattern):
             fullname = os.path.join (root, filename)
             count = 0
             for elem in discard:
@@ -193,6 +193,18 @@ if __name__ == '__main__':
             for file in removeError: os.remove (file)
             removeOutput = [filename.replace ('.err','.out') for filename in removeError]
             for file in removeOutput: os.remove (file)
+
+        elif sys.argv[2] == 'rezip' :
+
+            files_lhe = getFilesList (sys.argv[1], '*.lhe', [])
+            for filename in files_lhe[0] : 
+                print ('gzip ' + filename)
+                subprocess.call (['gzip', str (filename)])
+                
+        elif sys.argv[2] == 'unzip' :
+
+            print ('unzipping...')
+            os.system ('for fil in  `find  ' + sys.argv[1] + ' -name \"*gz\"` ; do gunzip $fil ; done')
 
         sys.exit (0)
 
