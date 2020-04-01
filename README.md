@@ -116,17 +116,18 @@ Operators of interest are listed [here](https://www.dropbox.com/s/e5yvvzzo98bwdg
   * The script ```postProcess.py``` takes as input a ```*_results``` folder,
     controls some basic parameters for the success of the generation,
     unpacks the LHE files, creates a summary of the run,
-    and cleans the folder from unnecessary log files when called with the ```clean``` option.
+    and cleans the folder from unnecessary log files when called with the ```clean``` option
+    (keeping those of failed jobs).
+    It also creates the input cfg file for ```read_03.cpp```,
+    adding the cfg file to the folder itself
 
 ### analysis
 
-  * The script ```makeCfg.py``` creates the input cfg file for ```read_03.cpp``` starting from a
-    post-processed ```*_results``` folder,
-    adding the cfg file to the folder itself
-  * `read_02.cpp` reads LHE files and produces sets of histograms
+  * `read_02.cpp` reads LHE files and produces sets of histograms, NOT MAINTAINED
   * `read_03.cpp` reads LHE files and produces sets of ntuples
     * takes as input argument a config file: ```./read_03 cfg/ntuple_SSeu_RcW_0p3.cfg```
     * an additional argument sets the total number of events read per sample: ```./read_03 cfg/ntuple_SSeu_RcW_0p3.cfg 100```
+    * all variables used later on are created here, for the time being
   * `checkEntries.cpp` checks the number of entries of all ntuples stored in a root file
 
 ### fit
