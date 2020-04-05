@@ -1,5 +1,5 @@
 /*
-c++ -o read_results `root-config --glibs --cflags` CfgParser.cc dcutils.cc -lm read_results.cpp
+c++ -o read_results `root-config --glibs --cflags` ../utils/CfgParser.cc ../utils/dcutils.cc -lm read_results.cpp
 
 read the results obtained by combine running on the various workspaces created
 when running on the outcome datacard_creator_2 with the same input cfg file
@@ -19,8 +19,8 @@ as the one used for this prgram
 #include "TLatex.h"
 #include "TLine.h"
 
-#include "CfgParser.h"
-#include "dcutils.h"
+#include "../utils/CfgParser.h"
+#include "../utils/dcutils.h"
 
 using namespace std ;
 

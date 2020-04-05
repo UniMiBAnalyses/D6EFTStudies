@@ -1,5 +1,5 @@
 /*
-c++ -o datacard_twoOp_creator_2 `root-config --glibs --cflags` CfgParser.cc dcutils.cc -lm datacard_creator_2.cpp
+c++ -o datacard_twoOp_creator_2 `root-config --glibs --cflags` ../utils/CfgParser.cc ../utils/dcutils.cc -lm datacard_creator_2.cpp
 
 
 one should pass the program a config file like file.cfg
@@ -29,8 +29,8 @@ to run: ./datacard_creator_2 file.cfg
 #include <TH1.h>
 #include <TH1F.h>
 
-#include "CfgParser.h"
-#include "dcutils.h"
+#include "../utils/CfgParser.h"
+#include "../utils/dcutils.h"
 
 using namespace std ;
 

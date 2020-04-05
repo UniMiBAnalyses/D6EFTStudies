@@ -1,5 +1,5 @@
 /*
-c++ -o summaryPlots `root-config --glibs --cflags` sputils.cc -lm summaryPlots.cpp
+c++ -o summaryPlots `root-config --glibs --cflags` ../utils/sputils.cc -lm summaryPlots.cpp
 
 */
 
@@ -10,7 +10,7 @@ c++ -o summaryPlots `root-config --glibs --cflags` sputils.cc -lm summaryPlots.c
 #include "TCanvas.h"
 #include "TLegend.h"
 
-#include "sputils.h"
+#include "../utils/sputils.h"
 
 using namespace std ;
 

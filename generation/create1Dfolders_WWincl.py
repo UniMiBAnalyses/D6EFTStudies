@@ -11,7 +11,9 @@ import os
 if __name__ == "__main__":
 
 
-  switchOn = ['21','24','25','28','32','45','46','48','49','53','54','55','56','57','58']
+switchOn = ['21','24','25','28','32','45','46','48','49','54','57']
+# the following operators do not contribute at LO in the inWW production process
+#  switchOn = ['53', '55', '56', '58']
 #  switchOn = ['21']
 
   params = [(' 1', 'ceWPh'),      
@@ -101,21 +103,21 @@ if __name__ == "__main__":
   # generate the linear component folders
   for param in params:
     if param[0] not in switchOn : continue   
-    f_launchfile = open ('launch_' + param[1] + '_LI.txt', 'w')
+    f_launchfile = open ('launch_inWW_' + param[1] + '_LI.txt', 'w')
     f_launchfile.write ('import model SMEFTsim_A_U35_MwScheme_UFO_v3_1-' + param[1] + '_massless\n')
     f_launchfile.write ('generate p p > e+ ve mu- vm~ NP=1 NP^2==1\n')
     f_launchfile.write ('add process p p > e- ve~ mu+ vm NP=1 NP^2==1\n')
-    f_launchfile.write ('output WW_' + param[1] + '_LI')
+    f_launchfile.write ('output inWW_' + param[1] + '_LI')
     f_launchfile.close ()
 
   # generate the quadratic component folders
   for param in params:
     if param[0] not in switchOn : continue   
-    f_launchfile = open ('launch_' + param[1] + '_QU.txt', 'w')
+    f_launchfile = open ('launch_inWW_' + param[1] + '_QU.txt', 'w')
     f_launchfile.write ('import model SMEFTsim_A_U35_MwScheme_UFO_v3_1-' + param[1] + '_massless\n')
     f_launchfile.write ('generate p p > e+ ve mu- vm~ NP=1 NP^2==2\n')
     f_launchfile.write ('add process p p > e- ve~ mu+ vm NP=1 NP^2==2\n')
-    f_launchfile.write ('output WW_' + param[1] + '_QU')
+    f_launchfile.write ('output inWW_' + param[1] + '_QU')
     f_launchfile.close ()
 
 

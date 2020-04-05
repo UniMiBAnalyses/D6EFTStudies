@@ -1,5 +1,7 @@
-// c++ -o read_03 `root-config --glibs --cflags` CfgParser.cc utils.cc LHEF.cc -lm read_03.cpp
 /*
+
+c++ -o read_03 `root-config --glibs --cflags` ../utils/CfgParser.cc ../utils/autils.cc ../utils/LHEF.cc -lm read_03.cpp
+
 read LHE files and produce ntuples
 apply basic VBS selections
 http://govoni.web.cern.ch/govoni/tesi/docs/Alessandro_Tarabini_Tesi.pdf
@@ -23,9 +25,9 @@ http://govoni.web.cern.ch/govoni/tesi/docs/Alessandro_Tarabini_Tesi.pdf
 #include "TNtuple.h"
 #include "TLorentzVector.h"
 
-#include "LHEF.h"
-#include "CfgParser.h"
-#include "utils.h"
+#include "../utils/LHEF.h"
+#include "../utils/CfgParser.h"
+#include "../utils/autils.h"
 
 using namespace std ;
 
