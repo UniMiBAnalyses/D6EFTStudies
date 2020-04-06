@@ -14,7 +14,7 @@ import sys
 if __name__ == "__main__":
 
 #  switchOn = ['21','24','25','28','32','45','46','48','49','53','54','55','56','57','58']
-  switchOn = ['21', '24', '28']
+  switchOn = ['21', '32', '46', '48', '49', '54']
 
   if (len (switchOn) < 2):
     print ('at least two operators needed, exiting')
@@ -112,15 +112,15 @@ if __name__ == "__main__":
   for i in range (len (sortedsel)):
     for j in range (i+1, len (sortedsel)):
       tag = sortedsel[i][1] + '_' + sortedsel[j][1]
-#      print ('SMEFTsim_A_U35_MwScheme_UFO_v3_1-' + tag + '_massless')
 
-      f_launchfile = open ('launch_' + tag + '_IN.txt', 'w')
+      f_launchfile = open ('launch_SSWW_' + tag + '_IN.txt', 'w')
       f_launchfile.write ('import model SMEFTsim_A_U35_MwScheme_UFO_v3_1-' + tag + '_massless\n')
-      f_launchfile.write ('generate p p > e+ ve mu- vm~ NP==1  NP' + sortedsel[i][1] + '^2==1   NP' + sortedsel[j][1] + '^2==1\n')
-      f_launchfile.write ('add process p p > e- ve~ mu+ vm NP==1  NP' + sortedsel[i][1] + '^2==1   NP' + sortedsel[j][1] + '^2==1\n')
-      f_launchfile.write ('output WW_' + tag + '_IN')
+      f_launchfile.write ('generate p p > e+ ve mu+ vm j j QCD=0 NP==1  NP' + sortedsel[i][1] + '^2==1   NP' + sortedsel[j][1] + '^2==1\n')
+      f_launchfile.write ('add process p p > e- ve~ mu- vm~ j j QCD=0 NP==1  NP' + sortedsel[i][1] + '^2==1   NP' + sortedsel[j][1] + '^2==1\n')
+      f_launchfile.write ('output SSWW_' + tag + '_IN')
       f_launchfile.close ()
 
   sys.exit (0)
+
 
 

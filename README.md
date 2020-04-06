@@ -323,7 +323,7 @@ To simulate "sm" part, k_my_1 == 0 (this is how we simulate the expected result 
 
   * summary plots from the existing results produced by ```read_results.cpp```
 
-## useful commands
+## useful commands and links
 
   * unzip madgraph results within a folder
    ```
@@ -337,6 +337,6 @@ To simulate "sm" part, k_my_1 == 0 (this is how we simulate the expected result 
    ```
    ./postProcess.py [folder containing the job outputs and lhe files]
    ```
-
+  * Madgraph totorial [here](https://indico.cern.ch/event/555228/sessions/203428/attachments/1315471/1970459/tutorial-CMSandATLAS-2016.pdf)
 
 
