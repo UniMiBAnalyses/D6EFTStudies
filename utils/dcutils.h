@@ -237,10 +237,8 @@ void
 jointSort (std::vector<std::string> &v1, std::vector<float> &v2, std::vector<float> &v3) ;
 
 
-
-
-
-
+void 
+copyFile (const std::string & destination, const std::string & source) ;
 
 
 #endif

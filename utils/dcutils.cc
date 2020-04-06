@@ -1075,3 +1075,19 @@ jointSort (vector<string> &v1, vector<float> &v2, vector<float> &v3)
   return ;
 }
 
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
+void 
+copyFile (const string & destination, const string & source) 
+{
+  string d_name = split (source, '/').back () ;
+  ifstream f_source (source, ios::binary) ;
+  ofstream f_destin (destination + "/" + d_name, ios::binary) ;
+
+  f_destin << f_source.rdbuf () ;
+
+  f_source.close () ;
+  f_destin.close () ;
+}

@@ -126,6 +126,7 @@ int main (int argc, char ** argv)
           // FIXME creare se non esiste, pulire se esiste
           string destination_folder = destination_folder_prefix + "_" + wilson_coeff_names.at (iCoeff1)+ "_" + wilson_coeff_names.at (iCoeff2) ;
           mkdir (destination_folder.c_str (), S_IRWXU) ;
+          copyFile (destination_folder, argv[1]) ;
           // https://pubs.opengroup.org/onlinepubs/009695399/functions/mkdir.html
           // expected error if exists: EEXIST          17      /* File exists */
           // permission options listed here https://pubs.opengroup.org/onlinepubs/007908775/xsh/sysstat.h.html

@@ -1,14 +1,9 @@
 /*
 c++ -o datacard_creator_2 `root-config --glibs --cflags` ../utils/CfgParser.cc ../utils/dcutils.cc -lm datacard_creator_2.cpp
 
-
 one should pass the program a config file like file.cfg
 to run: ./datacard_creator_2 file.cfg
 */
-
-// FIXME da generalizzare aggiungendo il loop sui coefficienti di Wilson
-// FIXME e la ricerca dei termini incrociati
-// FIXME per ora dovrebbe girare, se la variabile e' una sola
 
 #include <iomanip>
 #include <vector>
@@ -103,6 +98,8 @@ int main (int argc, char ** argv)
       // FIXME creare se non esiste, pulire se esiste
       string destination_folder = destination_folder_prefix + "_" + wilson_coeff_names.at (iCoeff) ;
       mkdir (destination_folder.c_str (), S_IRWXU) ;
+      copyFile (destination_folder, argv[1]) ;
+
       // https://pubs.opengroup.org/onlinepubs/009695399/functions/mkdir.html
       // expected error if exists: EEXIST          17      /* File exists */
       // permission options listed here https://pubs.opengroup.org/onlinepubs/007908775/xsh/sysstat.h.html
