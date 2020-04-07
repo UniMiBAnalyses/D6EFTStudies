@@ -279,3 +279,49 @@ TH2D* frameTH2D(TH2D *in, double threshold){
 
   return framed;
 }
+
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
+pair<float, float>
+getMinCoordinates (TTree *t, TString x, TString y)
+{
+  float xmin;
+  float ymin;
+  
+  t->SetBranchAddress (x, & xmin);
+  t->SetBranchAddress (y, & ymin);
+  
+  t->GetEntry(0);
+              
+  return pair<float, float> (xmin, ymin) ;          
+}
+
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
+float
+getAreaWithinCL (TH2F * histo, float threshold)
+{
+  float area = 0. ;
+  for (int i = 1 ; i < histo->GetNbinsX () + 1 ; ++i)
+    for (int j = 1 ; j < histo->GetNbinsY () + 1 ; ++j)
+      if (histo->GetBinContent (i,j) < threshold) ++area ;
+
+  area *= histo->GetXaxis ()->GetBinWidth (1) * histo->GetYaxis ()->GetBinWidth (1) ;
+
+  return area ;
+}
+
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
+bool
+sortByArea (const pair<string, cont> & a, const pair<string, cont> & b)
+{
+  return a.second.area < b.second.area ;
+}
+

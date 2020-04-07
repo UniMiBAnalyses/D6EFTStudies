@@ -128,6 +128,7 @@ int main (int argc, char ** argv)
 
 //          vector<pair <string, TH2F *> > contour_plots ;
           vector<pair <string, TList *> > contours_inner ;
+          vector<pair <string, cont> > contours_1sigma ;
 
           // loop over variables
           for (int iVar = 0 ; iVar < variables.size () ; ++iVar)
@@ -150,25 +151,6 @@ int main (int argc, char ** argv)
 
               // extract info from TTree and dump it in a TGraph
               // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----   
-
-              // hidden drawing to get the variables ready to build the TGraph later on
-              //  --> the ordering here corresponds (i.e. imposes) the one in the TGraph2D fill
-
-              // TH2 * h_scan = treeToHist2D (
-              //     limitTree, 
-              //     TString ("k_") + TString (wilson_coeff_names.at (iCoeff1).c_str ()),
-              //     TString ("k_") + TString (wilson_coeff_names.at (iCoeff2).c_str ()), 
-              //     "h_" + localrootname, 
-              //     globalCut.c_str (), 
-              //     -2, 2, -2, 2, 100, 100
-              //   ) ;
-              /* TODO FIXME
-               - cerca nel tree il numero di punti totali, il range in x e in y, il binning in x e in y
-               - se alcune di qs info non ci sono, capisci come ricavarle
-               - la macro deve anche dire se il numero di punti e' adeguato
-              */
-
-              //h_scan->Draw ("COLZ") ;
 
               TGraph2D * g_scan = treeToGraph2D (
                   limitTree, 
@@ -193,6 +175,21 @@ int main (int argc, char ** argv)
                 }
 
               contours_inner.push_back (pair<string, TList *> (variables.at (iVar), contour)) ;
+              contours_1sigma.push_back (pair<string, cont> (variables.at (iVar), cont (contour))) ;
+
+              // stats information from the likelihood scan
+              // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----   
+              
+              pair<float, float> llrMin = getMinCoordinates (
+                  limitTree, 
+                  TString ("k_") + TString (wilson_coeff_names.at (iCoeff1).c_str ()),
+                  TString ("k_") + TString (wilson_coeff_names.at (iCoeff2).c_str ())) ;
+
+              float area = getAreaWithinCL (h_contour, contours[0]) ;
+              contours_1sigma.back ().second.area = area ;
+              contours_1sigma.back ().second.xmin = llrMin.first ;
+              contours_1sigma.back ().second.xmax = llrMin.second ;
+
 
               // string outfile = string ("plot")
               //                  + "_" + wilson_coeff_names.at (iCoeff1) + "_" + wilson_coeff_names.at (iCoeff2)
@@ -200,26 +197,33 @@ int main (int argc, char ** argv)
               // c1.SaveAs (outfile.c_str ()) ;
 
             } // loop over variables
+ 
+          sort (contours_1sigma.begin (), contours_1sigma.end (), sortByArea) ;
 
           TH1F * dummy_h = c1.DrawFrame (-2., -2., 2., 2.) ; // FIXME these have to end up in the cfg file
           dummy_h->GetXaxis ()->SetTitle (wilson_coeff_names.at (iCoeff1).c_str ()) ;
           dummy_h->GetYaxis ()->SetTitle (wilson_coeff_names.at (iCoeff2).c_str ()) ;
 
           TLegend legend (0.70, 0.50, 0.95, 0.95) ;
+          gStyle->SetPalette (kDarkBodyRadiator) ;
+          // kRust
+          // kBlueGreenYellow
+          // kCopper
+          // kDeepSea
 
-          for (int i = 0 ; i < contours_inner.size () ; ++i)
+          for (int i = contours_1sigma.size () - 1 ; i >= 0 ; --i)
             {
-
-              TIter next (contours_inner.at (i).second) ;
+              TIter next (contours_1sigma.at (i).second.graphs) ;
               bool first = true ;
               while (TGraph * gr = (TGraph *) next ())
                 {
-                  gr->SetLineColor (20 + 2*i) ;
+                  int icol = i * 250 / contours_1sigma.size () ; 
+                  gr->SetLineColor (gStyle->GetColorPalette (icol)) ;
                   gr->SetLineWidth (2) ;
                   gr->Draw ("L same") ;
                   if (first)
                     {
-                      legend.AddEntry (gr, contours_inner.at (i).first.c_str (), "l") ;
+                      legend.AddEntry (gr, contours_1sigma.at (i).first.c_str (), "l") ;
                       first = false ;
                     }
                 }

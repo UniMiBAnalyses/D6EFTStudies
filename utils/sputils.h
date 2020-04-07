@@ -62,6 +62,34 @@ struct entry
     void print () ;
 } ;
 
+// all info concerning a CL contour
+struct cont 
+{
+  public:
+
+    cont (TList * v_graphs, float v_area = 0.) :
+      graphs (v_graphs),
+      area (v_area)
+      {
+        xmin = 0 ;
+        xmax = 0 ;
+        xwidth = 0 ;
+        ywidth = 0 ;
+        minwidth = 0 ;
+        maxwidth = 0 ;
+      }
+
+    TList * graphs ;
+    float area ;
+    float xmin ;
+    float xmax ;
+    float xwidth ;
+    float ywidth ;
+    float minwidth ;
+    float maxwidth ;
+} ;
+
+
 void
 removeSpaces (std::vector<std::string> & vec) ;
 
@@ -105,5 +133,15 @@ treeToGraph2D (TTree *t, TString x, TString y, TCut cut) ;
 TList* contourFromTH2(TH2 *h2in, double threshold, int minPoints=20) ;
 
 TH2D* frameTH2D(TH2D *in, double threshold) ;
+
+std::pair<float, float>
+getMinCoordinates (TTree *t, TString x, TString y) ;
+
+float
+getAreaWithinCL (TH2F * histo, float threshold) ;
+
+bool
+sortByArea (const std::pair<std::string, cont> & a, const std::pair<std::string, cont> & b) ;
+
 
 #endif 
