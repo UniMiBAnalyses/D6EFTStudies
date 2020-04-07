@@ -1,5 +1,5 @@
 /*
-c++ -o read_results_2D `root-config --glibs --cflags` ../utils/CfgParser.cc ../utils/dcutils.cc -lm read_results_2D.cpp
+c++ -o read_results_2D `root-config --glibs --cflags` ../utils/CfgParser.cc ../utils/dcutils.cc ../utils/sputils.cc -lm read_results_2D.cpp
 
 read the results obtained by combine running on the various workspaces created
 when running on the outcome datacard_creator_2 with the same input cfg file
@@ -29,6 +29,7 @@ as the one used for this prgram
 
 #include "../utils/CfgParser.h"
 #include "../utils/dcutils.h"
+#include "../utils/sputils.h"
 
 using namespace std ;
 
@@ -125,9 +126,8 @@ int main (int argc, char ** argv)
                                       + "_" + wilson_coeff_names.at (iCoeff1) 
                                       + "_" + wilson_coeff_names.at (iCoeff2) ;
 
-          vector<pair <string, TH2F *> > contour_plots ;
-          vector<pair <string, TGraph *> > contour_inner ;
-          vector<pair <string, TGraph *> > contour_outer ;
+//          vector<pair <string, TH2F *> > contour_plots ;
+          vector<pair <string, TList *> > contours_inner ;
 
           // loop over variables
           for (int iVar = 0 ; iVar < variables.size () ; ++iVar)
@@ -137,10 +137,14 @@ int main (int argc, char ** argv)
               // get the results from the root file
               // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----   
 
+              string localrootname = wilson_coeff_names.at (iCoeff1) 
+                                     + "_" + wilson_coeff_names.at (iCoeff2)
+                                     + "_" + variables.at (iVar) ;
+
               string filename = destination_folder 
                                 + "/" + outfiles_prefix 
-                                + "_" + wilson_coeff_names.at (iCoeff1) + "_" + wilson_coeff_names.at (iCoeff2)
-                                + "_" + variables.at (iVar) + "_fitresult.root" ;
+                                + "_" + localrootname
+                                + "_fitresult.root" ;
               TFile f_in (filename.c_str ()) ;
               f_in.GetObject ("limit", limitTree) ;
 
@@ -149,62 +153,51 @@ int main (int argc, char ** argv)
 
               // hidden drawing to get the variables ready to build the TGraph later on
               //  --> the ordering here corresponds (i.e. imposes) the one in the TGraph2D fill
-              TString whatToDraw = Form ("%s:%s:2*deltaNLL", 
-                                         ("k_" + wilson_coeff_names.at (iCoeff1)).c_str (), 
-                                         ("k_" + wilson_coeff_names.at (iCoeff2)).c_str ()) ;
-              TString cutToDraw = Form ("(deltaNLL<10) && (%s)", globalCut.c_str ()) ;
-              int n = limitTree->Draw (whatToDraw.Data (), cutToDraw.Data (), "colz") ;
-              TGraph2D * graphScan = new TGraph2D (n, limitTree->GetV1 (), limitTree->GetV2 (), limitTree->GetV3 ()) ;
-              graphScan->GetHistogram ()->GetXaxis ()->SetTitle (wilson_coeff_names.at (iCoeff1).c_str ()) ;
-              graphScan->GetHistogram ()->GetYaxis ()->SetTitle (wilson_coeff_names.at (iCoeff2).c_str ()) ;
-              graphScan->GetHistogram ()->GetZaxis ()->SetTitle ("- 2#Delta logL") ;
-              graphScan->SetTitle ("") ;
-              graphScan->SetMarkerStyle (21) ;
-              graphScan->SetMarkerColor (kRed) ;
-              graphScan->SetLineColor (kRed) ;
-              
-              graphScan->Draw ("colz") ;
 
-              // prepare an histogram to draw level curves for the confidence regions
-              // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----   
+              // TH2 * h_scan = treeToHist2D (
+              //     limitTree, 
+              //     TString ("k_") + TString (wilson_coeff_names.at (iCoeff1).c_str ()),
+              //     TString ("k_") + TString (wilson_coeff_names.at (iCoeff2).c_str ()), 
+              //     "h_" + localrootname, 
+              //     globalCut.c_str (), 
+              //     -2, 2, -2, 2, 100, 100
+              //   ) ;
+              /* TODO FIXME
+               - cerca nel tree il numero di punti totali, il range in x e in y, il binning in x e in y
+               - se alcune di qs info non ci sono, capisci come ricavarle
+               - la macro deve anche dire se il numero di punti e' adeguato
+              */
 
-              string h_name = "h_" + wilson_coeff_names.at (iCoeff1) + "_" + wilson_coeff_names.at (iCoeff2)
-                               + "_" + variables.at (iVar) ;
-              TH2F * h_contour = (TH2F *) (graphScan->GetHistogram ())->Clone (h_name.c_str ()) ;
-              contour_plots.push_back (pair<string, TH2F *> (variables.at (iVar), h_contour)) ;
-              h_contour->SetContour (2, contours) ;
-              h_contour->SetLineWidth (2) ;
-              h_contour->SetLineStyle (1) ;
-              h_contour->GetZaxis ()->SetRangeUser (0, 9.99) ;  
-              h_contour->Draw ("CONT LIST SAME") ; // the option LIST should save the contours in specials
-              c1.Update () ;
-              gPad->Update () ;
-  
-              // get the contours
-              // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----   
+              //h_scan->Draw ("COLZ") ;
 
-              // cout << "conts = " << h_contour->GetContour () << endl ;       // DEBUG
-              // cout << "cont0 = " << h_contour->GetContourLevel (0) << endl ; // DEBUG
-              // cout << "cont1 = " << h_contour->GetContourLevel (1) << endl ; // DEBUG
-              TObjArray * conts = (TObjArray *) gROOT->GetListOfSpecials ()->FindObject ("contours") ;
-              cout << " conts = " << conts << endl ;
-              cout << " conts->GetSize() = " << conts->GetSize () << endl ;
-              TGraph * gr_1sigma = (TGraph *) ( ((TList *) conts->At (0))->First ()) ;
-              TGraph * gr_2sigma = (TGraph *) ( ((TList *) conts->At (1))->First ()) ;
+              TGraph2D * g_scan = treeToGraph2D (
+                  limitTree, 
+                  TString ("k_") + TString (wilson_coeff_names.at (iCoeff1).c_str ()),
+                  TString ("k_") + TString (wilson_coeff_names.at (iCoeff2).c_str ()), 
+                  globalCut.c_str ()
+                ) ;
+              g_scan->Draw ("COLZ") ;
 
-              contour_inner.push_back (pair<string, TGraph *> (variables.at (iVar), (TGraph *) gr_1sigma->Clone ())) ;
-              contour_outer.push_back (pair<string, TGraph *> (variables.at (iVar), (TGraph *) gr_2sigma->Clone ())) ;
-              gr_1sigma->SetLineColor (kRed) ;
-              gr_1sigma->Draw ("L SAME") ;
-              c1.Update () ;
+              string h_name = "h_" + localrootname + "_cont" ;
+              TH2F * h_contour = (TH2F *) (g_scan->GetHistogram ())->Clone (h_name.c_str ()) ;
 
-              // save the plots as pdfs
-              // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----   
+              // list of TGraph describing the contour
+              TList * contour = contourFromTH2 (h_contour, contours[0]) ; 
+              g_scan->Draw ("COLZ") ;
+              TIter next (contour) ;
+              while (TGraph * gr = (TGraph *) next ())
+                {
+                  gr->SetLineColor (kRed) ;
+                  gr->SetLineWidth (2) ;
+                  gr->Draw ("L same") ;
+                }
 
-              string outfile = string ("plot")
-                               + "_" + wilson_coeff_names.at (iCoeff1) + "_" + wilson_coeff_names.at (iCoeff2)
-                               + "_" + variables.at (iVar) + "_LLRscan.pdf" ;
-              c1.SaveAs (outfile.c_str ()) ;
+              contours_inner.push_back (pair<string, TList *> (variables.at (iVar), contour)) ;
+
+              // string outfile = string ("plot")
+              //                  + "_" + wilson_coeff_names.at (iCoeff1) + "_" + wilson_coeff_names.at (iCoeff2)
+              //                  + "_" + variables.at (iVar) + "_LLRscan.pdf" ;
+              // c1.SaveAs (outfile.c_str ()) ;
 
             } // loop over variables
 
@@ -212,16 +205,24 @@ int main (int argc, char ** argv)
           dummy_h->GetXaxis ()->SetTitle (wilson_coeff_names.at (iCoeff1).c_str ()) ;
           dummy_h->GetYaxis ()->SetTitle (wilson_coeff_names.at (iCoeff2).c_str ()) ;
 
-          TLegend legend (0.70, 0.80, 0.90, 0.90) ;
+          TLegend legend (0.70, 0.50, 0.95, 0.95) ;
 
-          for (int i = 0 ; i < contour_inner.size () ; ++i)
+          for (int i = 0 ; i < contours_inner.size () ; ++i)
             {
 
-              contour_inner.at (i).second->SetLineColor (kRed + 2*i) ;
-              contour_inner.at (i).second->Draw ("L SAME") ;
-              legend.AddEntry (contour_inner.at (i).second,
-                               contour_inner.at (i).first.c_str (),
-                               "l") ;
+              TIter next (contours_inner.at (i).second) ;
+              bool first = true ;
+              while (TGraph * gr = (TGraph *) next ())
+                {
+                  gr->SetLineColor (20 + 2*i) ;
+                  gr->SetLineWidth (2) ;
+                  gr->Draw ("L same") ;
+                  if (first)
+                    {
+                      legend.AddEntry (gr, contours_inner.at (i).first.c_str (), "l") ;
+                      first = false ;
+                    }
+                }
             }
 
           legend.SetBorderSize (0) ;

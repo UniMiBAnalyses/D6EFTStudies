@@ -6,7 +6,17 @@
 #include <iostream>
 #include <map>
 
-#include <TH1F.h>
+#include "TH1F.h"
+#include "TH2F.h"
+#include "TH2D.h"
+#include "TROOT.h"
+#include "TTree.h"
+#include "TString.h"
+#include "TCut.h"
+#include "TList.h"
+#include "TGraph2D.h"
+
+#include "dcutils.h"
 
 struct entry
 {
@@ -52,9 +62,6 @@ struct entry
     void print () ;
 } ;
 
-std::vector<std::string> 
-split (const std::string& s, char delimiter) ;
-
 void
 removeSpaces (std::vector<std::string> & vec) ;
 
@@ -90,10 +97,13 @@ void hardunique (std::vector<T> & vect,
   return ;
 }
 
+TH2 *treeToHist2D(TTree *t, TString x, TString y, TString name, TCut cut, double xmin, double xmax, double ymin, double ymax, int xbins, int ybins) ;
 
-TH1F * 
-setDummyHisto (float xmin, float ymin, float xmax, float ymax, 
-               std::vector<std::string> labels) ;
+TGraph2D * 
+treeToGraph2D (TTree *t, TString x, TString y, TCut cut) ;
 
+TList* contourFromTH2(TH2 *h2in, double threshold, int minPoints=20) ;
+
+TH2D* frameTH2D(TH2D *in, double threshold) ;
 
 #endif 
