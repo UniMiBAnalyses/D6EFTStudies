@@ -106,6 +106,7 @@ int main (int argc, char ** argv)
 
   //---- 2D likelihood thresholds
   // http://pdg.lbl.gov/2018/reviews/rpp2018-rev-statistics.pdf
+//  double contours[1] = {2.30} ; // 1sigma, 95% CL
   double contours[2] = {2.30, 5.99} ; // 1sigma, 95% CL
 //  float contours[2] = {2.30, 6.18} ; // 1sigma, 2sigma
 
@@ -162,7 +163,7 @@ int main (int argc, char ** argv)
               graphScan->SetMarkerColor (kRed) ;
               graphScan->SetLineColor (kRed) ;
               
-//              graphScan->Draw ("colz") ;
+              graphScan->Draw ("colz") ;
 
               // prepare an histogram to draw level curves for the confidence regions
               // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----   
@@ -175,7 +176,7 @@ int main (int argc, char ** argv)
               h_contour->SetLineWidth (2) ;
               h_contour->SetLineStyle (1) ;
               h_contour->GetZaxis ()->SetRangeUser (0, 9.99) ;  
-              h_contour->Draw ("CONT LIST") ; // the option LIST should save the contours in specials
+              h_contour->Draw ("CONT LIST SAME") ; // the option LIST should save the contours in specials
               c1.Update () ;
               gPad->Update () ;
   
