@@ -178,7 +178,7 @@ treeToGraph2D (TTree *t, TString x, TString y, TCut cut)
 
 // copied from here https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/74x-root6/test/plotting/contours2D.cxx
 TList* contourFromTH2(TH2 *h2in, double threshold, int minPoints) {
-    std::cout << "Getting contour at threshold " << threshold << " from " << h2in->GetName() << std::endl;
+//    std::cout << "Getting contour at threshold " << threshold << " from " << h2in->GetName() << std::endl;
     //http://root.cern.ch/root/html/tutorials/hist/ContourList.C.html
     Double_t contours[1];
     contours[0] = threshold;
@@ -325,3 +325,47 @@ sortByArea (const pair<string, cont> & a, const pair<string, cont> & b)
   return a.second.area < b.second.area ;
 }
 
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
+void 
+drawMarker (const float & x, const float & y, const int & style, const int & color) 
+{
+  TGraph * punto = new TGraph () ;
+  punto->SetPoint (0, x, y) ;
+  punto->SetMarkerStyle (style) ;
+  punto->SetMarkerColor (color) ;
+  punto->Draw ("P") ;
+  return ;
+
+  // TMarker minimum (contours_1sigma.at (i).second.xmin, contours_1sigma.at (i).second.ymin, 4) ;
+  // minimum.SetMarkerColor (icol) ;
+  // minimum.Draw ("P") ;  
+}
+
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
+vector<float>
+findBoxAround (TGraph * gr)
+{
+  float minx =  2. ;
+  float maxx = -2. ;
+  float miny =  2. ;
+  float maxy = -2. ;
+  for (int i = 0 ; i < gr->GetN () ; ++i)
+    {
+      if (gr->GetX ()[i] < minx) minx = gr->GetX ()[i] ;
+      if (gr->GetX ()[i] > maxx) maxx = gr->GetX ()[i] ;
+      if (gr->GetY ()[i] < miny) miny = gr->GetY ()[i] ;
+      if (gr->GetY ()[i] > maxy) maxy = gr->GetY ()[i] ;
+    } 
+  vector<float> result (4, 0.) ;
+  result.at (0) = minx ;
+  result.at (1) = maxx ;
+  result.at (2) = miny ;
+  result.at (3) = maxy ;
+  return result ;
+}

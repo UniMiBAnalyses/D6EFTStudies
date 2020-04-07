@@ -10,6 +10,7 @@ as the one used for this prgram
 #include <vector>
 #include <string>
 #include <map>
+#include <fstream>
 
 #include "TTree.h"
 #include "TFile.h"
@@ -25,6 +26,7 @@ as the one used for this prgram
 #include "TROOT.h"
 #include "TStyle.h"
 #include "TColor.h"
+#include "TMarker.h"
 
 
 #include "../utils/CfgParser.h"
@@ -107,9 +109,11 @@ int main (int argc, char ** argv)
 
   //---- 2D likelihood thresholds
   // http://pdg.lbl.gov/2018/reviews/rpp2018-rev-statistics.pdf
-//  double contours[1] = {2.30} ; // 1sigma, 95% CL
+  // double contours[1] = {2.30} ; // 1sigma, 95% CL
   double contours[2] = {2.30, 5.99} ; // 1sigma, 95% CL
-//  float contours[2] = {2.30, 6.18} ; // 1sigma, 2sigma
+  // float contours[2] = {2.30, 6.18} ; // 1sigma, 2sigma
+
+  vector<vector <string> > bestVar ;
 
   // loop over first coefficient
   for (int iCoeff1 = 0 ; iCoeff1 < wilson_coeff_names.size () ; ++iCoeff1)
@@ -118,7 +122,7 @@ int main (int argc, char ** argv)
       for (int iCoeff2 = iCoeff1 + 1 ; iCoeff2 < wilson_coeff_names.size () ; ++iCoeff2)
         {
 
-          cout << "--> coeffs " << wilson_coeff_names.at (iCoeff1) 
+          cout << "\n--> coeffs " << wilson_coeff_names.at (iCoeff1) 
                << " vs. " << wilson_coeff_names.at (iCoeff2) << endl ;
           cout << "---- ---- ---- ---- ---- ---- ---- ---- ---- " << endl ;
 
@@ -126,14 +130,13 @@ int main (int argc, char ** argv)
                                       + "_" + wilson_coeff_names.at (iCoeff1) 
                                       + "_" + wilson_coeff_names.at (iCoeff2) ;
 
-//          vector<pair <string, TH2F *> > contour_plots ;
-          vector<pair <string, TList *> > contours_inner ;
           vector<pair <string, cont> > contours_1sigma ;
 
           // loop over variables
           for (int iVar = 0 ; iVar < variables.size () ; ++iVar)
             {
-              cout << "--> var " << variables.at (iVar) << endl ;
+//              cout << "--> var " << variables.at (iVar) << endl ;
+              cout << "\t " << variables.at (iVar) << endl ;
 
               // get the results from the root file
               // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----   
@@ -174,7 +177,9 @@ int main (int argc, char ** argv)
                   gr->Draw ("L same") ;
                 }
 
-              contours_inner.push_back (pair<string, TList *> (variables.at (iVar), contour)) ;
+              if (contour->GetEntries () == 0)
+                cout << "\t\tWARNING: no contour found\n" ;
+
               contours_1sigma.push_back (pair<string, cont> (variables.at (iVar), cont (contour))) ;
 
               // stats information from the likelihood scan
@@ -188,7 +193,7 @@ int main (int argc, char ** argv)
               float area = getAreaWithinCL (h_contour, contours[0]) ;
               contours_1sigma.back ().second.area = area ;
               contours_1sigma.back ().second.xmin = llrMin.first ;
-              contours_1sigma.back ().second.xmax = llrMin.second ;
+              contours_1sigma.back ().second.ymin = llrMin.second ;
 
 
               // string outfile = string ("plot")
@@ -217,6 +222,7 @@ int main (int argc, char ** argv)
               bool first = true ;
               while (TGraph * gr = (TGraph *) next ())
                 {
+                  vector<float> boundaries = findBoxAround (gr) ;
                   int icol = i * 250 / contours_1sigma.size () ; 
                   gr->SetLineColor (gStyle->GetColorPalette (icol)) ;
                   gr->SetLineWidth (2) ;
@@ -226,6 +232,8 @@ int main (int argc, char ** argv)
                       legend.AddEntry (gr, contours_1sigma.at (i).first.c_str (), "l") ;
                       first = false ;
                     }
+                  // for some reasons it draws is white
+                  // drawMarker (contours_1sigma.at (i).second.xmin, contours_1sigma.at (i).second.ymin, 33, icol) ;
                 }
             }
 
@@ -237,12 +245,26 @@ int main (int argc, char ** argv)
                            + "_compareScan.pdf" ;
           c1.SaveAs (outfile.c_str ()) ;
 
+          vector <string> bestcomb (3) ;
+          bestcomb.at (0) = wilson_coeff_names.at (iCoeff1) ;
+          bestcomb.at (1) = wilson_coeff_names.at (iCoeff2) ;
+          bestcomb.at (2) = contours_1sigma.at (0).first ;
+          bestVar.push_back (bestcomb) ;
 
         } // loop over second Wilson coefficient
     } // second loop over first Wilson coefficient
 
-// FINO A QUI
-
+  ofstream myfile ;
+  myfile.open ((destination_folder_prefix + "_bestvars.txt").c_str ()) ;
+  myfile << "# cW1, cW2, var\n" ;
+  for (int i = 0 ; i < bestVar.size () ; ++i)
+    {
+      myfile << bestVar.at(i).at (0)
+             << ", " << bestVar.at(i).at (1)
+             << ", " << bestVar.at(i).at (2)
+             << "\n" ;
+    }
+  myfile.close () ;
 
   return 0 ; 
 

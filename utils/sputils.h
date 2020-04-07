@@ -72,7 +72,7 @@ struct cont
       area (v_area)
       {
         xmin = 0 ;
-        xmax = 0 ;
+        ymin = 0 ;
         xwidth = 0 ;
         ywidth = 0 ;
         minwidth = 0 ;
@@ -82,7 +82,7 @@ struct cont
     TList * graphs ;
     float area ;
     float xmin ;
-    float xmax ;
+    float ymin ;
     float xwidth ;
     float ywidth ;
     float minwidth ;
@@ -143,5 +143,10 @@ getAreaWithinCL (TH2F * histo, float threshold) ;
 bool
 sortByArea (const std::pair<std::string, cont> & a, const std::pair<std::string, cont> & b) ;
 
+void 
+drawMarker (const float & x, const float & y, const int & style, const int & color) ;
+
+std::vector<float>
+findBoxAround (TGraph * gr) ;
 
 #endif 
