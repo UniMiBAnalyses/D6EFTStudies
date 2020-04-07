@@ -127,7 +127,10 @@ const std::map<std::string, std::string> gvarNames
 void setTDRStyle () ;
 
 std::vector<std::string> 
-split (const std::string& s, char delimiter) ;
+split (const std::string & s, char delimiter) ;
+
+std::string
+merge (const std::vector<std::string> & tokens, char delimiter) ;
 
 bool 
 replace (std::string& str, const std::string& from, const std::string& to) ;

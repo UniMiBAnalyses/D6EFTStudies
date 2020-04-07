@@ -170,7 +170,7 @@ void setTDRStyle ()
 
 
 vector<string> 
-split (const string& s, char delimiter)
+split (const string & s, char delimiter)
 {
    vector<string> tokens;
    string token ;
@@ -180,6 +180,18 @@ split (const string& s, char delimiter)
       tokens.push_back (token) ;
    }
    return tokens ;
+}
+
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
+string
+merge (const vector<string> & tokens, char delimiter)
+{
+   string result = tokens.at (0) ;
+   for (int i = 1 ; i < tokens.size () ; ++i) result += delimiter + tokens.at (i) ;
+   return result ;
 }
 
 

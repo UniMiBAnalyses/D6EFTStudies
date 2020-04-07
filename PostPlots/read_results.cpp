@@ -37,7 +37,7 @@ int main (int argc, char ** argv)
 
   CfgParser * gConfigParser = new CfgParser (argv[1]) ;
 
-  vector<string> wilson_coeff_names = gConfigParser->readStringListOpt ("general::wilson_coeff_names") ;
+  vector<string> wilson_coeff_names = gConfigParser->readStringListOpt ("eft::wilson_coeff_names") ;
 
   string outfiles_prefix           = gConfigParser->readStringOpt ("output::outfiles_prefix") ;
   string destination_folder_prefix = gConfigParser->readStringOpt ("output::destination_folder_prefix") ;
