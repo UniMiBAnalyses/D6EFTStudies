@@ -66,6 +66,9 @@ int main (int argc, char ** argv)
       destination_folder_prefix = argv[2] + string ("/") + percorso.back () ;
     }
 
+  vector <string> percorso = split (destination_folder_prefix, '/') ;
+  string baseFileName = percorso.back () ;
+
   // prepare the graphical options and the canvas for printing
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----   
 
@@ -241,6 +244,7 @@ int main (int argc, char ** argv)
           legend.SetFillStyle (0) ;
           legend.Draw () ;
           string outfile = string ("plot")
+                           + "_" + baseFileName
                            + "_" + wilson_coeff_names.at (iCoeff1) + "_" + wilson_coeff_names.at (iCoeff2)
                            + "_compareScan.pdf" ;
           c1.SaveAs (outfile.c_str ()) ;
