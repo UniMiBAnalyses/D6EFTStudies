@@ -84,9 +84,20 @@ getOps (const vector<entry> & ds)
 
 bool
 sortByOpAndOS (const entry & a, const entry & b)
-{	 
+{  
   if (a.op < b.op) return true ;
   if ((a.op == b.op && a.osD < b.osD)) return true ;
+  return false ;
+}
+
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
+bool
+sortByOS (const entry & a, const entry & b)
+{  
+  if (a.osD < b.osD) return true ;
   return false ;
 }
 

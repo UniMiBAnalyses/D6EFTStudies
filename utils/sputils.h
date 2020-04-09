@@ -103,6 +103,9 @@ bool
 sortByOpAndOS (const entry & a, const entry & b) ;
 
 bool
+sortByOS (const entry & a, const entry & b) ;
+
+bool
 equalByOp (const entry & a, const entry & b) ;
 
 std::vector <float>

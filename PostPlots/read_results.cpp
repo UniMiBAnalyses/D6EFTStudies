@@ -35,6 +35,9 @@ int main (int argc, char ** argv)
       return 1 ;
     }
 
+  // read input informantion
+  // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----   
+
   CfgParser * gConfigParser = new CfgParser (argv[1]) ;
 
   vector<string> wilson_coeff_names = gConfigParser->readStringListOpt ("eft::wilson_coeff_names") ;
@@ -44,6 +47,17 @@ int main (int argc, char ** argv)
 
   vector<string> variables = gConfigParser->readStringListOpt ("general::variables") ;
   float luminosity         = gConfigParser->readFloatOpt ("general::luminosity") ;
+
+  //PG the following piece needs to be added and tested
+  // // alternative location of result files with respect to the cfg file
+  // if (argc > 2)
+  //   {
+  //     vector <string> percorso = split (destination_folder_prefix, '/') ;
+  //     destination_folder_prefix = argv[2] + string ("/") + percorso.back () ;
+  //   }
+
+  // vector <string> percorso = split (destination_folder_prefix, '/') ;
+  // string baseFileName = percorso.back () ;
 
   TCanvas c1 ("c1", "", 600, 600) ;
 
