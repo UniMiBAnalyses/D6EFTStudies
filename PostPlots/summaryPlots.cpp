@@ -1,5 +1,5 @@
 /*
-c++ -o summaryPlots `root-config --glibs --cflags` ../utils/dcutils.cc ../utils/sputils.cc -lm summaryPlots.cpp
+c++ -o summaryPlots `root-config --glibs --cflags` ../utils/dcutils.cc ../utils/sputils.cc ../utils/CfgParser.cc -lm summaryPlots.cpp
 */
 
 #include <vector>
@@ -16,29 +16,6 @@ c++ -o summaryPlots `root-config --glibs --cflags` ../utils/dcutils.cc ../utils/
 
 using namespace std ;
 
-
-float func (float x)
-{
-  return x ;
-//  return cbrt (x) ;
-}
-
-
-float invfunc (float x)
-{
-  return x ;
-//  return pow (x,3) ;
-}
-
-
-Double_t axistransform (Double_t *x, Double_t *par)
-{
-//  return invfunc (x[0]) ;
-  return x[0] ;
-}
-
-
-// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
 
 
 int main (int argc, char ** argv)
@@ -84,17 +61,17 @@ int main (int argc, char ** argv)
       vector<float> found = findOp (d_SSWW, op_tot.at (i)) ;
       if (found.at (0) > 0.1)
         {
-          if (func (found.at (2)) > maxy) maxy = func (found.at (2)) ;
-          OSB_SSWW.Fill (i, func (found.at (1))) ;
-          TSB_SSWW.Fill (i, func (found.at (2))) ;
+          if (found.at (2) > maxy) maxy = found.at (2) ;
+          OSB_SSWW.Fill (i, found.at (1)) ;
+          TSB_SSWW.Fill (i, found.at (2)) ;
         }
 
       found = findOp (d_inWW, op_tot.at (i)) ;
       if (found.at (0) > 0.1)
         {
-          if (-1 * func (found.at (2)) < miny) miny = -1 * func (found.at (2)) ;
-          OSB_inWW.Fill (i, -1 * func (found.at (1))) ;
-          TSB_inWW.Fill (i, -1 * func (found.at (2))) ;
+          if (-1 * found.at (2) < miny) miny = -1 * found.at (2) ;
+          OSB_inWW.Fill (i, -1 * found.at (1)) ;
+          TSB_inWW.Fill (i, -1 * found.at (2)) ;
         }
     }
 
@@ -117,20 +94,6 @@ int main (int argc, char ** argv)
   cout << dh->GetMinimum ()<<endl;
   cout << dh->GetXaxis ()->GetXmin ()<<endl; 
   cout << dh->GetMaximum ()<<endl;
-
-  TF1 transform ("transform", axistransform, dh->GetMaximum (), dh->GetMaximum (), 0) ;
-  TGaxis newaxis (
-    dh->GetXaxis ()->GetXmin (), 
-    dh->GetMinimum (),
-    dh->GetXaxis ()->GetXmin (), 
-    dh->GetMaximum (),
-    "transform", 505, "") ;
-                  // 10,  
-                  // "",
-                  // Double_t gridlength)
-  newaxis.SetLineColor (kRed) ;
-  newaxis.SetLabelColor (kRed) ;
-  newaxis.Draw () ;
 
   OSB_SSWW.SetFillColor (kOrange+1) ;
   OSB_inWW.SetFillColor (kOrange+1) ;
