@@ -316,12 +316,34 @@ To simulate "sm" part, k_my_1 == 0 (this is how we simulate the expected result 
             higgsCombineTest.MultiDimFit.mH125.root draw.cxx
 
 
-
-
-
 ## PostPlots
 
-  * summary plots from the existing results produced by ```read_results.cpp```
+### ```read_results.cpp```
+
+Performes the detailed inspection of each single operator for 1D scans, 
+produces the likelihood scans,
+calculates the crossing points with the horisontal thresholds
+for 1sigma and 2sigma, plots all the results 
+and produces a summary txt CSV (comma-separated values) file
+containing the scan of all operators and variables considered
+in the generation campaign.
+Takes as input the cfg file fed to DatacardCreator
+and optionally the folder where the \*result folder are saved.
+
+### ```read_results_2D.cpp```
+
+Performes the detailed inspection of each single operator for 2D scans, 
+calculates the crossing intersections with the horisontal thresholds
+for 1sigma and 2sigma, 
+plots the obtained contours ranked in area for the 1sigma CL.
+Takes as input the cfg file fed to DatacardCreator
+and optionally the folder where the \*result folder are saved.
+
+### ```summaryPlots.cpp```
+
+Compares two different set of results
+(for example SSWW VBS and inclusive prodcution),
+taking as input the output CSV files of ```read_results.cpp```.
 
 ## useful commands and links
 
