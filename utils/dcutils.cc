@@ -901,7 +901,8 @@ TH1F * setDummyHisto (float xmin, float ymin, float xmax, float ymax,
 void 
 drawSensitivities (string op, 
                    limits_var_v limits, 
-                   string basefilename)
+                   string basefilename,
+                   bool message)
 {
 
   // prepare the sensitivity bars,
@@ -960,8 +961,9 @@ drawSensitivities (string op,
   legend.Draw () ;
 
   clims.RedrawAxis () ;
-  clims.SaveAs ((basefilename + "_cfr.png").c_str ()) ;
+  clims.SaveAs ((basefilename + "_cfr.pdf").c_str ()) ;
 
+  if (message) cout << "file " << basefilename << "_cfr.pdf saved\n" ;
   // save histos in a root file
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
 
@@ -971,6 +973,7 @@ drawSensitivities (string op,
   h_OSDO.Write () ;
   h_OSUP.Write () ;
   outrootfile.Write () ;
+  if (message) cout << "file " << basefilename << "_cfr.root saved\n" ;
 
   // save numbers in a txt file
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
@@ -988,6 +991,7 @@ drawSensitivities (string op,
              << "\n" ;
     }
   myfile.close () ;
+  if (message) cout << "file " << basefilename << "_cfr.txt saved\n" ;
  
   return ;
 }
@@ -998,7 +1002,8 @@ drawSensitivities (string op,
 
 void 
 writeCSVlimits (limits_op_v all_limits, 
-                string basefilename)
+                string basefilename,
+                bool message)
 {
   // save numbers in a csv file
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
@@ -1021,7 +1026,8 @@ writeCSVlimits (limits_op_v all_limits,
         }
     }
   myfile.close () ;
- 
+  if (message) cout << "results written to " << basefilename << "_CSV.txt\n" ;
+
   return ;
 }
 

@@ -207,11 +207,13 @@ setDummyHisto (float xmin, float ymin, float xmax, float ymax,
 void 
 drawSensitivities (std::string op, 
                    limits_var_v limits, 
-                   std::string basefilename) ;
+                   std::string basefilename,
+                   bool message = false) ;
 
 void 
 writeCSVlimits (limits_op_v all_limits, 
-                std::string basefilename) ;
+                std::string basefilename,
+                bool message = false) ;
 
 
 // PG not working like this, should be the natural way to go I guess

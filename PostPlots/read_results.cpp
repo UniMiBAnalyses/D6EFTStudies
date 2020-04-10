@@ -49,12 +49,12 @@ int main (int argc, char ** argv)
   float luminosity         = gConfigParser->readFloatOpt ("general::luminosity") ;
 
   //PG the following piece needs to be added and tested
-  // // alternative location of result files with respect to the cfg file
-  // if (argc > 2)
-  //   {
-  //     vector <string> percorso = split (destination_folder_prefix, '/') ;
-  //     destination_folder_prefix = argv[2] + string ("/") + percorso.back () ;
-  //   }
+  // alternative location of result files with respect to the cfg file
+  if (argc > 2)
+    {
+      vector <string> percorso = split (destination_folder_prefix, '/') ;
+      destination_folder_prefix = argv[2] + string ("/") + percorso.back () ;
+    }
 
   // vector <string> percorso = split (destination_folder_prefix, '/') ;
   // string baseFileName = percorso.back () ;
@@ -159,11 +159,13 @@ int main (int argc, char ** argv)
 
       sort (limits.begin (), limits.end (), sortBySensitivity) ;
       all_limits.push_back (limits_op (wilson_coeff_name, limits)) ;
-      drawSensitivities (wilson_coeff_name, limits, destinationfolder + "/" + outfiles_prefix + "_" + wilson_coeff_names.at (iCoeff)) ;
+      drawSensitivities (wilson_coeff_name, limits, 
+                         destinationfolder + "/" + outfiles_prefix + "_" + wilson_coeff_names.at (iCoeff), 
+                         true) ;
 
     } // loop over Wilson coefficients
 
-  writeCSVlimits (all_limits, outfiles_prefix + "_CSV") ;
+  writeCSVlimits (all_limits, string (argv[2]) + "/" + outfiles_prefix, true) ;
   
 
   return 0 ; 
