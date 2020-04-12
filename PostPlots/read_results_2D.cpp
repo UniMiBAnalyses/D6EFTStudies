@@ -140,6 +140,9 @@ int main (int argc, char ** argv)
 //              cout << "--> var " << variables.at (iVar) << endl ;
               cout << "\t " << variables.at (iVar) << endl ;
 
+              // gStyle->SetPalette (kDeepSea) ;
+              TColor::CreateGradientColorTable (__NRGBs, __stops, __red, __green, __blue, __NCont) ;
+
               // get the results from the root file
               // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----   
 
@@ -164,6 +167,8 @@ int main (int argc, char ** argv)
                   globalCut.c_str ()
                 ) ;
               g_scan->Draw ("COLZ") ;
+              g_scan->GetHistogram ()->GetXaxis ()->SetTitle (TString (wilson_coeff_names.at (iCoeff1).c_str ())) ;
+              g_scan->GetHistogram ()->GetYaxis ()->SetTitle (TString (wilson_coeff_names.at (iCoeff2).c_str ())) ;
 
               string h_name = "h_" + localrootname + "_cont" ;
               TH2F * h_contour = (TH2F *) (g_scan->GetHistogram ())->Clone (h_name.c_str ()) ;
@@ -197,11 +202,10 @@ int main (int argc, char ** argv)
               contours_1sigma.back ().second.xmin = llrMin.first ;
               contours_1sigma.back ().second.ymin = llrMin.second ;
 
-
-              // string outfile = string ("plot")
-              //                  + "_" + wilson_coeff_names.at (iCoeff1) + "_" + wilson_coeff_names.at (iCoeff2)
-              //                  + "_" + variables.at (iVar) + "_LLRscan.pdf" ;
-              // c1.SaveAs (outfile.c_str ()) ;
+              string outfile = destination_folder + string ("/plot")
+                               + "_" + wilson_coeff_names.at (iCoeff1) + "_" + wilson_coeff_names.at (iCoeff2)
+                               + "_" + variables.at (iVar) + "_LLRscan.pdf" ;
+              c1.SaveAs (outfile.c_str ()) ;
 
             } // loop over variables
  
