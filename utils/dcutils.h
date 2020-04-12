@@ -172,7 +172,8 @@ void
 createCondorScripts (std::pair <std::string, std::string> fittingCommands,
                      std::string output_folder,
                      std::string cmssw_folder,
-                     std::string varname) ;
+                     std::string varname, 
+                     std::string queue = "espresso") ;
 
 int 
 plotHistos (TH1F * h_SM, std::map<std::string, TH1F *> h_eftInput,

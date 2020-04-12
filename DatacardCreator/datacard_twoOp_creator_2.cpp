@@ -67,6 +67,12 @@ int main (int argc, char ** argv)
 
   string cmssw_folder = gConfigParser->readStringOpt ("combine::cmssw_folder") ;
 
+  string queue = "espresso" ;
+  if (gConfigParser->hasOpt ("condor::queue"))
+    {
+      queue = gConfigParser->readStringOpt ("condor::queue") ;
+    }
+
   map<string, TH1F *> hmap_SM = readNtupleFile (
       input_files_folder + "/" + input_files_prefix + "_SM.root", 
       input_ntuples_prefix + "_SM", 
@@ -199,7 +205,8 @@ int main (int argc, char ** argv)
               createCondorScripts (WScreation_commands.back (),
                                    destination_folder,
                                    cmssw_folder,
-                                   iHisto->first) ;
+                                   iHisto->first,
+                                   queue) ;
     
             } //loop on variables  
           // creating the scripts to be launched to use combine

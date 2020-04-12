@@ -666,7 +666,8 @@ void
 createCondorScripts (pair <std::string, string> fittingCommands,
                      string output_folder,
                      string cmssw_folder,
-                     string varname)
+                     string varname,
+                     string queue)
 {
 
   vector<string> step1words = split (fittingCommands.first, ' ') ;
@@ -694,7 +695,7 @@ createCondorScripts (pair <std::string, string> fittingCommands,
   submitfile << "error      = " + output_folder + "/submit_" + varname + ".err\n" ;
   submitfile << "log        = " + output_folder + "/submit_" + varname + ".log\n" ;
   submitfile << "queue 1\n" ;
-  submitfile << "+JobFlavour = \"espresso\"\n" ;
+  submitfile << "+JobFlavour = \"" + queue + "\"\n" ;
   submitfile.close () ;
 
 // espresso  20min 8nm
