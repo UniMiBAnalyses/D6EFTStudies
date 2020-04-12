@@ -58,6 +58,7 @@ int main (int argc, char ** argv)
 
   string outfiles_prefix           = gConfigParser->readStringOpt ("output::outfiles_prefix") ;
   string destination_folder_prefix = gConfigParser->readStringOpt ("output::destination_folder_prefix") ;
+  string destination_root_folder   = gConfigParser->readStringOpt ("output::destination_root_folder") ;
 
   string cmssw_folder = gConfigParser->readStringOpt ("combine::cmssw_folder") ;
 
@@ -96,7 +97,12 @@ int main (int argc, char ** argv)
 
       vector<pair <string, string> > WScreation_commands ;
       // FIXME creare se non esiste, pulire se esiste
-      string destination_folder = destination_folder_prefix + "_" + wilson_coeff_names.at (iCoeff) ;
+      string destination_relative_folder = destination_folder_prefix + "_" + wilson_coeff_names.at (iCoeff) ;
+
+      string destination_folder = 
+               destination_root_folder 
+               + "/" + destination_relative_folder ;
+
       mkdir (destination_folder.c_str (), S_IRWXU) ;
       copyFile (destination_folder, argv[1]) ;
 
@@ -123,7 +129,8 @@ int main (int argc, char ** argv)
 
           WScreation_commands.push_back (
               createDataCard (h_SM, h_eftInputs, 
-                              destination_folder, outfiles_prefix + "_" + wilson_coeff_names.at (iCoeff), 
+                              destination_relative_folder, 
+                              outfiles_prefix + "_" + wilson_coeff_names.at (iCoeff), 
                               iHisto->first, active_coeffs,
                               gConfigParser)
             ) ;
@@ -132,11 +139,13 @@ int main (int argc, char ** argv)
           h_rescales.push_back (wilson_coeffs_plot.at (iCoeff) / wilson_coeffs.at (iCoeff)) ; // Lin C1
           h_rescales.push_back (h_rescales.back () * h_rescales.back ()) ;                    // Qua C1
 
-          plotHistos (h_SM, h_eftInputs, destination_folder, 
+          plotHistos (h_SM, h_eftInputs, 
+                      destination_folder, 
                       outfiles_prefix + "_" + wilson_coeff_names.at (iCoeff), 
                       iHisto->first, h_rescales) ;
 
-          plotHistos (h_SM, h_eftInputs, destination_folder, 
+          plotHistos (h_SM, h_eftInputs, 
+                      destination_folder, 
                       outfiles_prefix + "_" + wilson_coeff_names.at (iCoeff), 
                       iHisto->first, h_rescales, true) ;
     
@@ -144,7 +153,6 @@ int main (int argc, char ** argv)
           createCondorScripts (WScreation_commands.back (),
                                destination_folder,
                                cmssw_folder,
-                               getcwd (pathname, 300),
                                iHisto->first) ;
 
         } //loop on variables  
