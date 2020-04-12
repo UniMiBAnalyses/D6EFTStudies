@@ -172,7 +172,6 @@ void
 createCondorScripts (std::pair <std::string, std::string> fittingCommands,
                      std::string output_folder,
                      std::string cmssw_folder,
-                     std::string execution_folder,
                      std::string varname) ;
 
 int 

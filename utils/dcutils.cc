@@ -547,6 +547,12 @@ createDataCard (TH1F * h_SM, map<string, TH1F *> h_eftInput,
   string comb_verbosity = gConfigParser->readStringOpt ("combine::verbosity") ;
   string comb_model     = gConfigParser->readStringOpt ("combine::model") ;
 
+  int n_points_combine = 1200 ;
+  if (gConfigParser->hasOpt ("combine::n_points"))
+    {
+      n_points_combine = gConfigParser->readIntOpt ("combine::n_points") ;
+    }
+
 //  string wilson_coeff_list = gConfigParser->readStringOpt ("eft::wilson_coeff_names") ;
   vector<string> wilson_coeff_names = gConfigParser->readStringListOpt ("eft::wilson_coeff_names") ;
 
@@ -620,7 +626,7 @@ createDataCard (TH1F * h_SM, map<string, TH1F *> h_eftInput,
   vector<string> paramFreeze = prepareFreeze (active_coeffs) ;
 
   string fitting_command = "combine -M MultiDimFit " + rootfilename ;
-  fitting_command += " --algo=grid --points 1200 -m 125" ;
+  fitting_command += " --algo=grid --points " + to_string (n_points_combine) + " -m 125" ;
   fitting_command += " -t -1 --expectSignal=1" ;  // FIXME check whehter expectSignal is needed
   fitting_command += " --redefineSignalPOIs " + paramFreeze.at (2) ;
   fitting_command += " --freezeParameters r," + paramFreeze.at (0) ;
@@ -660,11 +666,8 @@ void
 createCondorScripts (pair <std::string, string> fittingCommands,
                      string output_folder,
                      string cmssw_folder,
-                     string execution_folder,
                      string varname)
 {
-
-  string folder = execution_folder + "/" + output_folder ;
 
   vector<string> step1words = split (fittingCommands.first, ' ') ;
   string output1 = findAfter (step1words, "-o") ;
@@ -676,13 +679,13 @@ createCondorScripts (pair <std::string, string> fittingCommands,
   jobfile << "cd " << cmssw_folder << "\n" ;
   jobfile << "eval `scram run -sh`\n" ;
   jobfile << "cd -\n" ;
-  jobfile << "cp -r " << folder << " ./\n" ; 
+  jobfile << "cp -r " << output_folder << " ./\n" ; 
   jobfile << fittingCommands.first  << "\n" ;
   jobfile << fittingCommands.second << "\n" ;
-  jobfile << "cp " << output1            << " " << folder << "\n" ; 
-  jobfile << "cp " << output2            << " " << folder << "\n" ; 
-  jobfile << "cp " << output3            << " " << folder << "\n" ; 
-  jobfile << "cp " << step2words.back () << " " << folder << "\n" ; 
+  jobfile << "cp " << output1            << " " << output_folder << "\n" ; 
+  jobfile << "cp " << output2            << " " << output_folder << "\n" ; 
+  jobfile << "cp " << output3            << " " << output_folder << "\n" ; 
+  jobfile << "cp " << step2words.back () << " " << output_folder << "\n" ; 
   jobfile.close () ;
 
   ofstream submitfile (output_folder + "/submit_" + varname + ".sub") ;

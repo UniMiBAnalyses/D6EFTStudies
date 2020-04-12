@@ -170,6 +170,12 @@ the files to be read and some detailed configuration parameters
 To submit to condor the creation of the workspaces and the ```combine``` fitting procedure,
 launch ```condor_submit``` with as argument the submit\*.sub file of interest
 from the created datacard folders.
+Once a set of folders have been created by ```datacard_creator_2``` or ```datacard_twoOp_creator_2```,
+once can submit all jobs at once like this:
+```for fil in `find . -maxdepth 2 -name "submit*ub" | grep SSWW` ; do condor_submit $fil ; done```
+In this case, all files that have the name like ```submit*ub``` 
+and are in a folder which has ```SSWW``` in its name
+will be sent to condor.
 
 ### read_results.cpp
 
