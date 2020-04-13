@@ -173,6 +173,7 @@ treeToGraph2D (TTree *t, TString x, TString y, TCut cut)
     for (int i = 0 ; i < nentries ; ++i) 
       {
         t->GetEntry (i) ;
+        if (2 * dllr > 10) continue ;
         g->SetPoint (i, c1, c2, 2 * dllr) ; 
       }
     

@@ -167,6 +167,17 @@ int main (int argc, char ** argv)
                   globalCut.c_str ()
                 ) ;
               g_scan->Draw ("COLZ") ;
+
+              if (g_scan->GetN () < 10)
+                {
+                  cout << "WARNING too few points found in the TGraph, skipping variable "
+                       << variables.at (iVar)
+                       << " for coeff " 
+                       << wilson_coeff_names.at (iCoeff2) << " x " + variables.at (iVar)
+                       << endl ;
+                  continue ;
+                }
+
               g_scan->GetHistogram ()->GetXaxis ()->SetTitle (TString (wilson_coeff_names.at (iCoeff1).c_str ())) ;
               g_scan->GetHistogram ()->GetYaxis ()->SetTitle (TString (wilson_coeff_names.at (iCoeff2).c_str ())) ;
 
@@ -175,6 +186,7 @@ int main (int argc, char ** argv)
 
               // list of TGraph describing the contour
               TList * contour = contourFromTH2 (h_contour, contours[0]) ; 
+
               g_scan->Draw ("COLZ") ;
               TIter next (contour) ;
               while (TGraph * gr = (TGraph *) next ())
