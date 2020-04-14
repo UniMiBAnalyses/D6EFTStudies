@@ -371,7 +371,6 @@ readNtupleFile (string rootFileName, string ntupleName,
           TTreeReaderValue<float> (reader, allvars[iVar].c_str ())
         ) 
       ) ; 
-//      treeReaderValues[ variables[iVar]] = TTreeReaderValue<float> (reader, variables[iVar].c_str ()) ;
     } 
   TTreeReaderValue<float> weight (reader, "w") ;
 
@@ -514,6 +513,22 @@ prepareFreeze (vector<string> activeCoeff, float frange)
   result.push_back (active.substr (0, active.size () - 1)) ;
   result.push_back (ranges.substr (0, ranges.size () - 1)) ;
   return result ;
+
+}
+
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
+void replaceChar (string & str, char ch1, char ch2) 
+{
+  for (int i = 0; i < str.length (); ++i) 
+  {
+    if (str[i] == ch1)
+      str[i] = ch2;
+  }
+
+  return ;
 }
 
 
@@ -539,6 +554,7 @@ pair <string, string>
 createDataCard (TH1F * h_SM, map<string, TH1F *> h_eftInput, 
                 string destinationfolder, string prefix, string varname,
                 vector<string> active_coeffs, 
+                vector<string> active_ranges,
                 CfgParser * gConfigParser)
 {
   // create the root file containing the three histograms
@@ -631,7 +647,8 @@ createDataCard (TH1F * h_SM, map<string, TH1F *> h_eftInput,
   fitting_command += " --redefineSignalPOIs " + paramFreeze.at (2) ;
   fitting_command += " --freezeParameters r," + paramFreeze.at (0) ;
   fitting_command += " --setParameters r=1," ; // + paramFreeze.at (1) ;
-  fitting_command += " --setParameterRanges " + paramFreeze.at (3) ;
+//  fitting_command += " --setParameterRanges " + paramFreeze.at (3) ;
+  fitting_command += " --setParameterRanges " + merge (active_ranges, ":") ;
   fitting_command += " --verbose " + comb_verbosity ;
   fitting_command += " --robustFit=1" ;
   fitting_command += " --X-rtd FITTER_NEW_CROSSING_ALGO" ;
@@ -1039,16 +1056,16 @@ writeCSVlimits (limits_op_v all_limits,
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 
-bridge::bridge (vector<string> &v1, vector<float> &v2, vector<float> &v3)
+bridge::bridge (vector<string> &v1, vector<float> &v2, vector<float> &v3, vector<string> &v4)
   {
-    vector<float> dummy ;
-    dummy.push_back (0.) ; 
-    dummy.push_back (0.) ; 
     for (int i = 0 ; i < v1.size () ; ++i)
       {
-        dummy.at (0) = v2.at (i) ;
-        dummy.at (1) = v3.at (i) ;
-        m_container.push_back ( pair<string, vector<float>> (v1.at (i), dummy) ) ;
+        m_container.push_back (bridgeElem (
+          v1.at (i),
+          v2.at (i),
+          v3.at (i),
+          v4.at (i)
+        )) ;
       }  
   } 
 
@@ -1056,16 +1073,18 @@ bridge::bridge (vector<string> &v1, vector<float> &v2, vector<float> &v3)
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 
-void bridge::pour (vector<string> &v1, vector<float> &v2, vector<float> &v3)
+void bridge::pour (vector<string> &v1, vector<float> &v2, vector<float> &v3, vector<string> &v4)
   {
     assert (v1.size () == m_container.size ()) ;  
     assert (v2.size () == m_container.size ()) ;  
     assert (v3.size () == m_container.size ()) ;  
+    assert (v4.size () == m_container.size ()) ;  
     for (int i = 0 ; i < m_container.size () ; ++i)
       {
-        v1.at (i) = m_container.at (i).first ;
-        v2.at (i) = m_container.at (i).second.at (0) ;
-        v3.at (i) = m_container.at (i).second.at (1) ;
+        v1.at (i) = m_container.at (i).v1 ;
+        v2.at (i) = m_container.at (i).v2 ;
+        v3.at (i) = m_container.at (i).v3 ;
+        v4.at (i) = m_container.at (i).v4 ;
       }
     return ;
   }
@@ -1075,10 +1094,10 @@ void bridge::pour (vector<string> &v1, vector<float> &v2, vector<float> &v3)
 
 
 bool
-sortByFirstElem (const std::pair<std::string, std::vector<float> > & a , 
-                 const std::pair<std::string, std::vector<float> > & b) 
+sortByFirstElem (const bridgeElem & a , 
+                 const bridgeElem & b) 
 {
-  return a.first < b.first ;
+  return a.v1 < b.v1 ;
 }
 
 
@@ -1086,13 +1105,14 @@ sortByFirstElem (const std::pair<std::string, std::vector<float> > & a ,
 
 
 void
-jointSort (vector<string> &v1, vector<float> &v2, vector<float> &v3)
+jointSort (vector<string> &v1, vector<float> &v2, vector<float> &v3, vector<string> &v4)
 {
   assert (v1.size () == v2.size ()) ;
-  assert (v2.size () == v3.size ()) ;
-  bridge sorter (v1, v2, v3) ;
+  assert (v1.size () == v3.size ()) ;
+  assert (v1.size () == v4.size ()) ;
+  bridge sorter (v1, v2, v3, v4) ;
   sort (sorter.m_container.begin (), sorter.m_container.end (), sortByFirstElem) ;
-  sorter.pour (v1, v2, v3) ;
+  sorter.pour (v1, v2, v3, v4) ;
 
   return ;
 }
