@@ -129,6 +129,8 @@ void setTDRStyle () ;
 std::vector<std::string> 
 split (const std::string & s, char delimiter) ;
 
+void replaceChar (std::string & str, char ch1, char ch2) ;
+
 std::string
 merge (const std::vector<std::string> & tokens, char delimiter) ;
 
@@ -154,7 +156,8 @@ void
 checkEmptyBins (std::map<std::string, TH1F *> & hMap) ;
 
 std::vector <std::string>
-prepareFreeze (std::vector<std::string> activeCoeff, float range = 2.) ;
+prepareFreeze (std::vector<std::string> activeCoeff, 
+               float range = 2.) ;
 
 std::string
 merge (std::vector<std::string> list, const std::string & joint) ;
@@ -163,6 +166,7 @@ std::pair <std::string, std::string>
 createDataCard (TH1F * h_SM, std::map<std::string, TH1F *> h_eftInput, 
                 std::string destinationfolder, std::string prefix, std::string varname,
                 std::vector<std::string> active_coeffs, 
+                std::vector<std::string> active_ranges, 
                 CfgParser * gConfigParser) ;
 
 std::string 
@@ -216,31 +220,37 @@ writeCSVlimits (limits_op_v all_limits,
                 bool message = false) ;
 
 
-// PG not working like this, should be the natural way to go I guess
-// template <class T>
-// bool
-// sortByFirstElem (const T & a , const T & b)
+struct bridgeElem
+{
+  public:
+    bridgeElem (std::string v_v1 = "dummy", float v_v2 = 0, float v_v3 = 0, std::string v_v4 = ""):
+      v1 (v_v1),  
+      v2 (v_v2),     
+      v3 (v_v3),     
+      v4 (v_v4) {}
+  
+    std::string  v1 ; // coeff name
+    float        v2 ;    // coeff value for plotting
+    float        v3 ;    // coeff value in generation
+    std::string  v4 ;    // coeff range for fitting
+} ;
 
-// {
-//   return a.first < b.first ;
-// }
 
 bool
-sortByFirstElem (const std::pair<std::string, std::vector<float> > & a , 
-                 const std::pair<std::string, std::vector<float> > & b) ;
+sortByFirstElem (const bridgeElem & a , const bridgeElem & b) ;
 
 
 struct bridge 
 {
   public:
-    bridge (std::vector<std::string> &v1, std::vector<float> &v2, std::vector<float> &v3) ;
-    void pour (std::vector<std::string> &v1, std::vector<float> &v2, std::vector<float> &v3) ;
-    std::vector<std::pair<std::string, std::vector<float> > > m_container ;
+    bridge (std::vector<std::string> &v1, std::vector<float> &v2, std::vector<float> &v3, std::vector<std::string> &v4) ;
+    void pour (std::vector<std::string> &v1, std::vector<float> &v2, std::vector<float> &v3, std::vector<std::string> &v4) ;
+    std::vector<bridgeElem> m_container ;
+//    std::vector<std::pair<std::string, std::vector<float> > > m_container ;
 } ;
 
 void
-jointSort (std::vector<std::string> &v1, std::vector<float> &v2, std::vector<float> &v3) ;
-
+jointSort (std::vector<std::string> &v1, std::vector<float> &v2, std::vector<float> &v3, std::vector<std::string> &v4) ;
 
 void 
 copyFile (const std::string & destination, const std::string & source) ;
