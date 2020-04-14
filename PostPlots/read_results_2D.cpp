@@ -184,6 +184,15 @@ int main (int argc, char ** argv)
               string h_name = "h_" + localrootname + "_cont" ;
               TH2F * h_contour = (TH2F *) (g_scan->GetHistogram ())->Clone (h_name.c_str ()) ;
 
+              for (int i=0; i<h_contour->GetSize () ; ++i) 
+                {
+                  //     std::cout << " [ " << i << " ] = " << graphScan->GetHistogram()->GetBinContent(i+1) << std::endl;
+                  if (h_contour->GetBinContent (i+1) == 0) 
+                    { 
+                      h_contour->SetBinContent (i+1, 100) ;
+                    }
+                }
+
               // list of TGraph describing the contour
               TList * contour = contourFromTH2 (h_contour, contours[0]) ; 
 
