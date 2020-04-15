@@ -152,4 +152,8 @@ drawMarker (const float & x, const float & y, const int & style, const int & col
 std::vector<float>
 findBoxAround (TGraph * gr) ;
 
+std::map<std::string, std::pair <float, float> >
+getLimits (std::vector<std::string> wilson_coeff_ranges, 
+           std::vector<std::string> wilson_coeff_names) ;
+
 #endif 

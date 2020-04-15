@@ -49,8 +49,38 @@ int main (int argc, char ** argv)
 
   CfgParser * gConfigParser = new CfgParser (argv[1]) ;
 
+  // read the 4 collections, since joint sort works with the 4 only
   vector<string> wilson_coeff_names = gConfigParser->readStringListOpt ("eft::wilson_coeff_names") ;
-  sort (wilson_coeff_names.begin (), wilson_coeff_names.end ()) ;
+  vector<float> wilson_coeffs_plot  = gConfigParser->readFloatListOpt  ("eft::wilson_coeffs_plot") ;
+  vector<float> wilson_coeffs       = gConfigParser->readFloatListOpt  ("eft::wilson_coeffs_gen") ;
+
+  vector<string> wilson_coeff_ranges ;
+  if (gConfigParser->hasOpt ("eft::wilson_coeff_ranges"))
+    {
+      wilson_coeff_ranges = gConfigParser->readStringListOpt ("eft::wilson_coeff_ranges") ;
+      if (wilson_coeff_ranges.size () != wilson_coeff_names.size ())
+        {
+          wilson_coeff_ranges.clear () ;
+          cout << "ranges list size does not match wilson coefficients list one, ignoring ranges\n" ;
+        }
+      else
+        {
+          for (int i = 0 ; i < wilson_coeff_ranges.size () ; ++i)
+            replaceChar (wilson_coeff_ranges.at (i), ':', ',') ;
+        }  
+    }
+  if (wilson_coeff_ranges.size () == 0)
+      wilson_coeff_ranges = vector<string> (wilson_coeff_names.size (), "-2,2") ;
+
+  jointSort (wilson_coeff_names, wilson_coeffs_plot, wilson_coeffs, wilson_coeff_ranges) ;
+
+  map<string, pair <float, float> > plot_limits = getLimits (wilson_coeff_ranges, wilson_coeff_names) ;
+
+// FINO A QUI
+
+
+  // vector<string> wilson_coeff_names = gConfigParser->readStringListOpt ("eft::wilson_coeff_names") ;
+  // sort (wilson_coeff_names.begin (), wilson_coeff_names.end ()) ;
 
   string outfiles_prefix           = gConfigParser->readStringOpt ("output::outfiles_prefix") ;
   string destination_folder_prefix = gConfigParser->readStringOpt ("output::destination_folder_prefix") ;
@@ -116,6 +146,7 @@ int main (int argc, char ** argv)
   // float contours[2] = {2.30, 6.18} ; // 1sigma, 2sigma
 
   vector<vector <string> > bestVar ;
+  vector<TGraph *> bestCont ;
 
   // loop over first coefficient
   for (int iCoeff1 = 0 ; iCoeff1 < wilson_coeff_names.size () ; ++iCoeff1)
@@ -232,7 +263,14 @@ int main (int argc, char ** argv)
  
           sort (contours_1sigma.begin (), contours_1sigma.end (), sortByArea) ;
 
-          TH1F * dummy_h = c1.DrawFrame (-2., -2., 2., 2.) ; // FIXME these have to end up in the cfg file
+          TH1F * dummy_h = c1.DrawFrame 
+            (
+              plot_limits[wilson_coeff_names.at (iCoeff1)].first,
+              plot_limits[wilson_coeff_names.at (iCoeff2)].first,
+              plot_limits[wilson_coeff_names.at (iCoeff1)].second,
+              plot_limits[wilson_coeff_names.at (iCoeff2)].second
+            ) ;
+
           dummy_h->GetXaxis ()->SetTitle (wilson_coeff_names.at (iCoeff1).c_str ()) ;
           dummy_h->GetYaxis ()->SetTitle (wilson_coeff_names.at (iCoeff2).c_str ()) ;
 
@@ -257,11 +295,13 @@ int main (int argc, char ** argv)
                   if (first)
                     {
                       legend.AddEntry (gr, contours_1sigma.at (i).first.c_str (), "l") ;
+                      if (i == 0) bestCont.push_back (gr) ;
                       first = false ;
                     }
                   // for some reasons it draws is white
                   // drawMarker (contours_1sigma.at (i).second.xmin, contours_1sigma.at (i).second.ymin, 33, icol) ;
                 }
+
             }
 
           legend.SetBorderSize (0) ;
@@ -283,7 +323,10 @@ int main (int argc, char ** argv)
     } // second loop over first Wilson coefficient
 
   ofstream myfile ;
-  myfile.open ((destination_folder_prefix + "_bestvars.txt").c_str ()) ;
+  string filename = destination_folder_prefix ;
+  if (filename.back () == '/') filename = filename.substr (0, filename.size () - 1) ;
+  filename += "_bestvars.txt" ;
+  myfile.open (filename.c_str ()) ;
   myfile << "# cW1, cW2, var\n" ;
   for (int i = 0 ; i < bestVar.size () ; ++i)
     {
@@ -293,6 +336,19 @@ int main (int argc, char ** argv)
              << "\n" ;
     }
   myfile.close () ;
+  cout << "summary file " << filename << " created\n" ;
+
+  replace (filename, ".txt", ".root") ;
+  TFile outrootfile (filename.c_str (), "recreate") ;
+  for (int i = 0 ; i < bestVar.size () ; ++i)
+    {
+      string grname = string ("cont")
+                      + "_" + bestVar.at(i).at (0) + "_" +bestVar.at(i).at (1)
+                      + "_" + bestVar.at(i).at (2) ;
+      bestCont.at (i)->Write (grname.c_str ()) ;
+    }
+  outrootfile.Close () ;
+  cout << "best profiles saved in " << filename << "\n" ;
 
   return 0 ; 
 

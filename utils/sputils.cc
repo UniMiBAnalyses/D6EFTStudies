@@ -381,3 +381,23 @@ findBoxAround (TGraph * gr)
   result.at (3) = maxy ;
   return result ;
 }
+
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
+map<string, pair <float, float> >
+getLimits (vector<string> wilson_coeff_ranges, 
+           vector<string> wilson_coeff_names)
+{
+  map<string, pair <float, float> > result ;
+  for (int i = 0 ; i < wilson_coeff_ranges.size () ; ++i)
+    {
+      vector<string> names = split (wilson_coeff_ranges.at (i), ',') ;
+      pair<float, float> dummy ;
+      dummy.first  = stof (names.at (0)) ;
+      dummy.second = stof (names.at (1)) ;
+      result[wilson_coeff_names.at (i)] = dummy ;
+    }
+  return result ;
+}
