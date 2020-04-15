@@ -3,12 +3,8 @@ c++ -o datacard_twoOp_creator_2 `root-config --glibs --cflags` ../utils/CfgParse
 
 
 one should pass the program a config file like file.cfg
-to run: ./datacard_creator_2 file.cfg
+to run: ./datacard_twoOp_creator_2 file.cfg
 */
-
-// FIXME da generalizzare aggiungendo il loop sui coefficienti di Wilson
-// FIXME e la ricerca dei termini incrociati
-// FIXME per ora dovrebbe girare, se la variabile e' una sola
 
 #include <iomanip>
 #include <vector>
@@ -195,7 +191,8 @@ int main (int argc, char ** argv)
 
               WScreation_commands.push_back (
                   createDataCard (h_SM, h_eftInputs, 
-                                  destination_relative_folder, 
+                                  destination_folder, 
+//                                  destination_relative_folder, 
                                   outfiles_prefix 
                                      + "_" + wilson_coeff_names.at (iCoeff1)
                                      + "_" + wilson_coeff_names.at (iCoeff2), 
@@ -226,6 +223,7 @@ int main (int argc, char ** argv)
               char pathname[300] ;
               createCondorScripts (WScreation_commands.back (),
                                    destination_folder,
+                                   destination_relative_folder,
                                    cmssw_folder,
                                    iHisto->first,
                                    queue) ;

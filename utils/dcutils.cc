@@ -558,7 +558,9 @@ createDataCard (TH1F * h_SM, map<string, TH1F *> h_eftInput,
                 CfgParser * gConfigParser)
 {
   // create the root file containing the three histograms
-  string rootfilename = destinationfolder + "/" + prefix + "_" + varname + ".root" ;
+  string rootfilename = prefix + "_" + varname + ".root" ;
+// PG to be tested FIXME
+//  string rootfilename = destinationfolder + "/" + prefix + "_" + varname + ".root" ;
   // get the configuration of the combine running
   string comb_verbosity = gConfigParser->readStringOpt ("combine::verbosity") ;
   string comb_model     = gConfigParser->readStringOpt ("combine::model") ;
@@ -572,7 +574,8 @@ createDataCard (TH1F * h_SM, map<string, TH1F *> h_eftInput,
 //  string wilson_coeff_list = gConfigParser->readStringOpt ("eft::wilson_coeff_names") ;
   vector<string> wilson_coeff_names = gConfigParser->readStringListOpt ("eft::wilson_coeff_names") ;
 
-  TFile outf (rootfilename.c_str (), "recreate") ;
+  // STILL BUGGED, DUPLICATES THE LAST FOLDER NAME
+  TFile outf ((destinationfolder + "/" + rootfilename).c_str (), "recreate") ;
   h_SM->Write ("histo_sm") ;
   for (map<string, TH1F *>::iterator it = h_eftInput.begin () ; 
        it != h_eftInput.end () ; ++it)
@@ -637,7 +640,7 @@ createDataCard (TH1F * h_SM, map<string, TH1F *> h_eftInput,
   wscreation_command += " -o " ;
   replace (rootfilename, ".root", "_WS.root") ;
   wscreation_command += rootfilename ;
-  wscreation_command += " > " + destinationfolder + "/WScreation_" + varname + ".log 2>&1" ; 
+  wscreation_command += " > WScreation_" + varname + ".log 2>&1" ; 
 
   vector<string> paramFreeze = prepareFreeze (active_coeffs) ;
 
@@ -653,7 +656,8 @@ createDataCard (TH1F * h_SM, map<string, TH1F *> h_eftInput,
   fitting_command += " --robustFit=1" ;
   fitting_command += " --X-rtd FITTER_NEW_CROSSING_ALGO" ;
   fitting_command += " --X-rtd FITTER_NEVER_GIVE_UP" ;
-  fitting_command += " > " + destinationfolder + "/fitting_" + varname + ".log 2>&1" ; 
+  fitting_command += " > fitting_" + varname + ".log 2>&1" ; 
+//  fitting_command += " > " + destinationfolder + "/fitting_" + varname + ".log 2>&1" ; 
   replace (rootfilename, "_WS.root", "_fitresult.root") ;
   fitting_command += " ; mv higgsCombineTest.MultiDimFit.mH125.root " + rootfilename  ;
 
@@ -682,6 +686,7 @@ string findAfter (const vector<string> & command, const string & token)
 void
 createCondorScripts (pair <std::string, string> fittingCommands,
                      string output_folder,
+                     string output_last_folder,
                      string cmssw_folder,
                      string varname,
                      string queue)
@@ -698,6 +703,7 @@ createCondorScripts (pair <std::string, string> fittingCommands,
   jobfile << "eval `scram run -sh`\n" ;
   jobfile << "cd -\n" ;
   jobfile << "cp -r " << output_folder << " ./\n" ; 
+  jobfile << "cd " << output_last_folder << "\n" ;  
   jobfile << fittingCommands.first  << "\n" ;
   jobfile << fittingCommands.second << "\n" ;
   jobfile << "cp " << output1            << " " << output_folder << "\n" ; 
@@ -730,7 +736,8 @@ createCondorScripts (pair <std::string, string> fittingCommands,
 
 
 int 
-plotHistos (TH1F * h_SM, map<string, TH1F *> h_eftInput,
+plotHistos (TH1F * h_SM, 
+            map<string, TH1F *> h_eftInput,
             string destinationfolder, string prefix, string varname, 
             vector<float> h_rescales, 
             bool log) 
@@ -739,13 +746,23 @@ plotHistos (TH1F * h_SM, map<string, TH1F *> h_eftInput,
 
   vector<TH1F *> h_loc ;
   TH1F * h_tot = (TH1F *) h_SM->Clone (TString (h_SM->GetName ()) + "_TOT") ;
+  TH1F * interference ;
   for (map<string, TH1F *>::iterator it = h_eftInput.begin () ;
        it != h_eftInput.end () ; ++it)
     {
       h_loc.push_back ((TH1F *) it->second->Clone (TString (it->second->GetName ()) + "_loc")) ; 
-      h_loc.back ()->Scale (h_rescales.at (h_loc.size () - 1)) ;      
+      h_loc.back ()->Scale (h_rescales.at (h_loc.size () - 1)) ;          
       h_tot->Add (h_loc.back ()) ;
+      if (it->first.find ("linear_") != string::npos)
+        {
+          interference = h_loc.back () ;
+          habs (interference) ;
+        }
     }
+
+  interference->SetFillColor (0) ;
+  interference->SetLineColor (kBlue + 2) ;
+  interference->SetLineWidth (2) ;
 
   h_tot->SetLineColor (kOrange + 8) ;
   h_tot->SetFillColor (kOrange + 8) ;
@@ -756,8 +773,9 @@ plotHistos (TH1F * h_SM, map<string, TH1F *> h_eftInput,
   h_SM->SetFillColor (kYellow-9) ;
 
   TLegend legend (0.70, 0.80, 0.90, 0.90) ;
-  legend.AddEntry (h_SM    , "SM"    , "f") ;
-  legend.AddEntry (h_tot   , "total" , "f") ;
+  legend.AddEntry (h_SM           , "SM"           , "f") ;
+  legend.AddEntry (h_tot          , "total"        , "f") ;
+  legend.AddEntry (interference   , "abs (interf)" , "L") ;
   legend.SetBorderSize (0) ;
   legend.SetFillStyle (0) ;
 
@@ -767,6 +785,7 @@ plotHistos (TH1F * h_SM, map<string, TH1F *> h_eftInput,
   h_tot->SetFillColor (kWhite) ;
   h_tot->Draw ("HIST same") ;
   h_SM->Draw ("HIST same") ;
+  interference->Draw ("HIST same") ;
   c1.RedrawAxis () ;
   legend.Draw () ;
 
@@ -1132,4 +1151,16 @@ copyFile (const string & destination, const string & source)
 
   f_source.close () ;
   f_destin.close () ;
+}
+
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
+void 
+habs (TH1F * original)
+{
+  for (int i = 0 ; i <= original->GetNbinsX () ; ++i)
+    original->SetBinContent (i, fabs (original->GetBinContent (i))) ;
+  return ;
 }

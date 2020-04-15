@@ -47,7 +47,28 @@ int main (int argc, char ** argv)
   vector<string> wilson_coeff_names = gConfigParser->readStringListOpt ("eft::wilson_coeff_names") ;
   vector<float> wilson_coeffs_plot  = gConfigParser->readFloatListOpt ("eft::wilson_coeffs_plot") ;
   vector<float> wilson_coeffs       = gConfigParser->readFloatListOpt ("eft::wilson_coeffs_gen") ;
-  jointSort (wilson_coeff_names, wilson_coeffs_plot, wilson_coeffs) ;
+
+  vector<string> wilson_coeff_ranges ;
+  if (gConfigParser->hasOpt ("eft::wilson_coeff_ranges"))
+    {
+      wilson_coeff_ranges = gConfigParser->readStringListOpt ("eft::wilson_coeff_ranges") ;
+      if (wilson_coeff_ranges.size () != wilson_coeff_names.size ())
+        {
+          wilson_coeff_ranges.clear () ;
+          cout << "ranges list size does not match wilson coefficients list one, ignoring ranges\n" ;
+        }
+      else
+        {
+          for (int i = 0 ; i < wilson_coeff_ranges.size () ; ++i)
+            replaceChar (wilson_coeff_ranges.at (i), ':', ',') ;
+        }  
+    }
+  if (wilson_coeff_ranges.size () == 0)
+      wilson_coeff_ranges = vector<string> (wilson_coeff_names.size (), "-2,2") ;
+
+
+
+  jointSort (wilson_coeff_names, wilson_coeffs_plot, wilson_coeffs, wilson_coeff_ranges) ;
 
   // reading input and output files information
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
@@ -152,6 +173,7 @@ int main (int argc, char ** argv)
           char pathname[300] ;
           createCondorScripts (WScreation_commands.back (),
                                destination_folder,
+                               destination_relative_folder,
                                cmssw_folder,
                                iHisto->first) ;
 

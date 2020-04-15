@@ -175,6 +175,7 @@ findAfter (const std::vector<std::string> & command, const std::string & token) 
 void
 createCondorScripts (std::pair <std::string, std::string> fittingCommands,
                      std::string output_folder,
+                     std::string output_last_folder,
                      std::string cmssw_folder,
                      std::string varname, 
                      std::string queue = "espresso") ;
@@ -254,6 +255,10 @@ jointSort (std::vector<std::string> &v1, std::vector<float> &v2, std::vector<flo
 
 void 
 copyFile (const std::string & destination, const std::string & source) ;
+
+// histogram absolute value
+void habs (TH1F * original) ;
+
 
 
 #endif
