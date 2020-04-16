@@ -163,8 +163,11 @@ std::string
 merge (std::vector<std::string> list, const std::string & joint) ;
 
 std::pair <std::string, std::string>
-createDataCard (TH1F * h_SM, std::map<std::string, TH1F *> h_eftInput, 
-                std::string destinationfolder, std::string prefix, std::string varname,
+createDataCard (TH1F * h_SM, 
+                std::map<std::string, TH1F *> h_eftInput, 
+                std::string destinationfolder, 
+                std::string prefix, 
+                std::string varname,
                 std::vector<std::string> active_coeffs, 
                 std::vector<std::string> active_ranges, 
                 CfgParser * gConfigParser) ;

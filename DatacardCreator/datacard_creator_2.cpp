@@ -147,12 +147,17 @@ int main (int argc, char ** argv)
 
           vector<string> active_coeffs ; 
           active_coeffs.push_back (wilson_coeff_names.at (iCoeff)) ;
+          vector<string> active_ranges ; 
+          active_ranges.push_back ("k_" + wilson_coeff_names.at (iCoeff) + "=" + wilson_coeff_ranges.at (iCoeff)) ;
 
           WScreation_commands.push_back (
-              createDataCard (h_SM, h_eftInputs, 
+              createDataCard (h_SM, 
+                              h_eftInputs, 
                               destination_relative_folder, 
                               outfiles_prefix + "_" + wilson_coeff_names.at (iCoeff), 
-                              iHisto->first, active_coeffs,
+                              iHisto->first, 
+                              active_coeffs,
+                              active_ranges,
                               gConfigParser)
             ) ;
 

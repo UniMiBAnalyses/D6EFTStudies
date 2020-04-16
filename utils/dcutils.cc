@@ -551,8 +551,11 @@ merge (vector<string> list, const string & joint)
 
 // NEW version, to replace the other one also for 1D
 pair <string, string>  
-createDataCard (TH1F * h_SM, map<string, TH1F *> h_eftInput, 
-                string destinationfolder, string prefix, string varname,
+createDataCard (TH1F * h_SM, 
+                map<string, TH1F *> h_eftInput, 
+                string destinationfolder, 
+                string prefix, 
+                string varname,
                 vector<string> active_coeffs, 
                 vector<string> active_ranges,
                 CfgParser * gConfigParser)
