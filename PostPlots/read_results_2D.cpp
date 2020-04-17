@@ -281,10 +281,12 @@ int main (int argc, char ** argv)
           // kCopper
           // kDeepSea
 
+          TGraph * dummy = new TGraph () ;
           for (int i = contours_1sigma.size () - 1 ; i >= 0 ; --i)
             {
               TIter next (contours_1sigma.at (i).second.graphs) ;
               bool first = true ;
+              bestCont.push_back (dummy) ;
               while (TGraph * gr = (TGraph *) next ())
                 {
                   vector<float> boundaries = findBoxAround (gr) ;
@@ -295,7 +297,7 @@ int main (int argc, char ** argv)
                   if (first)
                     {
                       legend.AddEntry (gr, contours_1sigma.at (i).first.c_str (), "l") ;
-                      if (i == 0) bestCont.push_back (gr) ;
+                      if (i == 0) bestCont.back () = gr ;
                       first = false ;
                     }
                   // for some reasons it draws is white
