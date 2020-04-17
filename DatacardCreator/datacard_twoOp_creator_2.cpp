@@ -179,7 +179,7 @@ int main (int argc, char ** argv)
               h_eftInputs["quadratic_" + wilson_coeff_names.at (iCoeff1)]   = h_QU_C1 ;
               h_eftInputs["linear_" + wilson_coeff_names.at (iCoeff2)]      = h_LI_C2 ;
               h_eftInputs["quadratic_" + wilson_coeff_names.at (iCoeff2)]   = h_QU_C2 ;
-              h_eftInputs["interference_" + wilson_coeff_names.at (iCoeff1) 
+              h_eftInputs["linear_mixed_" + wilson_coeff_names.at (iCoeff1) 
                           + "_" + wilson_coeff_names.at (iCoeff2)]          = h_IN ;
 
               vector<string> active_coeffs ; 
