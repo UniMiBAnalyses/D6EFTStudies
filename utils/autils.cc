@@ -1,5 +1,6 @@
 
 #include "autils.h"
+#include "dcutils.h"
 
 using namespace std ;
 
@@ -501,5 +502,21 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max, bool applyCu
 
   return events ;
 }
+
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
+void
+changeLHEfolder (vector<string> & inputfiles, string newfolder)
+{
+  for (int i = 0 ; i < inputfiles.size () ; ++i)
+    {
+      string filename = split (inputfiles.at (i), '/').back () ;
+      inputfiles.at (i) = newfolder + "/" + filename ; 
+    }  
+  return ;
+}
+
 
 

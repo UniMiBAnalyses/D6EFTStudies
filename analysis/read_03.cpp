@@ -1,6 +1,6 @@
 /*
 
-c++ -o read_03 `root-config --glibs --cflags` ../utils/CfgParser.cc ../utils/autils.cc ../utils/LHEF.cc -lm read_03.cpp
+c++ -o read_03 `root-config --glibs --cflags` ../utils/CfgParser.cc ../utils/autils.cc ../utils/dcutils.cc ../utils/LHEF.cc -lm read_03.cpp
 
 read LHE files and produce ntuples
 apply basic VBS selections
@@ -28,6 +28,7 @@ http://govoni.web.cern.ch/govoni/tesi/docs/Alessandro_Tarabini_Tesi.pdf
 #include "../utils/LHEF.h"
 #include "../utils/CfgParser.h"
 #include "../utils/autils.h"
+#include "../utils/dcutils.h"
 
 using namespace std ;
 
@@ -40,16 +41,25 @@ int main (int argc, char ** argv)
 
   if (argc < 2)
     {
-      cerr << "Forgot to put the cfg file --> exit " << endl ;
+      cerr << "usage " << argv[0] << " configFile.cfg [LHEfilesfolder] [maxEventsPerSample]" << endl ;
       return 1 ;
     }
 
+  // alternative location of result files with respect to the cfg file
+  string LHE_folder = "" ;
+  if (argc > 2)
+    {
+      LHE_folder = argv[2] ;
+    }
+  cout << "LHEfiles folder: " << LHE_folder << endl ;
+
   int maxEventsPerSample = -1 ;
-  if (argc >= 3)
+  if (argc > 3)
     {
       maxEventsPerSample = atoi (argv[2]) ;
     }
   cout << "reading " << maxEventsPerSample << " events per sample" << endl ;
+
 
   CfgParser * gConfigParser = new CfgParser (argv[1]) ;
 
@@ -71,6 +81,7 @@ int main (int argc, char ** argv)
     {
       float XS = gConfigParser->readFloatOpt (collections.at (i) + "::XS") ;
       vector<string> inputfiles = gConfigParser->readStringListOpt (collections.at (i) + "::files") ;
+      if (LHE_folder != "") changeLHEfolder (inputfiles, LHE_folder) ;
       samples[collections.at (i)] = pair<float, vector<string> > (XS, inputfiles) ;
     } // loop over samples
 

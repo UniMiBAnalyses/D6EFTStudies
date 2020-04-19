@@ -20,6 +20,9 @@
 
 using namespace std ;
 
+#include "../utils/autils.h"
+
+
 void setTDRStyle () 
 {
   TStyle *tdrStyle = new TStyle("tdrStyle","Style for P-TDR");
@@ -749,7 +752,11 @@ plotHistos (TH1F * h_SM,
 
   vector<TH1F *> h_loc ;
   TH1F * h_tot = (TH1F *) h_SM->Clone (TString (h_SM->GetName ()) + "_TOT") ;
-  TH1F * interference ;
+
+  //FIXME inserisci gli splitting
+
+  vector<TH1F *> interfs ;
+  vector<TH1F *> quad ;
   for (map<string, TH1F *>::iterator it = h_eftInput.begin () ;
        it != h_eftInput.end () ; ++it)
     {
@@ -758,45 +765,33 @@ plotHistos (TH1F * h_SM,
       h_tot->Add (h_loc.back ()) ;
       if (it->first.find ("linear_") != string::npos)
         {
-          interference = h_loc.back () ;
-          habs (interference) ;
+          pair<TH1F *, TH1F *> plusorminus = splitH (h_loc.back ()) ;
+          interfs.push_back (plusorminus.first) ;
+          interfs.push_back (plusorminus.second) ;
+        }
+      if (it->first.find ("quadratic_") != string::npos)
+        {
+          quad.push_back (h_loc.back ()) ;
         }
     }
 
-  interference->SetFillColor (0) ;
-  interference->SetLineColor (kBlue + 2) ;
-  interference->SetLineWidth (2) ;
-
-  h_tot->SetLineColor (kOrange + 8) ;
-  h_tot->SetFillColor (kOrange + 8) ;
-  h_tot->SetTitle ("") ;
-  h_tot->GetXaxis ()->SetTitle (varname.c_str ()) ;
-
-  h_SM->SetLineColor (1) ;
-  h_SM->SetFillColor (kYellow-9) ;
-
-  TLegend legend (0.70, 0.80, 0.90, 0.90) ;
-  legend.AddEntry (h_SM           , "SM"           , "f") ;
-  legend.AddEntry (h_tot          , "total"        , "f") ;
-  legend.AddEntry (interference   , "abs (interf)" , "L") ;
-  legend.SetBorderSize (0) ;
-  legend.SetFillStyle (0) ;
-
-  TCanvas c1 ("c1", "", 600, 600) ;
-  if (log) c1.SetLogy () ;
-  h_tot->DrawCopy ("HIST") ;
-  h_tot->SetFillColor (kWhite) ;
-  h_tot->Draw ("HIST same") ;
-  h_SM->Draw ("HIST same") ;
-  interference->Draw ("HIST same") ;
-  c1.RedrawAxis () ;
-  legend.Draw () ;
+  plotter plt (varname) ;
+  plt.addHisto (h_tot, "total", "L", kOrange + 8) ;
+  plt.addHisto (h_SM , "SM"   , "f", kYellow-9, kYellow-9) ;
+  for (int i = 0 ; i < quad.size () ; ++i)
+    plt.addHisto (quad.at (i),  "BSM " + split (quad.at (i)->GetName (), '_').at (0), "L", kBlue + 2*i) ;
+  for (int i = 0 ; i < interfs.size () ; ++i)
+    {
+      vector<string> words = split (interfs.at (i)->GetName (), '_') ;
+      string name = "INT " + words.at (0) ;
+      cout << words.size () << endl ;
+      if (words.size () > 5) name += " " + words.at (1) ;
+      plt.addHisto (interfs.at (i),  name, "L", kRed + 4*i) ;
+    }
 
   // create the root file containing the three histograms
   string outfilename = destinationfolder + "/" + prefix + "_plots_" + varname ;
-  if (log) outfilename += "_log" ;
-  outfilename += ".gif" ;
-  c1.Print (outfilename.c_str (), "gif") ;
+  plt.plot (outfilename, "gif", log) ;
 
   return 0 ;
 }
@@ -1167,3 +1162,95 @@ habs (TH1F * original)
     original->SetBinContent (i, fabs (original->GetBinContent (i))) ;
   return ;
 }
+
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
+std::pair<TH1F *, TH1F *> 
+splitH (TH1F * h_in)
+{
+  TH1F * h_plus = (TH1F *) h_in->Clone (TString (h_in->GetName ()) + "_plus") ;
+  TH1F * h_mins = (TH1F *) h_in->Clone (TString (h_in->GetName ()) + "_mins") ;
+
+  for (int i = 0 ; i <= h_plus->GetNbinsX () ; ++i)
+    {
+      if (h_mins->GetBinContent (i) > 0.) h_mins->SetBinContent (i, 0.) ;
+      else                                h_mins->SetBinContent (i, -1 * h_mins->GetBinContent (i)) ;
+      if (h_plus->GetBinContent (i) < 0.) h_plus->SetBinContent (i, 0.) ;
+    }
+  return pair<TH1F*, TH1F*> (h_plus, h_mins) ;
+}
+
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
+plotter::plotter (string v_axistitle):
+  axistitle (v_axistitle),
+  highest (0), 
+  maxbinheight (0.), 
+  minmaxbinheight (1000000000.), 
+  leg (TLegend (0.70, 0.70, 0.98, 0.98))
+{
+  leg.SetBorderSize (0) ;
+}
+
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
+void plotter::addHisto (TH1F * h, string label, string legendmode, int linecolor, int fillcolor) 
+{
+  histos.push_back (h) ;
+  if (fillcolor == 0) histos.back ()->SetFillStyle (0) ;
+  histos.back ()->SetFillColor (fillcolor) ;
+  histos.back ()->SetLineColor (linecolor) ;
+  histos.back ()->SetLineWidth (2) ;
+  histos.back ()->SetTitle ("") ;
+  leg.AddEntry (h, label.c_str (), legendmode.c_str ()) ;
+  if (highest == 0 || h->GetBinContent (h->GetMaximumBin ()) > maxbinheight)
+    {
+      highest = h ;
+      maxbinheight = h->GetBinContent (h->GetMaximumBin ()) ;
+    }  
+  if (h->GetBinContent (h->GetMaximumBin ()) < minmaxbinheight)
+    minmaxbinheight = h->GetBinContent (h->GetMaximumBin ()) ;
+  return ;
+}
+
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
+void plotter::plot (string outfilename, string type, bool log)
+{
+  TCanvas c1 ("c1", "", 600, 600) ;
+  if (log) 
+    {
+      c1.SetLogy () ;
+      highest->GetYaxis()->SetRangeUser (0.1 * minmaxbinheight, 10 * maxbinheight) ;
+    } 
+  else 
+    {
+      highest->GetYaxis()->SetRangeUser (0, 1.3 * maxbinheight) ;
+    } 
+
+  highest->GetXaxis ()->SetTitle (axistitle.c_str ()) ;
+  highest->Draw ("HIST") ;
+  for (int i = 0 ; i < histos.size () ; ++i) 
+    {
+      if (histos.at (i) == highest) continue ;
+      histos.at (i)->Draw ("HIST same") ;
+    }  
+  histos.at (0)->Draw ("HIST same") ;
+  c1.RedrawAxis () ;
+  leg.Draw () ;
+
+  if (log) outfilename += "_log" ;
+  outfilename += ".gif" ;
+  c1.Print (outfilename.c_str (), "gif") ;
+
+  return ;
+}
+

@@ -48,7 +48,6 @@ int main (int argc, char ** argv)
   vector<string> variables = gConfigParser->readStringListOpt ("general::variables") ;
   float luminosity         = gConfigParser->readFloatOpt ("general::luminosity") ;
 
-  //PG the following piece needs to be added and tested
   // alternative location of result files with respect to the cfg file
   if (argc > 2)
     {

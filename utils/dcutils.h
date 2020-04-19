@@ -6,6 +6,7 @@
 #include "TH1F.h"
 #include "TStyle.h"
 #include "TGraph.h"
+#include "TLegend.h"
 
 #include <vector>
 #include <map>
@@ -126,10 +127,10 @@ const std::map<std::string, std::string> gvarNames
 
 void setTDRStyle () ;
 
+void replaceChar (std::string & str, char ch1, char ch2) ;
+
 std::vector<std::string> 
 split (const std::string & s, char delimiter) ;
-
-void replaceChar (std::string & str, char ch1, char ch2) ;
 
 std::string
 merge (const std::vector<std::string> & tokens, char delimiter) ;
@@ -260,8 +261,29 @@ void
 copyFile (const std::string & destination, const std::string & source) ;
 
 // histogram absolute value
-void habs (TH1F * original) ;
+void 
+habs (TH1F * original) ;
 
+// split histo in positive and negative bins
+std::pair<TH1F *, TH1F *> 
+splitH (TH1F * input) ;
+
+class plotter
+{
+  public:
+    plotter (std::string v_axistitle) ;
+    void addHisto (TH1F * h, std::string label, std::string legendmode, int linecolor, int fillcolor = 0) ;
+    void plot (std::string name, std::string type, bool log = false) ;
+
+
+  private:
+    std::string axistitle ;
+    TLegend leg ;
+    TH1F * highest ;
+    float maxbinheight ;
+    float minmaxbinheight ;
+    std::vector<TH1F *> histos ;
+} ;
 
 
 #endif

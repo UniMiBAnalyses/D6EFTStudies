@@ -146,4 +146,12 @@ inline float zetaStar (float etaq1, float etaq2, float eta)
 
 
 TLorentzVector buildLP (LHEF::Reader & reader, int iPart) ;
+
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
+void
+changeLHEfolder (std::vector<std::string> & inputfiles, std::string newfolder) ;
+
 #endif
