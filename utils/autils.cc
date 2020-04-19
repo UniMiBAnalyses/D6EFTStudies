@@ -512,8 +512,11 @@ changeLHEfolder (vector<string> & inputfiles, string newfolder)
 {
   for (int i = 0 ; i < inputfiles.size () ; ++i)
     {
-      string filename = split (inputfiles.at (i), '/').back () ;
-      inputfiles.at (i) = newfolder + "/" + filename ; 
+      vector<string> fullpath =  split (inputfiles.at (i), '/') ;
+      inputfiles.at (i) = newfolder 
+                         + "/" + fullpath.at (fullpath.size () - 3)
+                         + "/" + fullpath.at (fullpath.size () - 2) 
+                         + "/" + fullpath.back () ; 
     }  
   return ;
 }
