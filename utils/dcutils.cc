@@ -785,6 +785,8 @@ plotHistos (TH1F * h_SM,
       vector<string> words = split (interfs.at (i)->GetName (), '_') ;
       string name = "INT " + words.at (0) ;
       if (words.size () > 5) name += " " + words.at (1) ;
+      string hName = interfs.at (i)->GetName () ;
+      if (hName.find ("_mins") != std::string::npos) name += " -" ;
       plt.addHisto (interfs.at (i),  name, "L", 50 + 6*i) ;
     }
 
