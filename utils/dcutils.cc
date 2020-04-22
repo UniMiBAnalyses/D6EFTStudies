@@ -784,9 +784,8 @@ plotHistos (TH1F * h_SM,
     {
       vector<string> words = split (interfs.at (i)->GetName (), '_') ;
       string name = "INT " + words.at (0) ;
-      cout << words.size () << endl ;
       if (words.size () > 5) name += " " + words.at (1) ;
-      plt.addHisto (interfs.at (i),  name, "L", kRed + 4*i) ;
+      plt.addHisto (interfs.at (i),  name, "L", 50 + 6*i) ;
     }
 
   // create the root file containing the three histograms
@@ -1214,7 +1213,7 @@ void plotter::addHisto (TH1F * h, string label, string legendmode, int linecolor
       highest = h ;
       maxbinheight = h->GetBinContent (h->GetMaximumBin ()) ;
     }  
-  if (h->GetBinContent (h->GetMaximumBin ()) < minmaxbinheight)
+  if (h->Integral () > 0 && h->GetBinContent (h->GetMaximumBin ()) < minmaxbinheight)
     minmaxbinheight = h->GetBinContent (h->GetMaximumBin ()) ;
   return ;
 }
