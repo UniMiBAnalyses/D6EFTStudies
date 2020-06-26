@@ -13,10 +13,50 @@ import fnmatch
 import os
 import subprocess
 from math import sqrt 
+import glob
 
 
 usual_errors = []
 usual_errors.append ('stty: standard input: Inappropriate ioctl for device')
+
+
+
+def readCondorReport (path):
+    lista = glob.glob (path+ '/*.log')
+    if len (lista) > 1:
+        print ('too many log files, exiting\n')
+        sys.exit (1)
+    filename = lista[0]
+    normal = 0
+    endcodes = []
+    jobID = '-1'
+    endcode = '-1'
+    runtime = '00:00:00'
+    with open (filename, 'r') as f :
+        linecount = 5
+        for line in f.readlines () :
+            linecount += 1
+            if 'Job terminated' in line :
+                linecount = 0
+                jobID =  line.split ()[1][1:-1].split ('.')[1]
+            if linecount == 1 :
+                endcode = line.split ()[5][:-1]
+                if endcode == '0' : normal += 1
+            if linecount == 2 :
+                runtime = line.split ()[2][:-1]
+            if linecount == 3 :    
+                endcodes.append ([jobID, endcode, runtime])                 
+                jobID = '-1'
+                endcode = '-1'
+                runtime = '00:00:00'
+
+#    print endcodes
+#    print len (endcodes)
+#    print ('normally terminated', normal)
+    return endcodes
+    
+  
+# ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
 
 
 # check whether in the err file there are unexpected errors,
@@ -208,6 +248,9 @@ if __name__ == '__main__':
 
         sys.exit (0)
 
+    # FIXME use the numbers to discard failed jobs
+    # FIXME make a histogram of the time duration of jobs
+    readCondorReport (sys.argv[1])
 
     # collect the list of err files
     # ---- ---- ---- ---- ---- ---- ---- ---- ---- 
