@@ -142,8 +142,11 @@ int main (int argc, char ** argv)
           legend.SetFillStyle (0) ;
           legend.Draw () ;
 
-          string outfilename = destinationfolder + "/" + outfiles_prefix + "_" + wilson_coeff_names.at (iCoeff) + "_" + variables.at (iVar) + "_scan.png" ;
-          c1.SaveAs (outfilename.c_str ()) ;
+          string outfilename = destinationfolder + "/" + outfiles_prefix + "_" + wilson_coeff_names.at (iCoeff) + "_" + variables.at (iVar) + "_scan" ;
+          string outfilename_png =  outfilename + ".png" ;
+          string outfilename_root = outfilename + ".root" ;
+          c1.SaveAs (outfilename_png.c_str ()) ;
+          c1.SaveAs (outfilename_root.c_str ()) ;
 
           // ranges
           // ---- ---- ---- ---- ---- ----

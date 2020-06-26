@@ -709,7 +709,7 @@ createCondorScripts (pair <std::string, string> fittingCommands,
   jobfile << "eval `scram run -sh`\n" ;
   jobfile << "cd -\n" ;
   jobfile << "cp -r " << output_folder << " ./\n" ; 
-  jobfile << "cd " << output_last_folder << "\n" ;  
+  // jobfile << "cd " << output_last_folder << "\n" ;  
   jobfile << fittingCommands.first  << "\n" ;
   jobfile << fittingCommands.second << "\n" ;
   jobfile << "cp " << output1            << " " << output_folder << "\n" ; 
@@ -786,8 +786,12 @@ plotHistos (TH1F * h_SM,
       string name = "INT " + words.at (0) ;
       if (words.size () > 5) name += " " + words.at (1) ;
       string hName = interfs.at (i)->GetName () ;
-      if (hName.find ("_mins") != std::string::npos) name += " -" ;
-      plt.addHisto (interfs.at (i),  name, "L", 50 + 6*i) ;
+      int aux_color = kGreen + 6*i ;
+      if (hName.find ("_mins") != std::string::npos) {
+        name += " -" ;
+        aux_color = kViolet + 6*i ;  // DB fix color negative component 
+        }
+      plt.addHisto (interfs.at (i),  name, "L", aux_color) ; // DB fix color negative component 
     }
 
   // create the root file containing the three histograms
@@ -1249,8 +1253,9 @@ void plotter::plot (string outfilename, string type, bool log)
   leg.Draw () ;
 
   if (log) outfilename += "_log" ;
-  outfilename += ".gif" ;
-  c1.Print (outfilename.c_str (), "gif") ;
+
+  c1.Print ((outfilename+".gif").c_str () , "gif") ;
+  c1.Print ((outfilename+".root").c_str () , "root") ;
 
   return ;
 }

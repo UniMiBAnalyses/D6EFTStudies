@@ -211,6 +211,7 @@ int main (int argc, char ** argv)
 
               g_scan->GetHistogram ()->GetXaxis ()->SetTitle (TString (wilson_coeff_names.at (iCoeff1).c_str ())) ;
               g_scan->GetHistogram ()->GetYaxis ()->SetTitle (TString (wilson_coeff_names.at (iCoeff2).c_str ())) ;
+              g_scan->GetHistogram ()->GetZaxis ()->SetTitle("- 2#Delta logL");
 
               string h_name = "h_" + localrootname + "_cont" ;
               TH2F * h_contour = (TH2F *) (g_scan->GetHistogram ())->Clone (h_name.c_str ()) ;
@@ -256,8 +257,11 @@ int main (int argc, char ** argv)
 
               string outfile = destination_folder + string ("/plot")
                                + "_" + wilson_coeff_names.at (iCoeff1) + "_" + wilson_coeff_names.at (iCoeff2)
-                               + "_" + variables.at (iVar) + "_LLRscan.pdf" ;
-              c1.SaveAs (outfile.c_str ()) ;
+                               + "_" + variables.at (iVar) + "_LLRscan" ;
+              string outfile_pdf = outfile + ".pdf" ;
+              string outfile_root = outfile + ".root" ;
+              c1.SaveAs (outfile_pdf.c_str ()) ;
+              c1.SaveAs (outfile_root.c_str ()) ;
 
             } // loop over variables
  

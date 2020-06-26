@@ -83,6 +83,8 @@ int main (int argc, char ** argv)
 
   string cmssw_folder = gConfigParser->readStringOpt ("combine::cmssw_folder") ;
 
+  string queue = "microcentury" ;
+
   map<string, TH1F *> hmap_SM = readNtupleFile (
       input_files_folder + "/" + input_files_prefix + "_SM.root", 
       input_ntuples_prefix + "_SM", 
@@ -153,7 +155,8 @@ int main (int argc, char ** argv)
           WScreation_commands.push_back (
               createDataCard (h_SM, 
                               h_eftInputs, 
-                              destination_relative_folder, 
+                              // destination_relative_folder, 
+                              destination_folder, // DB FIX
                               outfiles_prefix + "_" + wilson_coeff_names.at (iCoeff), 
                               iHisto->first, 
                               active_coeffs,
@@ -180,7 +183,8 @@ int main (int argc, char ** argv)
                                destination_folder,
                                destination_relative_folder,
                                cmssw_folder,
-                               iHisto->first) ;
+                               iHisto->first,
+                               queue) ;
 
         } //loop on variables  
 

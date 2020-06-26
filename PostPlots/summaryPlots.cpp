@@ -114,6 +114,7 @@ int main (int argc, char ** argv)
 
 //  clims.RedrawAxis () ;
   clims.SaveAs ("cfr.png") ;
+  clims.SaveAs ("cfr.root") ;
 
   return 0 ;
 }

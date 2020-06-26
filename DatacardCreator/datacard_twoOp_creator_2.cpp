@@ -82,7 +82,7 @@ int main (int argc, char ** argv)
 
   string cmssw_folder = gConfigParser->readStringOpt ("combine::cmssw_folder") ;
 
-  string queue = "espresso" ;
+  string queue = "microcentury" ;
   if (gConfigParser->hasOpt ("condor::queue"))
     {
       queue = gConfigParser->readStringOpt ("condor::queue") ;
