@@ -122,16 +122,17 @@ To produce a sample:
 
 Scripts to submit jobs to condor, for the generation of events in Madgraph.
 To submit a job:
-  * copy the folder present in the Madgraph directory in this folder:
+  * In the last step before, MadGraph created a directory called something like ZZ2e2mu_cW_QU (<process>_<kMy>_<type>). Go to the D6EFTStudies/generation folder and copy the folder present in the Madgraph directory here:
    ```
-   cp -r ../../MG5_aMC_v2_6_0/SSeu_RcW_test .
+   cd ../D6EFTStudies/generation
+   cp -r ../../MG5_aMC_v2_6_5/ZZ2e2mu_cW_QU .
    ```
-  * run the submission script
+  * run the submission script. Good settings are 50000 events and 100 jobs.
    ```
-   ./submit.py SSeu_RcW_test
+   python submit.py ZZ2e2mu_cW_QU <nEvents> <nJobs>
    ```
-Config file examples can be found in the subfolders `generation/SSeu_RcW/Cards/`, 
-`generation/SSeu_RcW_int/Cards/`, `generation/SSeu_RcW_bsm/Cards/`, 
+Config file examples can be found in the subfolders `generation/ZZ2e2mu_cW_QU/Cards/`, 
+`generation/ZZ2e2mu_cW_LI/Cards/`, `generation/ZZ2e2mu_cW_SM/Cards/`, 
 where the `param_card.dat`, `run_card.dat` and `proc_card.dat` examples for same-sign WW
 and `cW` non zero are reported. The three folders refer to the SM case, the interference between SM and BSM
 and the BSM case respectively. 
