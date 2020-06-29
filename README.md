@@ -60,7 +60,8 @@ To produce a sample:
     quit
     ```
     Now you can gon directly to the generation step below.
-    <details><summary>If you want more details about what's happening under the hood:</summary>
+    <details>
+ <summary>If you want more details about what's happening under the hood:</summary>
  
 <p>    
     Example of generation of VBF Higgs > WW > fully leptonic.
@@ -119,6 +120,7 @@ the process generated, the type of generation:
     according to the list of operators switched on in the script.
 </p>
 </details>
+
 ## generation
 
 Scripts to submit jobs to condor, for the generation of events in Madgraph.
