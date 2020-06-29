@@ -60,9 +60,9 @@ To produce a sample:
     quit
     ```
     Now you can gon directly to the generation step below.
-    <details><summary>If you want more details about what's happening under the hood:</summary><p>
+<details><summary>If you want more details about what's happening under the hood:</summary><p>
  
- Example of generation of VBF Higgs > WW > fully leptonic.
+    Example of generation of VBF Higgs > WW > fully leptonic.
     The following syntax allows for having EFT entering both in the production
     and decay vertices of the Higgs boson, 
     while it remains not present in the W decays.
@@ -84,9 +84,9 @@ To produce a sample:
     ```
     working on it
     ```
-The comments issued in the Madgraph shell correspond to the model used, 
-the process generated, the type of generation:
-  * the model used for the generation is issued with the command `import`, 
+    The comments issued in the Madgraph shell correspond to the model used, 
+    the process generated, the type of generation:
+    * the model used for the generation is issued with the command `import`, 
     which takes as an argument the model name ad possible restrictions,
     as coded in restriction files. 
     In the example, the model is the one contained in the folder `SMEFTsim_A_U35_MwScheme_UFO_v2_1`,
@@ -95,25 +95,25 @@ the process generated, the type of generation:
     produce events with massless light leptons and quarks,
     diagonal CKM matrix and rigorously zero value for all the Wilson coefficients, 
     but the one present in the file name.
-  * the restriction `restrict_VBS_massless.dat` allows to modify cW, cHW, cHDD, cHbox, cHB, cHWB, cll, cHl3, 
+    * the restriction `restrict_VBS_massless.dat` allows to modify cW, cHW, cHDD, cHbox, cHB, cHWB, cll, cHl3, 
     which are the ones marked as relevant for TGC/QGC and hVV in I. Brivio sildes at 19/01/2019 VBSCan WG1 meeting.
-  * the process is generated according to the Madgraph syntax. In particular:
-    * NP=1 means that no more than a single BSM operator is introduced in each diagram
-    * NP^2==1, when present, means that only the interference is calculated
-    * NP^2==2, when present, means that only the squared bsm part is calculated
-  * the default run_card.dat produced by Madgraph may be changed by modifying the file
+    * the process is generated according to the Madgraph syntax. In particular:
+      * NP=1 means that no more than a single BSM operator is introduced in each diagram
+      * NP^2==1, when present, means that only the interference is calculated
+      * NP^2==2, when present, means that only the squared bsm part is calculated
+    * the default run_card.dat produced by Madgraph may be changed by modifying the file
     ```Template/LO/Cards/run_card.dat``` in the Madgraph folder
-  * besides the interactive operation, Madgraph may be used with instruction scripts, containing for example:
+    * besides the interactive operation, Madgraph may be used with instruction scripts, containing for example:
     ```
     import model SMEFTsim_A_U35_MwScheme_UFO_v3_1-cW_massless
     generate p p > e+ ve mu- vm~ NP=1 NP^2==1
     add process p p > e- ve~ mu+ vm NP=1 NP^2==1
     output WW_LI
     ```  
-  * the script ```create1Dfolders.py``` generates the Madgpraph code for the event generation
+    * the script ```create1Dfolders.py``` generates the Madgpraph code for the event generation
     with one Wilson coefficient different from zero, for the linear and quadratic EFT terms,
     according to the list of operators switched on in the script.
-  * the script ```create2Dfolders.py``` generates the Madgpraph code for the event generation
+    * the script ```create2Dfolders.py``` generates the Madgpraph code for the event generation
     with two Wilson coefficients interfering between each other,
     according to the list of operators switched on in the script.
 </p></details>
