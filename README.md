@@ -17,27 +17,49 @@ To produce a sample:
     export LHAPDF_DATA_PATH=/cvmfs/sft.cern.ch/lcg/external/lhapdfsets/current/
     export LHAPDF_DATA_PATH=/cvmfs/sft.cern.ch/lcg/views/LCG_96/x86_64-centos7-gcc8-opt/share/LHAPDF/:$LHAPDF_DATA_PATH
     ``` 
+  * clone this package in your local area
+      ```
+      git clone https://github.com/UniMiBAnalyses/D6EFTStudies
+      ```
   * download a Madgraph release and the existing SMEFTSim model:
     ```
     wget https://cms-project-generators.web.cern.ch/cms-project-generators/MG5_aMC_v2.6.5.tar.gz
+    tar xzf MG5_aMC_v2.6.5.tar.gz
     cd MG5_aMC_v2_6_5/models
     wget http://feynrules.irmp.ucl.ac.be/raw-attachment/wiki/SMEFT/SMEFTsim_A_U35_MwScheme_UFO_v2.1.tar.gz
     tar xzf SMEFTsim_A_U35_MwScheme_UFO_v2.1.tar.gz
     ```
   * copy in the model folder the additional files present in the D6EFTStudies project, 
-    from the right folder depending on the version of the UFO:
+    from the right folder depending on the version of the UFO (old or v3, for now old):
     ```
-    cp ../../../D6EFTStudies/madgraph_model/[folder]/* .
+    cp ../../D6EFTStudies/madgraph_model/old/* .
     ```
   * trivial examples of Madgraph syntax can be found [here](https://www.niu.edu/spmartin/madgraph/madsyntax.html)
-  * get back to the Madgraph folder and prepare the process folder:
+  * Go to the D6EFT models folder and prepare the Madgraph commands. Have a look at the commands, as you will have to copy paste them.
+    ```
+    cd ../../D6EFTStudies/generation
+    cp /afs/cern.ch/user/c/covarell/public/forGiacomo/create1Dfolders_ZZ2e2mu.py .
+    python /afs/cern.ch/user/c/covarell/public/forGiacomo/create1Dfolders_ZZ2e2mu.py
+    more launch_ZZ2e2mu_cW_*.txt
+    ```
+    This creates 3 files with 3 lines each that you will use in the next step. One file is for Linear, one for Quadratic, one for SM.
+  * Go back in the Madgraph folder and copy the run_card.
+    ```
+    cd ../../MG5_aMC_v2_6_5
+    cp /afs/cern.ch/user/c/covarell/public/forGiacomo/run_card.dat Template/LO/Cards/.
+    ```  
+  * Launch MadGraph:
     ```
     ./bin/mg5_aMC
+    ```
+    Now type in the strings obtained two steps ago. They should look something like:
+    ```
     import model SMEFTsim_A_U35_MwScheme_UFO_v2_1-cW_massless
-    generate p p > e+ ve mu+ vm j j QCD=0 NP=1
-    output SSeu_RcW_test
+    generate p p > e+ e- mu- mu+ j j QCD=0 NP=1 NP^2==2 SMHLOOP=0
+    output ZZ2e2mu_cW_QU
     quit
     ```
+    Now you can gon directly to the generation step below.
     Example of generation of VBF Higgs > WW > fully leptonic.
     The following syntax allows for having EFT entering both in the production
     and decay vertices of the Higgs boson, 
