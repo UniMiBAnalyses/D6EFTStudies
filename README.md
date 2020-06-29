@@ -60,6 +60,10 @@ To produce a sample:
     quit
     ```
     Now you can gon directly to the generation step below.
+    <details><summary>If you want more details about what's happening under the hood:</summary>
+<p>
+
+    
     Example of generation of VBF Higgs > WW > fully leptonic.
     The following syntax allows for having EFT entering both in the production
     and decay vertices of the Higgs boson, 
@@ -114,7 +118,8 @@ the process generated, the type of generation:
   * the script ```create2Dfolders.py``` generates the Madgpraph code for the event generation
     with two Wilson coefficients interfering between each other,
     according to the list of operators switched on in the script.
-
+</p>
+</details>
 ## generation
 
 Scripts to submit jobs to condor, for the generation of events in Madgraph.
