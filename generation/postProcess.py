@@ -40,7 +40,10 @@ def readCondorReport (path):
                 linecount = 0
                 jobID =  line.split ()[1][1:-1].split ('.')[1]
             if linecount == 1 :
-                endcode = line.split ()[5][:-1]
+                if 'Abnormal' in line :
+                  endcode = line.split ()[4][:-1]
+                else :
+                  endcode = line.split ()[5][:-1]
                 if endcode == '0' : normal += 1
             if linecount == 2 :
                 runtime = line.split ()[2][:-1]
@@ -206,8 +209,9 @@ if __name__ == '__main__':
         print ('base folder of the sample missing')
         sys.exit (1)
 
-    print ('folder:\t', sys.argv[1])
-    print ('---------------------------------------------')
+    print ('+ ---------------------------------------------')
+    print ('+ folder:\t', sys.argv[1])
+    print ('+ ---------------------------------------------')
 
     if len (sys.argv) > 2:
 
