@@ -41,7 +41,10 @@ def readCondorReport (path):
                 linecount = 0
                 jobID =  line.split ()[1][1:-1].split ('.')[1]
             if linecount == 1 :
-                endcode = line.split ()[5][:-1]
+                if 'Abnormal' in line :
+                  endcode = line.split ()[4][:-1]
+                else :
+                  endcode = line.split ()[5][:-1]
                 if endcode == '0' : normal += 1
             if linecount == 2 :
                 runtime = line.split ()[2][:-1]
@@ -203,12 +206,14 @@ def makeNtupleProdCfg (basefolder,outfolder, LHEfiles, XS):
 
 if __name__ == '__main__':
 
+
     #parse arguments
     parser = argparse.ArgumentParser()
     parser.add_argument('--debug', action='store_true', default=False, help='debugging mode')
     parser.add_argument("-b", "--basefolder", action="store", type=str, help="base folder of the input files")
     parser.add_argument("-t", "--task", action="store", type=str, default="" , help="choose a specific task: check, clean, unzip, rezip; optional, otherwise all except 'clean' are performed")
     parser.add_argument("-o", "--outNtuple", action="store", type=str, default="basefolder", help="output directory for the ntuples created by read_03.cpp")
+
 
     args = parser.parse_args()
 

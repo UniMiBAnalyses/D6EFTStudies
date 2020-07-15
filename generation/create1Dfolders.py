@@ -103,8 +103,8 @@ if __name__ == "__main__":
     if param[0] not in switchOn : continue   
     f_launchfile = open ('launch_' + param[1] + '_LI.txt', 'w')
     f_launchfile.write ('import model SMEFTsim_A_U35_MwScheme_UFO_v3_1-' + param[1] + '_massless\n')
-    f_launchfile.write ('generate p p > e+ ve mu- vm~ NP=1 NP^2==1\n')
-    f_launchfile.write ('add process p p > e- ve~ mu+ vm NP=1 NP^2==1\n')
+    f_launchfile.write ('generate p p > e+ ve mu- vm~ NP=1 NP^2==1 SMHLOOP=0\n')
+    f_launchfile.write ('add process p p > e- ve~ mu+ vm NP=1 NP^2==1 SMHLOOP=0\n')
     f_launchfile.write ('output WW_' + param[1] + '_LI')
     f_launchfile.close ()
 
@@ -113,8 +113,8 @@ if __name__ == "__main__":
     if param[0] not in switchOn : continue   
     f_launchfile = open ('launch_' + param[1] + '_QU.txt', 'w')
     f_launchfile.write ('import model SMEFTsim_A_U35_MwScheme_UFO_v3_1-' + param[1] + '_massless\n')
-    f_launchfile.write ('generate p p > e+ ve mu- vm~ NP=1 NP^2==2\n')
-    f_launchfile.write ('add process p p > e- ve~ mu+ vm NP=1 NP^2==2\n')
+    f_launchfile.write ('generate p p > e+ ve mu- vm~ NP=1 NP^2==2 SMHLOOP=0\n')
+    f_launchfile.write ('add process p p > e- ve~ mu+ vm NP=1 NP^2==2 SMHLOOP=0\n')
     f_launchfile.write ('output WW_' + param[1] + '_QU')
     f_launchfile.close ()
 

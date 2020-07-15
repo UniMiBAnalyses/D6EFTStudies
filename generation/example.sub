@@ -9,9 +9,9 @@ executable            = EXECUTABLE_CHANGEME
 # must be executable, i.e. chmod 755
 
 process_name          = PROCESS_NAME_CHANGEME
-madgraph_folder       = BASE_FOLDER_CHANGEME/$(process_name)
-# the results_folder should exist
-results_folder        = BASE_FOLDER_CHANGEME/$(process_name)_results
+madgraph_folder       = BASE_FOLDER_CHANGEME/MG_REL_FOLDER_CHANGEME
+# the results_folder should exist prior to submitting
+results_folder        = RESULTS_FOLDER_CHANGEME
 events_folder         = $(process_name)_$(ProcId)
 events_number         = EVENTS_NUMBER_CHANGEME
 
