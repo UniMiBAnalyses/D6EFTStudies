@@ -346,6 +346,8 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max, bool applyCu
       if (events++ % 10000 == 0) cout << "        reading event in file: " << events << endl ;
           
       vector<TLorentzVector> v_f_Ws ;
+      vector<TLorentzVector> v_f_jets ;
+      vector<TLorentzVector> v_f_gluons ;
       vector<TLorentzVector> v_f_quarks ;
       vector<TLorentzVector> v_f_leptons ;
       vector<TLorentzVector> v_f_neutrinos ;
@@ -357,32 +359,43 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max, bool applyCu
           if (reader.hepeup.ISTUP.at (iPart) == 1)
             {
               TLorentzVector dummy = buildLP (reader, iPart) ;
-              // quarks
+              // quarks-->jets
               if (abs (reader.hepeup.IDUP.at (iPart)) < 7) 
                 {
-                  v_f_quarks.push_back (dummy) ;        
-                } // quarks
+                  v_f_quarks.push_back (dummy) ;
+                  v_f_jets.push_back (dummy) ;        
+                } // quarks-->jets
+              // gluons-->jets
+              else if (abs (reader.hepeup.IDUP.at (iPart)) == 21 ) 
+                {
+                  v_f_gluons.push_back (dummy) ; 
+                  v_f_jets.push_back (dummy) ;       
+                } // gluons-->jets
+
+              // leptons
               else if (abs (reader.hepeup.IDUP.at (iPart)) == 11 ||
                        abs (reader.hepeup.IDUP.at (iPart)) == 13 ||
                        abs (reader.hepeup.IDUP.at (iPart)) == 15)
                 {
                   v_f_leptons.push_back (dummy) ;
-                }
+                } // leptons
+              // neutrinos
               else if (abs (reader.hepeup.IDUP.at (iPart)) == 12 ||
                        abs (reader.hepeup.IDUP.at (iPart)) == 14 ||
                        abs (reader.hepeup.IDUP.at (iPart)) == 16)
                 {
                   v_f_neutrinos.push_back (dummy) ;        
-                }
+                } // neutrinos
             } // outgoing particles
         } // loop over particles in the event
 
+    
       //generic controls
       int warnNum = 0 ;
       //PG commenting these lines, to allow for the code to run also in the inclusve case
-      // if (v_f_quarks.size () < 2)
+      // if (v_f_jets.size () < 2)
       //   {
-      //     cout << "warning, not enough quarks" << endl ;
+      //     cout << "warning, not enough jets" << endl ;
       //     ++warnNum ;
       //   }
       if (v_f_leptons.size () < 2)
@@ -410,27 +423,40 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max, bool applyCu
       float phij1 = -1. ;
       float phij2 = -1. ;
 
-      if (v_f_quarks.size () >= 1)
-        { 
-          ptj1  = v_f_quarks.at (0).Pt () ;
-          etaj1 = v_f_quarks.at (0).Eta () ;
-          phij1 = v_f_quarks.at (0).Phi () ;
+      //cout << ">>> FillNtuple:: this is the jets' size ::  " << v_f_jets.size() << endl;
+      //cout << "                 these are from quarks ::  " << v_f_quarks.size() << endl;
+      //cout << "                 these are from gluons ::  " << v_f_gluons.size() << endl;
+       
+      if (v_f_jets.size () >= 1)
+        {
+          //cout << ">>> FillNtuple:: filling 1st jet variables ..." << endl;
+          ptj1  = v_f_jets.at (0).Pt () ;
+          etaj1 = v_f_jets.at (0).Eta () ;
+          phij1 = v_f_jets.at (0).Phi () ;
+          // cout << ">>>>>> ptj1 ::  " << ptj1  << endl;
+          //cout << ">>>>>> etaj1 ::  " << etaj1  << endl;
+          //cout << ">>>>>> phij1 ::  " << phij1  << endl;
         }
 
       float mjj = -1. ;
-      if (v_f_quarks.size () >= 2)
+      if (v_f_jets.size () >= 2)
         { 
-          ptj2  = v_f_quarks.at (1).Pt () ;
-          etaj2 = v_f_quarks.at (1).Eta () ;
-          phij2 = v_f_quarks.at (1).Phi () ;
+          //cout << ">>> FillNtuple:: filling 2nd quark variables..." << endl;
+          ptj2  = v_f_jets.at (1).Pt () ;
+          etaj2 = v_f_jets.at (1).Eta () ;
+          phij2 = v_f_jets.at (1).Phi () ;
+          //cout << ">>>>>> ptj2 ::  " << ptj2  << endl;
+          //cout << ">>>>>> etaj2 ::  " << etaj2  << endl;
+          //cout << ">>>>>> phij2 ::  " << phij2  << endl;
           if (ptj1 < ptj2) 
             {
               swap (ptj1, ptj2) ;
               swap (etaj1, etaj2) ;
               swap (phij1, phij2) ;
             }
-          TLorentzVector v_jj = v_f_quarks.at (0) + v_f_quarks.at (1) ;
+          TLorentzVector v_jj = v_f_jets.at (0) + v_f_jets.at (1) ;
           mjj = v_jj.M () ;
+          //cout << ">>>>>> mjj ::  " << mjj  << endl;
         }
 
       TLorentzVector ME = v_f_neutrinos.at (0) + v_f_neutrinos.at (1) ;
@@ -438,7 +464,7 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max, bool applyCu
 
       if (applyCuts)
         {
-          if (v_f_quarks.size () < 2)
+          if (v_f_jets.size () < 2)
             {
               cerr << "cannot apply VBS selections without two jets, exiting\n" ;
               exit (1) ;
@@ -448,12 +474,12 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max, bool applyCu
 
           if (ME.Pt () < 40) continue ;
 
-          if (fabs (v_f_quarks.at (0).Eta () - v_f_quarks.at (1).Eta ()) < 2.5 ) continue ;
+          if (fabs (v_f_jets.at (0).Eta () - v_f_jets.at (1).Eta ()) < 2.5 ) continue ;
           if (mjj < 500) continue ;
 
           if (v_ll.M () < 20) continue ;
-          if (fabs (zetaStar (v_f_quarks.at (0).Eta (), v_f_quarks.at (1).Eta (), v_f_leptons.at (0).Eta ())) > 0.75) continue ;
-          if (fabs (zetaStar (v_f_quarks.at (0).Eta (), v_f_quarks.at (1).Eta (), v_f_leptons.at (1).Eta ())) > 0.75) continue ;
+          if (fabs (zetaStar (v_f_jets.at (0).Eta (), v_f_jets.at (1).Eta (), v_f_leptons.at (0).Eta ())) > 0.75) continue ;
+          if (fabs (zetaStar (v_f_jets.at (0).Eta (), v_f_jets.at (1).Eta (), v_f_leptons.at (1).Eta ())) > 0.75) continue ;
         }
 
       //PG fill variables
