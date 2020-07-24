@@ -26,7 +26,7 @@ error                 = $(results_folder)/job.$(ClusterId).$(ProcId).err
 log                   = $(results_folder)/job.$(ClusterId).log
 # NB condor does not create folders!
 
-+JobFlavour = "nextweek"
++JobFlavour = "JOBFLAVOUR_CHANGEME"
 # NB it's real time
 # espresso     = 20 minutes (default)
 # microcentury = 1 hour
