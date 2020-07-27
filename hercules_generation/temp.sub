@@ -1,0 +1,52 @@
+# HT condor test job
+# ------------------
+#
+# tutorial: http://batchdocs.web.cern.ch/batchdocs/local/index.html
+# how to run: condor_submit job.sub
+# how to monitor: condor_q
+
+executable            = job_GP.sh
+# must be executable, i.e. chmod 755
+
+gridpack              = /gwpool/users/gpizzati/genproductions/bin/MadGraph5_aMCatNLO/$(process_name)_slc7_amd64_gcc820_CMSSW_9_3_16_tarball.tar.xz
+results_folder        = /gwpool/users/gpizzati/genproductions/bin/MadGraph5_aMCatNLO/results_$(process_name)
+events_folder         = $(process_name)_$(ProcId)
+cmssw_folder          = /gwpool/users/gpizzati/CMSSW_10_6_0/src
+events_number         = 10000
+
+arguments             = $(ClusterId) $(ProcId) $(process_name) $(events_folder) $(gridpack) $(results_folder) $(cmssw_folder) $(events_number)
+# ClusterId = the submitted job
+# ProcId = subjobs in which the cluster may be divided
+
+# input  = jobinput.txt
+
+output                = $(results_folder)/job.$(ClusterId).$(ProcId).out
+error                 = $(results_folder)/job.$(ClusterId).$(ProcId).err
+log                   = $(results_folder)/job.$(ClusterId).log
+# NB condor does not create folders!
+
++JobFlavour = "workday"
+# NB it's real time
+# espresso     = 20 minutes (default)
+# microcentury = 1 hour
+# longlunch    = 2 hours
+# workday      = 8 hours
+# tomorrow     = 1 day
+# testmatch    = 3 days
+# nextweek     = 1 week
+# Setting manually can be achieved by placing the following in your submit file:
+# MaxRuntime = Number of seconds
+
+queue 2
+# The queue directive can take an integer to submit multiple jobs,
+# each job will have an incremental $ProcId
+# Note that the queue command has many other features,
+# relevant for several job submission in a single cluster of jobs
+
+
+# if I wanted to run the job again, with changed arguments:
+# https://research.cs.wisc.edu/htcondor/tutorials/fermi-2005/submit_first.html
+# arguments = 4 11
+# queue
+# arguments = 4 12
+# queue
