@@ -235,8 +235,8 @@ once and for all).
 Since the CMSSW and Combine code is taken from a Git repository, it's suggested to install it
 *outside* of the EFT folder.
 
-    cmsrel CMSSW_10_3_13
-    cd CMSSW_10_3_13/src
+    cmsrel CMSSW_10_2_13
+    cd CMSSW_10_2_13/src
     cmsenv
 
 Download the Combine tool inside the CMSSW release environment and enter the subfolder:
