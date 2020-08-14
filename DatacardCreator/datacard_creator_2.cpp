@@ -39,7 +39,7 @@ int main (int argc, char ** argv)
       return 1 ;
     }
 
-  CfgParser * gConfigParser = new CfgParser (argv[1]) ;
+  CfgParser * gConfigParser = new CfgParser (argv[1]) ; //Prende in esame il file .cfg passatogli
 
   // reading generic parameters of the generation
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
@@ -48,7 +48,7 @@ int main (int argc, char ** argv)
   vector<float> wilson_coeffs_plot  = gConfigParser->readFloatListOpt ("eft::wilson_coeffs_plot") ;
   vector<float> wilson_coeffs       = gConfigParser->readFloatListOpt ("eft::wilson_coeffs_gen") ;
 
-  vector<string> wilson_coeff_ranges ;
+  vector<string> wilson_coeff_ranges ; //definisco la stringa dei ranges in cui faccio lo scan
   if (gConfigParser->hasOpt ("eft::wilson_coeff_ranges"))
     {
       wilson_coeff_ranges = gConfigParser->readStringListOpt ("eft::wilson_coeff_ranges") ;
@@ -68,9 +68,9 @@ int main (int argc, char ** argv)
 
 
 
-  jointSort (wilson_coeff_names, wilson_coeffs_plot, wilson_coeffs, wilson_coeff_ranges) ;
+  jointSort (wilson_coeff_names, wilson_coeffs_plot, wilson_coeffs, wilson_coeff_ranges) ; 
 
-  // reading input and output files information
+  // reading input and output files information: li vado a prendere dal file.cfg
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
 
   string input_files_folder   = gConfigParser->readStringOpt ("input::files_folder") ;
@@ -85,6 +85,7 @@ int main (int argc, char ** argv)
 
   string queue = "microcentury" ;
 
+  //Associo ad ogni stringa un istogramma: riesco a riconoscere un oggetto
   map<string, TH1F *> hmap_SM = readNtupleFile (
       input_files_folder + "/" + input_files_prefix + "_SM.root", 
       input_ntuples_prefix + "_SM", 
@@ -107,18 +108,18 @@ int main (int argc, char ** argv)
       ntuple_names.push_back (input_ntuples_prefix + "_" + wilson_coeff_names.at (iCoeff) + "_LI") ;
       ntuple_names.push_back (input_ntuples_prefix + "_" + wilson_coeff_names.at (iCoeff) + "_QU") ;
 
-      // reading the physics from the input files
+      // reading the physics from the input files: come sopra definisco le mappe
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
 
       map<string, TH1F *> hmap_LI = readNtupleFile (input_files[0], ntuple_names[0], wilson_coeff_names.at (iCoeff) + "_LI_", "linear",    gConfigParser) ;
-      scaleAllHistos (hmap_LI, 1./wilson_coeffs.at (iCoeff)) ;
+      scaleAllHistos (hmap_LI, 1./wilson_coeffs.at (iCoeff)) ; //normalizzo gli istogrammi
       map<string, TH1F *> hmap_QU = readNtupleFile (input_files[1], ntuple_names[1], wilson_coeff_names.at (iCoeff) + "_QU_", "quadratic", gConfigParser) ;
       scaleAllHistos (hmap_QU, 1./(wilson_coeffs.at (iCoeff) * wilson_coeffs.at (iCoeff))) ;
 
       // creating datacards and rootfile for each variable
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
 
-      vector<pair <string, string> > WScreation_commands ;
+      vector<pair <string, string> > WScreation_commands ; //vettore di pair (simil mappa) 
       // FIXME creare se non esiste, pulire se esiste
       string destination_relative_folder = destination_folder_prefix + "_" + wilson_coeff_names.at (iCoeff) ;
 
@@ -139,7 +140,7 @@ int main (int argc, char ** argv)
            ++iHisto)
         {
           // get the three histograms 
-          TH1F * h_SM = iHisto->second ;
+          TH1F * h_SM = iHisto->second ; //riempio questi istogrammi dalla mappa. second entra nell'oggetto della mappa
           TH1F * h_LI = hmap_LI.at (iHisto->first) ;
           TH1F * h_QU = hmap_QU.at (iHisto->first) ;
 
@@ -152,6 +153,7 @@ int main (int argc, char ** argv)
           vector<string> active_ranges ; 
           active_ranges.push_back ("k_" + wilson_coeff_names.at (iCoeff) + "=" + wilson_coeff_ranges.at (iCoeff)) ;
 
+	  //per ogni varibile ho WScreation
           WScreation_commands.push_back (
               createDataCard (h_SM, 
                               h_eftInputs, 
@@ -192,18 +194,22 @@ int main (int argc, char ** argv)
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
       
       ofstream WScreation_script (destination_folder + "/launchWScreation.sh") ;
-      WScreation_script << "#!/usr/bin/bash\n" ;
+      WScreation_script << "#!/bin/sh\n" ;
       WScreation_script << "\n" ;
       for (int i = 0 ; i < WScreation_commands.size () ; ++i)
            WScreation_script << WScreation_commands.at (i).first << "\n" ;
       WScreation_script.close () ;
+
+	chmod((destination_folder + "/launchWScreation.sh").c_str(), S_IRWXU|S_IRGRP|S_IROTH);
     
       ofstream fitting_script (destination_folder + "/launchFitting.sh") ;
-      fitting_script << "#!/usr/bin/bash\n" ;
+      fitting_script << "#!/bin/sh\n" ;
       fitting_script << "\n" ;
       for (int i = 0 ; i < WScreation_commands.size () ; ++i)
            fitting_script << WScreation_commands.at (i).second << "\n" ;
       fitting_script.close () ;
+	
+	chmod((destination_folder + "/launchFitting.sh").c_str(), S_IRWXU|S_IRGRP|S_IROTH);
     
       cout << "Datacards and plots created.\n" ;
       cout << "To convert datacards in workspaces, run (from the same folder where datacard_creator_2 was executed): \n";

@@ -233,18 +233,22 @@ int main (int argc, char ** argv)
           // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
           
           ofstream WScreation_script (destination_folder + "/launchWScreation.sh") ;
-          WScreation_script << "#!/usr/bin/bash\n" ;
+          WScreation_script << "#!/bin/sh\n" ;
           WScreation_script << "\n" ;
           for (int i = 0 ; i < WScreation_commands.size () ; ++i)
                WScreation_script << WScreation_commands.at (i).first << "\n" ;
           WScreation_script.close () ;
-        
+
+		chmod((destination_folder + "/launchWScreation.sh").c_str(), S_IRWXU|S_IRGRP|S_IROTH);        
+
           ofstream fitting_script (destination_folder + "/launchFitting.sh") ;
-          fitting_script << "#!/usr/bin/bash\n" ;
+          fitting_script << "#!/bin/sh\n" ;
           fitting_script << "\n" ;
           for (int i = 0 ; i < WScreation_commands.size () ; ++i)
                fitting_script << WScreation_commands.at (i).second << "\n" ;
           fitting_script.close () ;
+
+		chmod((destination_folder + "/launchFitting.sh").c_str(), S_IRWXU|S_IRGRP|S_IROTH);
         
           cout << "Datacards and plots created.\n" ;
           cout << "To convert datacards in workspaces, run (from the same folder where datacard_creator_2 was executed): \n";
