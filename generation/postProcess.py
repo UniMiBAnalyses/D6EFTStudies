@@ -12,6 +12,7 @@ import sys
 import fnmatch
 import os
 import subprocess
+import argparse 
 from math import sqrt 
 import glob
 
@@ -92,7 +93,7 @@ def errFileHasIssues (filename):
 def getFilesList (basefolder, pattern, discard):
     matches = []
     myfilenames = []
-    for root, dirnames, filenames in os.walk (sys.argv[1]):
+    for root, dirnames, filenames in os.walk (basefolder):
         for filename in fnmatch.filter (filenames, pattern):
             fullname = os.path.join (root, filename)
             count = 0
@@ -176,9 +177,9 @@ def calcTotXS (singleGenInfoList):
 # ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
 
 
-def makeNtupleProdCfg (basefolder, LHEfiles, XS):
+def makeNtupleProdCfg (basefolder,outfolder, LHEfiles, XS):
 
-    processName = sys.argv[1].split ('/')[-1]
+    processName = basefolder.split ('/')[-1]
     processName = processName.replace ('_results', '')
 
     configFileName = basefolder + '/read_03_input.cfg'
@@ -187,7 +188,7 @@ def makeNtupleProdCfg (basefolder, LHEfiles, XS):
     outf.write ('[general]\n')
     outf.write ('samples = ' + processName + '\n')
     outf.write ('variables = mjj, mll, ptj1, ptj2, etaj1, etaj2, phij1, phij2, ptl1, ptl2, etal1, etal2, met, ptll, deltaetajj, deltaphijj\n')
-    outf.write ('outputFile = ntuple_' + processName + '.root\n')
+    outf.write ('outputFile = '+ outfolder +'/ntuple_' + processName + '.root\n')
     outf.write ('applycuts = false\n')
     outf.write ('\n')
     outf.write ('[' + processName + ']\n')
@@ -205,69 +206,83 @@ def makeNtupleProdCfg (basefolder, LHEfiles, XS):
 
 if __name__ == '__main__':
 
-    if len (sys.argv) < 2:
-        print ('base folder of the sample missing')
-        sys.exit (1)
 
-    print ('+ ---------------------------------------------')
-    print ('+ folder:\t', sys.argv[1])
-    print ('+ ---------------------------------------------')
+    #parse arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--debug', action='store_true', default=False, help='debugging mode')
+    parser.add_argument("-b", "--basefolder", action="store", type=str, help="base folder of the input files")
+    parser.add_argument("-t", "--task", action="store", type=str, default="" , help="choose a specific task: check, clean, unzip, rezip; optional, otherwise all except 'clean' are performed")
+    parser.add_argument("-o", "--outNtuple", action="store", type=str, default="basefolder", help="output directory for the ntuples created by read_03.cpp")
 
-    if len (sys.argv) > 2:
 
-        if sys.argv[2] == 'check' :
-            print ('checking errors\n')
+    args = parser.parse_args()
 
-            files_err = getFilesList (sys.argv[1], '*.err', [])
-            issues = [errFileHasIssues (file) for file in files_err[0]]
-            discard = [ID for prob, ID, filename in issues if prob == True]
-            for elem in discard: print ('ignoring job ' + elem)
+    DEBUG = args.debug
+    basefolder = args.basefolder
+    outfolderNtuple = args.outNtuple
+    task = args.task #task is optional, default "", doing all the task except for clean
 
-        elif sys.argv[2] == 'clean' :
-            print ('cleaning folder ' + sys.argv[1] + ' from job reports...\n')
-            postprocess_file = getFilesList (sys.argv[1], 'postProcess.txt', [])
-            if (len (postprocess_file[0]) == 0):
-                print 'no postProcess.txt file found, quitting\n'
-                sys.exit (0)
+    print ('folder:\t', basefolder)
+    print ('---------------------------------------------')
 
-            # remove the .out and .err only for successful jobs
-            files_err = getFilesList (sys.argv[1], '*.err', [])
-            issues = [errFileHasIssues (file) for file in files_err[0]]
-            removeError = [filename for prob, ID, filename in issues if prob == False]
-            for file in removeError: os.remove (file)
-            removeOutput = [filename.replace ('.err','.out') for filename in removeError]
-            for file in removeOutput: os.remove (file)
-
-        elif sys.argv[2] == 'rezip' :
-
-            files_lhe = getFilesList (sys.argv[1], '*.lhe', [])
-            for filename in files_lhe[0] : 
-                print ('gzip ' + filename)
-                subprocess.call (['gzip', str (filename)])
-                
-        elif sys.argv[2] == 'unzip' :
-
-            print ('unzipping...')
-            os.system ('for fil in  `find  ' + sys.argv[1] + ' -name \"*gz\"` ; do gunzip $fil ; done')
-
+    
+    if "check" in task:
+        print ('checking errors\n')
+        files_err = getFilesList (basefolder, '*.err', [])
+        issues = [errFileHasIssues (file) for file in files_err[0]]
+        discard = [ID for prob, ID, filename in issues if prob == True]
+        for elem in discard: print ('ignoring job ' + elem)
         sys.exit (0)
+      
+    elif "clean" in task:
+        print ('cleaning folder ' + basefolder + ' from job reports...\n')
+        postprocess_file = getFilesList (basefolder, 'postProcess.txt', [])
+        if (len (postprocess_file[0]) == 0):
+            print 'no postProcess.txt file found, quitting\n'
+            sys.exit (0)
+
+         # remove the .out and .err only for successful jobs
+        files_err = getFilesList (basefolder, '*.err', [])
+        issues = [errFileHasIssues (file) for file in files_err[0]]
+        removeError = [filename for prob, ID, filename in issues if prob == False]
+        for file in removeError: os.remove (file)
+        removeOutput = [filename.replace ('.err','.out') for filename in removeError]
+        for file in removeOutput: os.remove (file)
+
+    elif "unzip" in task:
+        print ('unzipping...')
+        os.system ('for fil in  `find  ' + basefolder + ' -name \"*gz\"` ; do gunzip $fil ; done')
+        sys.exit (0)
+ 
+    elif "rezip" in task:
+        files_lhe = getFilesList (basefolder, '*.lhe', [])
+        for filename in files_lhe[0] : 
+            print ('gzip ' + filename)
+            subprocess.call (['gzip', str (filename)])
+        sys.exit (0)
+
+    #Now doing the normal code
+    if "basefolder" in outfolderNtuple:  #default: the output folder is the same as the input one
+        outfolderNtuple = args.basefolder
+        if DEBUG: print "Default output folder : ", outfolderNtuple   
+
 
     # FIXME use the numbers to discard failed jobs
     # FIXME make a histogram of the time duration of jobs
-    readCondorReport (sys.argv[1])
+    readCondorReport (basefolder)
 
     # collect the list of err files
     # ---- ---- ---- ---- ---- ---- ---- ---- ---- 
 
-    print ('reading folder ' + sys.argv[1] + '\n')
+    print ('reading folder ' + basefolder + '\n')
 
     print ('checking error reports...')
-    files_err = getFilesList (sys.argv[1], '*.err', [])
+    files_err = getFilesList (basefolder, '*.err', [])
     issues = [errFileHasIssues (file) for file in files_err[0]]
     discard = [ID for prob, ID, filename in issues if prob == True]
 
     print ('checking not finished runs...')
-    files_run = getFilesList (sys.argv[1], '*running', [])
+    files_run = getFilesList (basefolder, '*running', [])
     discard = discard + [name.split ('_')[3] for name in files_run[1]]
 
     for elem in discard: print ('ignoring job ' + elem)
@@ -277,13 +292,13 @@ if __name__ == '__main__':
 
     print ('unzipping...')
     # https://linuxhandbook.com/execute-shell-command-python/
-    os.system ('for fil in  `find  ' + sys.argv[1] + ' -name \"*gz\"` ; do gunzip $fil ; done')
+    os.system ('for fil in  `find  ' + basefolder + ' -name \"*gz\"` ; do gunzip $fil ; done')
     
     # check lhe files integrity
     # ---- ---- ---- ---- ---- ---- ---- ---- ---- 
 
     print ('checking LHE files integrity...')
-    files_lhe = getFilesList (sys.argv[1], '*.lhe', discard)
+    files_lhe = getFilesList (basefolder, '*.lhe', discard)
     closure = [checkClosure (file) for file in files_lhe[0]]
 
     allOK = 0
@@ -296,9 +311,10 @@ if __name__ == '__main__':
     else:
         print ('all files closed regularly') 
 
-    print ('\nLIST OF LHE FILES:')
-    print (','.join (files_lhe[0]))
-    print ('\n')
+    if DEBUG: 
+        print ('\nLIST OF LHE FILES:')
+        print (','.join (files_lhe[0]))
+        print ('\n')
 
     # get number of events from LHE files
     # ---- ---- ---- ---- ---- ---- ---- ---- ---- 
@@ -308,14 +324,14 @@ if __name__ == '__main__':
     # add final report to the results folder
     # ---- ---- ---- ---- ---- ---- ---- ---- ---- 
 
-    files_out = getFilesList (sys.argv[1], '*.out', discard)
+    files_out = getFilesList (basefolder, '*.out', discard)
     XSs = [findXSwE (file) for file in files_out[0]]
 
     totXS = calcTotXS (XSs)
     print ('average XS: ' + str (totXS[0]) + ' +- ' + str (totXS[1]) + ' pb')
     print ('average XS: ' + str (1000. * totXS[0]) + ' +- ' + str (1000. * totXS[1]) + ' fb')
 
-    outputfile = open (sys.argv[1]+'/postProcess.txt' ,'w')
+    outputfile = open (basefolder+'/postProcess.txt' ,'w')
     outputfile.write ('average XS: ' + str (totXS[0]) + ' +- ' + str (totXS[1]) + ' pb\n')
     outputfile.write ('average XS: ' + str (1000. * totXS[0]) + ' +- ' + str (1000. * totXS[1]) + ' fb\n\n')
     outputfile.write ('LHE files list:\n' + ','.join (files_lhe[0]) + '\n')
@@ -324,5 +340,5 @@ if __name__ == '__main__':
     # add cfg file for read_03 to the results folder
     # ---- ---- ---- ---- ---- ---- ---- ---- ---- 
 
-    makeNtupleProdCfg (sys.argv[1], ','.join (files_lhe[0]), str (totXS[0]))
+    makeNtupleProdCfg (basefolder,outfolderNtuple, ','.join (files_lhe[0]), str (totXS[0]))
 

@@ -24,7 +24,7 @@ def create_job_sub (resultfile, sourcefile, replace):
 if __name__ == "__main__":
 
     if (len(sys.argv) < 3):
-        print 'usage: submit.py process_folder_relative_path output_base_folder [events(10000)] [jobs(100)] [shell script(job.sh)]'
+        print 'usage: submit.py process_folder_relative_path output_base_folder [events(10000)] [jobs(100)] [shell script(job.sh)] [flavour(nextweek)]'
         sys.exit (1)
 
     process_folder = sys.argv[1]
@@ -34,6 +34,8 @@ if __name__ == "__main__":
         sys.exit (1)
 
     process_name = sys.argv[1].split ('/')[-1]
+    if (process_name == "") : process_name = sys.argv[1].split ('/')[-2]
+
 
     results_folder = sys.argv[2] + '/' + process_name + '_results'
 
@@ -63,12 +65,22 @@ if __name__ == "__main__":
     job_file = results_folder + '/' + shell_script_template
     shutil.copy2 (shell_script_template, job_file)
 
+    MGfolder = sys.argv[1]
+    if (MGfolder[-1] == '/'): MGfolder = MGfolder[:-1]
+
+    job_flavour = 'nextweek'
+    if (len (sys.argv) > 6):
+        job_flavour = sys.argv[6]
+
     replace = [
-        ['PROCESS_NAME_CHANGEME' , process_name  ],
-        ['BASE_FOLDER_CHANGEME'  , os.getcwd ()  ],
-        ['EVENTS_NUMBER_CHANGEME', events_number ],
-        ['JOBS_NUMBER_REPLACEME' , jobs_number   ],
-        ['EXECUTABLE_CHANGEME'   , job_file      ]
+        ['PROCESS_NAME_CHANGEME'   , process_name   ],
+        ['BASE_FOLDER_CHANGEME'    , os.getcwd ()   ],
+        ['MG_REL_FOLDER_CHANGEME'  , MGfolder       ],
+        ['RESULTS_FOLDER_CHANGEME' , results_folder ],
+        ['EVENTS_NUMBER_CHANGEME'  , events_number  ],
+        ['JOBS_NUMBER_REPLACEME'   , jobs_number    ],
+        ['EXECUTABLE_CHANGEME'     , job_file       ],
+        ['JOBFLAVOUR_CHANGEME'     , job_flavour    ]
       ]
     submit_file = results_folder + '/' + process_name + '.sub'
     create_job_sub (submit_file, 'example.sub', replace)
