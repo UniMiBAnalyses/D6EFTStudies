@@ -44,6 +44,7 @@ int main (int argc, char ** argv)
 
   string outfiles_prefix           = gConfigParser->readStringOpt ("output::outfiles_prefix") ;
   string destination_folder_prefix = gConfigParser->readStringOpt ("output::destination_folder_prefix") ;
+  string destination_root_folder = gConfigParser->readStringOpt ("output::destination_root_folder") ;
 
   vector<string> variables = gConfigParser->readStringListOpt ("general::variables") ;
   float luminosity         = gConfigParser->readFloatOpt ("general::luminosity") ;
@@ -60,14 +61,14 @@ int main (int argc, char ** argv)
 
   TCanvas c1 ("c1", "", 600, 600) ;
 
-  TLatex * tex1 = new TLatex (0.94, 0.92, "13 TeV") ;
+  TLatex * tex1 = new TLatex (0.94, 0.90, "13 TeV") ;
   tex1->SetNDC () ;
   tex1->SetTextAlign (31) ;
   tex1->SetTextFont (42) ;
   tex1->SetTextSize (0.04) ;
   tex1->SetLineWidth (2) ;
 
-  TLatex * tex2 = new TLatex (0.46, 0.92, ("L = " + to_string (int (luminosity)) + " fb^{-1}").c_str ()) ;
+  TLatex * tex2 = new TLatex (0.52, 0.90, ("L = " + to_string (int (luminosity)) + " fb^{-1}").c_str ()) ;
   tex2->SetNDC () ;
   tex2->SetTextFont (52) ;
   tex2->SetTextSize (0.035) ;
@@ -83,7 +84,7 @@ int main (int argc, char ** argv)
       cout << "---- ---- ---- ---- ---- ---- ---- ---- ---- " << endl ;
 
       string wilson_coeff_name = wilson_coeff_names.at (iCoeff) ;
-      string destinationfolder = destination_folder_prefix + "_" + wilson_coeff_names.at (iCoeff) ;
+      string destinationfolder = destination_root_folder + destination_folder_prefix + "_" + wilson_coeff_names.at (iCoeff) ;
       TString toDraw = Form ("2*deltaNLL:%s", ("k_" + wilson_coeff_name).c_str ()) ;
 
       limits_var_v limits ;
@@ -98,7 +99,8 @@ int main (int argc, char ** argv)
           TTree * limit = (TTree*) result_file->Get ("limit") ;  
           int n = limit->Draw (toDraw.Data () , "deltaNLL<50 && deltaNLL>-30", "l") ;
           TGraph * graphScan = new TGraph (n, limit->GetV2 (),limit->GetV1 ()) ;
-          graphScan->RemovePoint (0) ;
+          graphScan->SetName("graph");
+	  graphScan->RemovePoint (0) ;
           setLSaspect (graphScan, wilson_coeff_name) ;
           graphScan->Draw ("AL") ;
 //          graphScan->SetMarkerStyle (2) ;
@@ -125,8 +127,9 @@ int main (int argc, char ** argv)
       
           c1.RedrawAxis () ;
 
-          TLatex * tex3 = new TLatex (0.14, 0.92,  gvarNames.at (variables.at (iVar)).c_str ()) ;
-//          TLatex * tex2 = new TLatex (0.14, 0.92,  "m^{jj}") ;
+	  const char *variabil = gvarNames.at(variables.at(iVar)).c_str();
+          TLatex * tex3 = new TLatex (0.20, 0.90,  variabil) ;
+//          TLatex * tex3 = new TLatex (0.14, 0.92,  "m^{jj}") ; al massimo metto iVar
           tex3->SetNDC () ;
           tex3->SetTextFont (61) ;
           tex3->SetTextSize (0.04) ;
@@ -167,7 +170,8 @@ int main (int argc, char ** argv)
 
     } // loop over Wilson coefficients
 
-  writeCSVlimits (all_limits, string (argv[2]) + "/" + outfiles_prefix, true) ;
+  cout << "this is destination folder for the CSV limits fle: " << destination_folder_prefix << endl ;
+  writeCSVlimits (all_limits, destination_root_folder + "/" + outfiles_prefix, true) ;
   
 
   return 0 ; 

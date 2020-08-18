@@ -84,6 +84,7 @@ int main (int argc, char ** argv)
 
   string outfiles_prefix           = gConfigParser->readStringOpt ("output::outfiles_prefix") ;
   string destination_folder_prefix = gConfigParser->readStringOpt ("output::destination_folder_prefix") ;
+  string destination_root_folder = gConfigParser->readStringOpt ("output::destination_root_folder") ;
 
   vector<string> variables = gConfigParser->readStringListOpt ("general::variables") ;
   float luminosity         = gConfigParser->readFloatOpt ("general::luminosity") ;
@@ -159,7 +160,7 @@ int main (int argc, char ** argv)
                << " vs. " << wilson_coeff_names.at (iCoeff2) << endl ;
           cout << "---- ---- ---- ---- ---- ---- ---- ---- ---- " << endl ;
 
-          string destination_folder = destination_folder_prefix 
+          string destination_folder = destination_root_folder + "/" + destination_folder_prefix 
                                       + "_" + wilson_coeff_names.at (iCoeff1) 
                                       + "_" + wilson_coeff_names.at (iCoeff2) ;
 
@@ -313,7 +314,7 @@ int main (int argc, char ** argv)
           legend.SetBorderSize (0) ;
           legend.SetFillStyle (0) ;
           legend.Draw () ;
-          string outfile = string ("plot")
+          string outfile = destination_folder + "/" + string ("plot")
                            + "_" + baseFileName
                            + "_" + wilson_coeff_names.at (iCoeff1) + "_" + wilson_coeff_names.at (iCoeff2)
                            + "_compareScan.pdf" ;
@@ -329,7 +330,7 @@ int main (int argc, char ** argv)
     } // second loop over first Wilson coefficient
 
   ofstream myfile ;
-  string filename = destination_folder_prefix ;
+  string filename = destination_root_folder + "/" + destination_folder_prefix ;
   if (filename.back () == '/') filename = filename.substr (0, filename.size () - 1) ;
   filename += "_bestvars.txt" ;
   myfile.open (filename.c_str ()) ;

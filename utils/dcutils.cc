@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <fstream>
 #include <sstream>
+#include <sys/stat.h>
 
 #include "TTreeReader.h"
 #include "TFile.h"
@@ -245,9 +246,10 @@ vector<float> splitaxis (float min, float max, int nbins)
 // to that binning may be variable and tails do not have empty bins
 vector<float> calcBinEdges (string varname, float min, float max, int nbins) 
 {
-  if (   varname == "deltaetajj" 
-      || varname == "deltaphijj"
-      || varname == "noshape")
+  if (   varname == "deltaphijj"
+      || varname == "noshape"
+      || varname == "etaj2"
+      || varname == "etaj1")
     {
       return splitaxis (min, max, nbins) ;
     }  
@@ -435,9 +437,9 @@ readNtupleFile (string rootFileName, string ntupleName,
           iHisto->second->SetBinContent (iHisto->second->GetNbinsX () + 1, 0.) ;
         }
     } 
-//  checkEmptyBins (output_histos) ;
+    //checkEmptyBins (output_histos) ;
 
-  return output_histos ;
+    return output_histos ;
 }
 
 
@@ -659,13 +661,14 @@ createDataCard (TH1F * h_SM,
 //  fitting_command += " --setParameterRanges " + paramFreeze.at (3) ;
   fitting_command += " --setParameterRanges " + merge (active_ranges, ":") ;
   fitting_command += " --verbose " + comb_verbosity ;
+  fitting_command += " --name ." + prefix + varname ;
   fitting_command += " --robustFit=1" ;
   fitting_command += " --X-rtd FITTER_NEW_CROSSING_ALGO" ;
   fitting_command += " --X-rtd FITTER_NEVER_GIVE_UP" ;
   fitting_command += " > fitting_" + varname + ".log 2>&1" ; 
 //  fitting_command += " > " + destinationfolder + "/fitting_" + varname + ".log 2>&1" ; 
   replace (rootfilename, "_WS.root", "_fitresult.root") ;
-  fitting_command += " ; mv higgsCombineTest.MultiDimFit.mH125.root " + rootfilename  ;
+  fitting_command += " ; mv higgsCombine."+prefix+varname+".MultiDimFit.mH125.root " + rootfilename  ;
 
   return pair <string, string> (wscreation_command, fitting_command) ;
 }
@@ -704,7 +707,8 @@ createCondorScripts (pair <std::string, string> fittingCommands,
   vector<string> step2words = split (fittingCommands.second, ' ') ;
   string output3 = findAfter (step2words, ">") ;
   ofstream jobfile (output_folder + "/submit_" + varname + ".sh") ;
-  jobfile << "#!/usr/bin/bash\n" ;
+  jobfile << "#!/bin/sh\n" ;
+  jobfile << "source /cvmfs/cms.cern.ch/cmsset_default.sh\n" ;
   jobfile << "cd " << cmssw_folder << "\n" ;
   jobfile << "eval `scram run -sh`\n" ;
   jobfile << "cd -\n" ;
@@ -718,6 +722,8 @@ createCondorScripts (pair <std::string, string> fittingCommands,
   jobfile << "cp " << step2words.back () << " " << output_folder << "\n" ; 
   jobfile.close () ;
 
+  chmod((output_folder + "/submit_" + varname + ".sh").c_str(), S_IRWXU|S_IRGRP|S_IROTH);
+  
   ofstream submitfile (output_folder + "/submit_" + varname + ".sub") ;
   submitfile << "executable = " + output_folder + "/submit_" + varname + ".sh\n" ;
   submitfile << "output     = " + output_folder + "/submit_" + varname + ".out\n" ;
