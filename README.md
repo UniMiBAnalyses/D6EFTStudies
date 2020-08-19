@@ -26,27 +26,27 @@ To produce a sample:
     wget https://cms-project-generators.web.cern.ch/cms-project-generators/MG5_aMC_v2.6.5.tar.gz
     tar xzf MG5_aMC_v2.6.5.tar.gz
     cd MG5_aMC_v2_6_5/models
-    wget http://feynrules.irmp.ucl.ac.be/raw-attachment/wiki/SMEFT/SMEFTsim_A_U35_MwScheme_UFO_v2.1.tar.gz
-    tar xzf SMEFTsim_A_U35_MwScheme_UFO_v2.1.tar.gz
+    cp /afs/cern.ch/user/g/govoni/public/SMEFTsim_A_U35_MwScheme_UFO_v3.tar.xz .
+    tar xvf SMEFTsim_A_U35_MwScheme_UFO_v3.tar.xz
     ```
   * copy in the model folder the additional files present in the D6EFTStudies project, 
-    from the right folder depending on the version of the UFO (old or v3, for now old):
+    from the right folder depending on the version of the UFO (v3):
     ```
-    cp ../../D6EFTStudies/madgraph_model/old/* .
+    cp ../../D6EFTStudies/madgraph_model/v3/* .
     ```
   * trivial examples of Madgraph syntax can be found [here](https://www.niu.edu/spmartin/madgraph/madsyntax.html)
   * Go to the D6EFT models folder and prepare the Madgraph commands. Have a look at the commands, as you will have to copy paste them.
     ```
     cd ../../D6EFTStudies/generation
-    cp /afs/cern.ch/user/c/covarell/public/forGiacomo/create1Dfolders_ZZ2e2mu.py .
-    python /afs/cern.ch/user/c/covarell/public/forGiacomo/create1Dfolders_ZZ2e2mu.py
-    more launch_ZZ2e2mu_cW_*.txt
+    cp /afs/cern.ch/user/c/covarell/public/forGiacomo/v3/create1Dfolders_ZZ2e2mu(QCD).py .
+    python create1Dfolders_ZZ2e2mu(QCD).py
+    more launch_ZZ2e2mu(QCD)_cW_*.txt
     ```
     This creates 3 files with 3 lines each that you will use in the next step. One file is for Linear, one for Quadratic, one for SM.
   * Go back in the Madgraph folder and copy the run_card.
     ```
     cd ../../MG5_aMC_v2_6_5
-    cp /afs/cern.ch/user/c/covarell/public/forGiacomo/run_card.dat Template/LO/Cards/.
+    cp /afs/cern.ch/user/c/covarell/public/forGiacomo/v3/run_card.dat Template/LO/Cards/.
     ```  
   * Launch MadGraph:
     ```
@@ -54,7 +54,7 @@ To produce a sample:
     ```
     Now type in the strings obtained two steps ago. They should look something like:
     ```
-    import model SMEFTsim_A_U35_MwScheme_UFO_v2_1-cW_massless
+    import model SMEFTsim_A_U35_MwScheme_UFO_v3_1-cW_massless
     generate p p > e+ e- mu- mu+ j j QCD=0 NP=1 NP^2==2 SMHLOOP=0
     output ZZ2e2mu_cW_QU
     quit
@@ -72,7 +72,7 @@ To produce a sample:
             as its impact is O(alpha^8)
     ```
     ./bin/mg5_aMC
-    import model SMEFTsim_A_U35_MwScheme_UFO_v2_1-cHW_massless
+    import model SMEFTsim_A_U35_MwScheme_UFO_v3_1-cHW_massless
     define q = u c d s u~ c~ d~ s~
     generate p p > q q W+ W- QCD=0 SMHLOOP=0 NP=1, W+ > l+ vl, W- > l- vl~ 
     output VBFHWW_RcHW_WWdecay_fs
@@ -89,7 +89,7 @@ To produce a sample:
     * the model used for the generation is issued with the command `import`, 
     which takes as an argument the model name ad possible restrictions,
     as coded in restriction files. 
-    In the example, the model is the one contained in the folder `SMEFTsim_A_U35_MwScheme_UFO_v2_1`,
+    In the example, the model is the one contained in the folder `SMEFTsim_A_U35_MwScheme_UFO_v3_1`,
     while the restriction is the one in the file `restrict_cW_massless.dat`.
     The restriction files present in the D6EFTStudies project 
     produce events with massless light leptons and quarks,
