@@ -129,7 +129,7 @@ To submit a job:
    ```
   * run the submission script. Good settings are 50000 events and 100 jobs.
    ```
-   python submit.py ZZ2e2mu_cW_QU <nEvents> <nJobs>
+   python submit.py ZZ2e2mu_cW_QU <outFolder> <nEvents> <nJobs>
    ```
 Config file examples can be found in the subfolders `generation/ZZ2e2mu_cW_QU/Cards/`, 
 `generation/ZZ2e2mu_cW_LI/Cards/`, `generation/ZZ2e2mu_cW_SM/Cards/`, 
