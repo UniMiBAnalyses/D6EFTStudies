@@ -30,9 +30,10 @@ To produce a sample:
     tar xvf SMEFTsim_A_U35_MwScheme_UFO_v3.tar.xz
     ```
   * copy in the model folder the additional files present in the D6EFTStudies project, 
-    from the right folder depending on the version of the UFO (v3):
+    from the right folder depending on the version of the UFO (v3) (and in some other folder that MG searches in sometimes):
     ```
     cp ../../D6EFTStudies/madgraph_model/v3/* .
+    ln -ns restricted*.dat SMEFTsim_A_U35_MwScheme_UFO_v3_1/.
     ```
   * trivial examples of Madgraph syntax can be found [here](https://www.niu.edu/spmartin/madgraph/madsyntax.html)
   * Go to the D6EFT models folder and prepare the Madgraph commands. Have a look at the commands, as you will have to copy paste them.
