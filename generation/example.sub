@@ -14,16 +14,18 @@ madgraph_folder       = BASE_FOLDER_CHANGEME/MG_REL_FOLDER_CHANGEME
 results_folder        = RESULTS_FOLDER_CHANGEME
 events_folder         = $(process_name)_$(ProcId)
 events_number         = EVENTS_NUMBER_CHANGEME
+jobconfig_folder      = JOBCONFIG_CHANGEME
 
-arguments             = $(ClusterId) $(ProcId) $(process_name) $(events_folder) $(madgraph_folder) $(results_folder) $(events_number)
+arguments             = $(ClusterId) $(ProcId) $(process_name) $(events_folder) $(madgraph_folder) $(results_folder) $(events_number) $(jobconfig_folder)
+
 # ClusterId = the submitted job
 # ProcId = subjobs in which the cluster may be divided
 
 # input  = jobinput.txt
 
-output                = $(results_folder)/job.$(ClusterId).$(ProcId).out
-error                 = $(results_folder)/job.$(ClusterId).$(ProcId).err
-log                   = $(results_folder)/job.$(ClusterId).log
+output                = $(jobconfig_folder)/job.$(ClusterId).$(ProcId).out
+error                 = $(jobconfig_folder)/job.$(ClusterId).$(ProcId).err
+log                   = $(jobconfig_folder)/job.$(ClusterId).log
 # NB condor does not create folders!
 
 +JobFlavour = "JOBFLAVOUR_CHANGEME"
