@@ -139,16 +139,16 @@ fillHistos (LHEF::Reader & reader, histos & Histos, int max)
           cout << "warning, not enough quarks" << endl ;
           ++warnNum ;
         }
-      if (v_f_leptons.size () < 2)
-        {
-          cout << "warning, not enough leptons" << endl ;
-          ++warnNum ;
-        }
-      if (v_f_neutrinos.size () < 2)
-        {
-          cout << "warning, not enough neutrinos" << endl ;
-          ++warnNum ;
-        }
+      // if (v_f_leptons.size () < 2)
+      //   {
+      //     cout << "warning, not enough leptons" << endl ;
+      //     ++warnNum ;
+      //   }
+      // if (v_f_neutrinos.size () < 2)
+      //   {
+      //     cout << "warning, not enough neutrinos" << endl ;
+      //     ++warnNum ;
+      //   }
       if (warnNum > 0) continue ;
 
       //PG apply basic selections
@@ -351,6 +351,8 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max, bool applyCu
       vector<TLorentzVector> v_f_quarks ;
       vector<TLorentzVector> v_f_leptons ;
       vector<TLorentzVector> v_f_neutrinos ;
+      vector<TLorentzVector> v_f_electrons ;
+      vector<TLorentzVector> v_f_muons ;
 
       // loop over particles in the event
       for (int iPart = 0 ; iPart < reader.hepeup.IDUP.size (); ++iPart) 
@@ -378,6 +380,14 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max, bool applyCu
                        abs (reader.hepeup.IDUP.at (iPart)) == 15)
                 {
                   v_f_leptons.push_back (dummy) ;
+                  if (abs (reader.hepeup.IDUP.at (iPart)) == 11)
+                    {
+                      v_f_electrons.push_back (dummy) ;
+                    } // electrons
+                  else if (abs (reader.hepeup.IDUP.at (iPart)) == 13)
+                    {
+                      v_f_muons.push_back (dummy) ;
+                    } // muons
                 } // leptons
               // neutrinos
               else if (abs (reader.hepeup.IDUP.at (iPart)) == 12 ||
@@ -398,16 +408,16 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max, bool applyCu
       //     cout << "warning, not enough jets" << endl ;
       //     ++warnNum ;
       //   }
-      if (v_f_leptons.size () < 2)
-        {
-          cout << "warning, not enough leptons" << endl ;
-          ++warnNum ;
-        }
-      if (v_f_neutrinos.size () < 2)
-        {
-          cout << "warning, not enough neutrinos" << endl ;
-          ++warnNum ;
-        }
+      // if (v_f_leptons.size () < 2)
+      //   {
+      //     cout << "warning, not enough leptons" << endl ;
+      //     ++warnNum ;
+      //   }
+      // if (v_f_neutrinos.size () < 2)
+      //   {
+      //     cout << "warning, not enough neutrinos" << endl ;
+      //     ++warnNum ;
+      //   }
       if (warnNum > 0) continue ;
 
       //PG apply basic selections
@@ -459,8 +469,21 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max, bool applyCu
           //cout << ">>>>>> mjj ::  " << mjj  << endl;
         }
 
-      TLorentzVector ME = v_f_neutrinos.at (0) + v_f_neutrinos.at (1) ;
       TLorentzVector v_ll = v_f_leptons.at (0) + v_f_leptons.at (1) ;
+      TLorentzVector ME ;
+      TLorentzVector v_lll ;
+      TLorentzVector v_Z ;
+
+      for (int inu = 0 ; inu < v_f_neutrinos.size () ; inu++)
+        {
+          ME += v_f_neutrinos.at (inu) ;
+        }
+
+      if (v_f_leptons.size () == 3)
+        {
+          v_lll = v_f_leptons.at (0) + v_f_leptons.at (1) + v_f_leptons.at (2) ;
+          v_Z = v_f_electrons.at (0) + v_f_electrons.at (1) ;
+        }
 
       if (applyCuts)
         {
@@ -487,6 +510,8 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max, bool applyCu
       
       Ntuple.setvalue ("mjj", mjj) ;
       Ntuple.setvalue ("mll", v_ll.M ()) ;
+      Ntuple.setvalue ("mee", v_Z.M ()) ;
+      Ntuple.setvalue ("mlll", v_lll.M ()) ;
 
       Ntuple.setvalue ("ptj1", ptj1) ;
       Ntuple.setvalue ("ptj2", ptj2) ;
@@ -499,23 +524,72 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max, bool applyCu
 
       float ptl1 = v_f_leptons.at (0).Pt () ;
       float ptl2 = v_f_leptons.at (1).Pt () ;
+      float ptl3 = -1. ;
+      if (v_f_leptons.size () == 3)
+        {
+          ptl3 = v_f_leptons.at (2).Pt () ;
+        }
 
       float etal1 = v_f_leptons.at (0).Eta () ;
       float etal2 = v_f_leptons.at (1).Eta () ;
-
-      if (ptl1 < ptl2) 
+      float etal3 = -1. ;
+      if (v_f_leptons.size () == 3)
         {
-          swap (ptl1, ptl2) ;
-          swap (etal1, etal2) ;
+          etal3 = v_f_leptons.at (2).Eta () ;
         }
+
+      if (v_f_leptons.size () == 2)
+        {
+          if (ptl1 < ptl2) 
+            {
+              swap (ptl1, ptl2) ;
+              swap (etal1, etal2) ;
+            }
+        }
+
+      if (v_f_leptons.size () == 3)
+        {
+          if (ptl1 < ptl2) 
+            {
+              swap (ptl1, ptl2) ;
+              swap (etal1, etal2) ;
+            }
+          if (ptl2 < ptl3) 
+            {
+              swap (ptl2, ptl3) ;
+              swap (etal2, etal3) ;
+              if (ptl1 < ptl2) 
+                {
+                  swap (ptl1, ptl2) ;
+                  swap (etal1, etal2) ;
+                }
+            }
+        }
+
+      // if (ptl1 < ptl2)
+      //  {
+      //    cout << "Not ordered leptons!" << endl ;
+      //  }
+
+      // if (ptl2 < ptl3)
+      //  {
+      //    cout << "Not ordered leptons!" << endl ;
+      //  }
+
+      // cout << "ptl1 = " << ptl1 << endl ;
+      // cout << "ptl2 = " << ptl2 << endl ;
+      // cout << "ptl3 = " << ptl3 << endl ;
 
       Ntuple.setvalue ("ptl1", ptl1) ;
       Ntuple.setvalue ("ptl2", ptl2) ;
+      Ntuple.setvalue ("ptl3", ptl3) ;
       Ntuple.setvalue ("etal1", etal1) ;
       Ntuple.setvalue ("etal2", etal2) ;
+      Ntuple.setvalue ("etal3", etal3) ;
 
       Ntuple.setvalue ("met", ME.Pt ()) ;
       Ntuple.setvalue ("ptll", v_ll.Pt ()) ;
+      Ntuple.setvalue ("ptee", v_Z.Pt ()) ;
 
       Ntuple.fill (eventWeight) ;
 
@@ -546,6 +620,7 @@ changeLHEfolder (vector<string> & inputfiles, string newfolder)
     }  
   return ;
 }
+
 
 
 
