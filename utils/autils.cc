@@ -334,6 +334,15 @@ float deltaPhi (float phi1, float phi2)
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 
+bool largerPt (const pair <int, TLorentzVector>& i, const pair <int, TLorentzVector>& j)
+{
+  return (i.second.Pt () < j.second.Pt ()) ;
+}
+
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
 double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max, bool applyCuts)
 {
   int events = 0 ;
@@ -349,10 +358,8 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max, bool applyCu
       vector<TLorentzVector> v_f_jets ;
       vector<TLorentzVector> v_f_gluons ;
       vector<TLorentzVector> v_f_quarks ;
-      vector<TLorentzVector> v_f_leptons ;
-      vector<TLorentzVector> v_f_neutrinos ;
-      vector<TLorentzVector> v_f_electrons ;
-      vector<TLorentzVector> v_f_muons ;
+      vector<pair<int, TLorentzVector>> v_f_leptons ;
+      vector<pair<int, TLorentzVector>> v_f_neutrinos ;
 
       // loop over particles in the event
       for (int iPart = 0 ; iPart < reader.hepeup.IDUP.size (); ++iPart) 
@@ -361,6 +368,7 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max, bool applyCu
           if (reader.hepeup.ISTUP.at (iPart) == 1)
             {
               TLorentzVector dummy = buildLP (reader, iPart) ;
+              pair <int, TLorentzVector> p ;
               // quarks-->jets
               if (abs (reader.hepeup.IDUP.at (iPart)) < 7) 
                 {
@@ -379,22 +387,18 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max, bool applyCu
                        abs (reader.hepeup.IDUP.at (iPart)) == 13 ||
                        abs (reader.hepeup.IDUP.at (iPart)) == 15)
                 {
-                  v_f_leptons.push_back (dummy) ;
-                  if (abs (reader.hepeup.IDUP.at (iPart)) == 11)
-                    {
-                      v_f_electrons.push_back (dummy) ;
-                    } // electrons
-                  else if (abs (reader.hepeup.IDUP.at (iPart)) == 13)
-                    {
-                      v_f_muons.push_back (dummy) ;
-                    } // muons
+                  p.first = reader.hepeup.IDUP.at (iPart) ;
+                  p.second = dummy ;
+                  v_f_leptons.push_back (p) ;
                 } // leptons
               // neutrinos
               else if (abs (reader.hepeup.IDUP.at (iPart)) == 12 ||
                        abs (reader.hepeup.IDUP.at (iPart)) == 14 ||
                        abs (reader.hepeup.IDUP.at (iPart)) == 16)
                 {
-                  v_f_neutrinos.push_back (dummy) ;        
+                  p.first = reader.hepeup.IDUP.at (iPart) ;
+                  p.second = dummy ;
+                  v_f_neutrinos.push_back (p) ;
                 } // neutrinos
             } // outgoing particles
         } // loop over particles in the event
@@ -469,20 +473,17 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max, bool applyCu
           //cout << ">>>>>> mjj ::  " << mjj  << endl;
         }
 
-      TLorentzVector v_ll = v_f_leptons.at (0) + v_f_leptons.at (1) ;
+      TLorentzVector v_ll ; 
       TLorentzVector ME ;
-      TLorentzVector v_lll ;
-      TLorentzVector v_Z ;
 
       for (int inu = 0 ; inu < v_f_neutrinos.size () ; inu++)
         {
-          ME += v_f_neutrinos.at (inu) ;
+          ME += v_f_neutrinos.at (inu) .second ;
         }
 
-      if (v_f_leptons.size () == 3)
+      for (int ilep = 0 ; ilep < v_f_leptons.size () ; ilep++)
         {
-          v_lll = v_f_leptons.at (0) + v_f_leptons.at (1) + v_f_leptons.at (2) ;
-          v_Z = v_f_electrons.at (0) + v_f_electrons.at (1) ;
+          v_ll += v_f_leptons.at (ilep) .second ;
         }
 
       if (applyCuts)
@@ -501,8 +502,8 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max, bool applyCu
           if (mjj < 500) continue ;
 
           if (v_ll.M () < 20) continue ;
-          if (fabs (zetaStar (v_f_jets.at (0).Eta (), v_f_jets.at (1).Eta (), v_f_leptons.at (0).Eta ())) > 0.75) continue ;
-          if (fabs (zetaStar (v_f_jets.at (0).Eta (), v_f_jets.at (1).Eta (), v_f_leptons.at (1).Eta ())) > 0.75) continue ;
+          if (fabs (zetaStar (v_f_jets.at (0).Eta (), v_f_jets.at (1).Eta (), v_f_leptons.at (0).second.Eta ())) > 0.75) continue ;
+          if (fabs (zetaStar (v_f_jets.at (0).Eta (), v_f_jets.at (1).Eta (), v_f_leptons.at (1).second.Eta ())) > 0.75) continue ;
         }
 
       //PG fill variables
@@ -510,8 +511,6 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max, bool applyCu
       
       Ntuple.setvalue ("mjj", mjj) ;
       Ntuple.setvalue ("mll", v_ll.M ()) ;
-      Ntuple.setvalue ("mee", v_Z.M ()) ;
-      Ntuple.setvalue ("mlll", v_lll.M ()) ;
 
       Ntuple.setvalue ("ptj1", ptj1) ;
       Ntuple.setvalue ("ptj2", ptj2) ;
@@ -522,74 +521,25 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max, bool applyCu
       Ntuple.setvalue ("deltaetajj", fabs (etaj1 - etaj2)) ;
       Ntuple.setvalue ("deltaphijj", deltaPhi (phij1, phij2)) ;
 
-      float ptl1 = v_f_leptons.at (0).Pt () ;
-      float ptl2 = v_f_leptons.at (1).Pt () ;
-      float ptl3 = -1. ;
-      if (v_f_leptons.size () == 3)
+// Ordering v_f_Leptons according to Pt.
+
+      sort (v_f_leptons.begin (), v_f_leptons.end (), largerPt ) ;     
+
+      float ptl = 0 ;
+      float etal = 0 ;
+      int idl = 0 ;
+      for (int l = 0; l < v_f_leptons.size (); ++l)
         {
-          ptl3 = v_f_leptons.at (2).Pt () ;
+          ptl = v_f_leptons.at (l).second.Pt () ;
+          etal = v_f_leptons.at (l).second.Eta () ;
+          idl = v_f_leptons.at (l).first ;
+          Ntuple.setvalue (Form("ptl%d", l+1), ptl) ;
+          Ntuple.setvalue (Form("etal%d", l+1), etal) ;
+          Ntuple.setvalue (Form("idl%d", l+1), idl) ;
         }
-
-      float etal1 = v_f_leptons.at (0).Eta () ;
-      float etal2 = v_f_leptons.at (1).Eta () ;
-      float etal3 = -1. ;
-      if (v_f_leptons.size () == 3)
-        {
-          etal3 = v_f_leptons.at (2).Eta () ;
-        }
-
-      if (v_f_leptons.size () == 2)
-        {
-          if (ptl1 < ptl2) 
-            {
-              swap (ptl1, ptl2) ;
-              swap (etal1, etal2) ;
-            }
-        }
-
-      if (v_f_leptons.size () == 3)
-        {
-          if (ptl1 < ptl2) 
-            {
-              swap (ptl1, ptl2) ;
-              swap (etal1, etal2) ;
-            }
-          if (ptl2 < ptl3) 
-            {
-              swap (ptl2, ptl3) ;
-              swap (etal2, etal3) ;
-              if (ptl1 < ptl2) 
-                {
-                  swap (ptl1, ptl2) ;
-                  swap (etal1, etal2) ;
-                }
-            }
-        }
-
-      // if (ptl1 < ptl2)
-      //  {
-      //    cout << "Not ordered leptons!" << endl ;
-      //  }
-
-      // if (ptl2 < ptl3)
-      //  {
-      //    cout << "Not ordered leptons!" << endl ;
-      //  }
-
-      // cout << "ptl1 = " << ptl1 << endl ;
-      // cout << "ptl2 = " << ptl2 << endl ;
-      // cout << "ptl3 = " << ptl3 << endl ;
-
-      Ntuple.setvalue ("ptl1", ptl1) ;
-      Ntuple.setvalue ("ptl2", ptl2) ;
-      Ntuple.setvalue ("ptl3", ptl3) ;
-      Ntuple.setvalue ("etal1", etal1) ;
-      Ntuple.setvalue ("etal2", etal2) ;
-      Ntuple.setvalue ("etal3", etal3) ;
 
       Ntuple.setvalue ("met", ME.Pt ()) ;
       Ntuple.setvalue ("ptll", v_ll.Pt ()) ;
-      Ntuple.setvalue ("ptee", v_Z.Pt ()) ;
 
       Ntuple.fill (eventWeight) ;
 
