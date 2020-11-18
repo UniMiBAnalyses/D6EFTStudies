@@ -145,8 +145,8 @@ int main (int argc, char ** argv)
           TH1F * h_QU = hmap_QU.at (iHisto->first) ;
 
           map<string, TH1F *> h_eftInputs ;
-          h_eftInputs["linear_" + wilson_coeff_names.at (iCoeff)]      = h_LI ;
-          h_eftInputs["quadratic_" + wilson_coeff_names.at (iCoeff)]   = h_QU ;
+          h_eftInputs["lin_" + wilson_coeff_names.at (iCoeff)]      = h_LI ;
+          h_eftInputs["quad_" + wilson_coeff_names.at (iCoeff)]   = h_QU ;
 
           vector<string> active_coeffs ; 
           active_coeffs.push_back (wilson_coeff_names.at (iCoeff)) ;
