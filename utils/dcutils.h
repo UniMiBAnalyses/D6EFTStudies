@@ -114,6 +114,7 @@ const std::map<std::string, std::string> gvarNames
     std::pair<std::string, std::string> ("mll"       , "m_{#ell #ell}"  ),
     std::pair<std::string, std::string> ("ptl1"      , "p_{T}^{#ell_{1}}"   ),
     std::pair<std::string, std::string> ("ptl2"      , "p_{T}^{#ell_{2}}"   ),
+    std::pair<std::string, std::string> ("ptl3"      , "p_{T}^{#ell_{3}}"   ),
     std::pair<std::string, std::string> ("ptll"      , "p_{T}^{#ell#ell}" ),
     std::pair<std::string, std::string> ("ptj1"      , "p_{T}^{j_{1}}"      ),
     std::pair<std::string, std::string> ("ptj2"      , "p_{T}^{j_{2}}"      ),
