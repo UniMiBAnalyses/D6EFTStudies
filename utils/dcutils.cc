@@ -769,13 +769,13 @@ plotHistos (TH1F * h_SM,
       h_loc.push_back ((TH1F *) it->second->Clone (TString (it->second->GetName ()) + "_loc")) ; 
       h_loc.back ()->Scale (h_rescales.at (h_loc.size () - 1)) ;          
       h_tot->Add (h_loc.back ()) ;
-      if (it->first.find ("linear_") != string::npos)
+      if (it->first.find ("lin_") != string::npos)
         {
           pair<TH1F *, TH1F *> plusorminus = splitH (h_loc.back ()) ;
           interfs.push_back (plusorminus.first) ;
           interfs.push_back (plusorminus.second) ;
         }
-      if (it->first.find ("quadratic_") != string::npos)
+      if (it->first.find ("quad_") != string::npos)
         {
           quad.push_back (h_loc.back ()) ;
         }
