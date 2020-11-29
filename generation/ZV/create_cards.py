@@ -103,17 +103,12 @@ if __name__ == "__main__":
         else:
             coefficients = [x.strip(' ') for x in config.get('reweighting', param[1].lower()).split(',')]
         # loop over processes
-        rm_dir = True
         for proc in proc_IDs:
             # clean directory
             prefix = '{0}_{1}'.format(proc[0], param[1])
-            dirname = './' + param[1] + '/'
-            if rm_dir:
-                if os.path.isdir(dirname):
-                    os.system('rm -rf ' + dirname)
-                os.mkdir(dirname)
-            rm_dir = False
-            dirname = dirname + '{0}_{1}/'.format(proc[0], param[1])
+            dirname = './' + prefix + '/'
+            if os.path.isdir(dirname):
+                os.system('rm -rf ' + dirname)
             os.mkdir(dirname)
             # cards names
             runcard = dirname + prefix + '_run_card.dat'
