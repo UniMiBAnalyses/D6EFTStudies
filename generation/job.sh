@@ -14,8 +14,8 @@
 # copy the madgraph folder in the job temporary folder
 # and enter the folder
 # ---.---.---.---.---.---.---.---.---
-
-mkdir -p $6/$1 # create a folder if it does not exist
+#mkdir $6
+mkdir $6/$1 # create a folder if it does not exist
 touch $6/$1/$4_running
 echo "copying from "$5 >> $6/$1/$4_running
 

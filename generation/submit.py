@@ -24,7 +24,7 @@ def create_job_sub (resultfile, sourcefile, replace):
 if __name__ == "__main__":
 
     if (len(sys.argv) < 3):
-        print 'usage: submit.py process_folder_relative_path output_base_folder [events(10000)] [jobs(100)] [shell script(job.sh)] [flavour(nextweek)]'
+        print 'usage: submit.py process_folder_relative_path output_base_folder [events(10000)] [jobs(100)] [shell script(job.sh)] [flavour(nextweek)] [jobconfig_folder(if using eos output)]'
         sys.exit (1)
 
     process_folder = sys.argv[1]
@@ -62,15 +62,20 @@ if __name__ == "__main__":
         print ('the file ' + shell_script_template + ' does not exist, exiting\n')
         sys.exit (1)
 
-    job_file = results_folder + '/' + shell_script_template
-    shutil.copy2 (shell_script_template, job_file)
-
     MGfolder = sys.argv[1]
     if (MGfolder[-1] == '/'): MGfolder = MGfolder[:-1]
 
     job_flavour = 'nextweek'
     if (len (sys.argv) > 6):
         job_flavour = sys.argv[6]
+
+    jobconfig_folder = results_folder
+    if (len (sys.argv) > 7):
+        jobconfig_folder = os.getcwd () + '/' + process_folder + sys.argv[7]
+        os.mkdir (jobconfig_folder)
+
+    job_file = jobconfig_folder + '/' + shell_script_template
+    shutil.copy2 (shell_script_template, job_file)
 
     replace = [
         ['PROCESS_NAME_CHANGEME'   , process_name   ],
@@ -80,9 +85,10 @@ if __name__ == "__main__":
         ['EVENTS_NUMBER_CHANGEME'  , events_number  ],
         ['JOBS_NUMBER_REPLACEME'   , jobs_number    ],
         ['EXECUTABLE_CHANGEME'     , job_file       ],
-        ['JOBFLAVOUR_CHANGEME'     , job_flavour    ]
+        ['JOBFLAVOUR_CHANGEME'     , job_flavour    ],
+        ['JOBCONFIG_CHANGEME'     , jobconfig_folder]
       ]
-    submit_file = results_folder + '/' + process_name + '.sub'
+    submit_file = jobconfig_folder + '/' + process_name + '.sub'
     create_job_sub (submit_file, 'example.sub', replace)
 
     # submit the condor job
