@@ -473,7 +473,8 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max, bool applyCu
           //cout << ">>>>>> mjj ::  " << mjj  << endl;
         }
 
-      TLorentzVector v_ll ; 
+      TLorentzVector v_ll ;
+      TLorentzVector v_ee ; 
       TLorentzVector ME ;
 
       for (int inu = 0 ; inu < v_f_neutrinos.size () ; inu++)
@@ -484,6 +485,14 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max, bool applyCu
       for (int ilep = 0 ; ilep < v_f_leptons.size () ; ilep++)
         {
           v_ll += v_f_leptons.at (ilep) .second ;
+        }
+      // Lorentz vector of electrons only for WZ
+      for (int ilep = 0 ; ilep < v_f_leptons.size () ; ilep++)
+        {
+          if (abs(v_f_leptons.at (ilep) .first) == 11)
+           {
+             v_ee += v_f_leptons.at (ilep) .second ;
+           }  
         }
 
       if (applyCuts)
@@ -511,6 +520,7 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max, bool applyCu
       
       Ntuple.setvalue ("mjj", mjj) ;
       Ntuple.setvalue ("mll", v_ll.M ()) ;
+      Ntuple.setvalue ("mee", v_ee.M ()) ;
 
       Ntuple.setvalue ("ptj1", ptj1) ;
       Ntuple.setvalue ("ptj2", ptj2) ;
@@ -540,6 +550,7 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max, bool applyCu
 
       Ntuple.setvalue ("met", ME.Pt ()) ;
       Ntuple.setvalue ("ptll", v_ll.Pt ()) ;
+      Ntuple.setvalue ("ptee", v_ee.Pt ()) ;
 
       Ntuple.fill (eventWeight) ;
 
