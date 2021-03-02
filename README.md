@@ -24,22 +24,24 @@ To produce a sample:
       ```
   * download a Madgraph release and the existing SMEFTSim model:
     ```
+    cd D6EFTStudies
     wget https://cms-project-generators.web.cern.ch/cms-project-generators/MG5_aMC_v2.6.5.tar.gz
     tar xzf MG5_aMC_v2.6.5.tar.gz
-    cd MG5_aMC_v2_6_5/models
-    cp /afs/cern.ch/user/g/govoni/public/SMEFTsim_A_U35_MwScheme_UFO_v3.tar.xz .
-    tar xvf SMEFTsim_A_U35_MwScheme_UFO_v3.tar.xz
+    git clone git@github.com:SMEFTsim/SMEFTsim.git #LATEST VERSION!
+    cp -r SMEFTsim/UFO_models/SMEFTsim_U35_MwScheme_UFO MG5_aMC_v2_6_5/models
     ```
   * copy in the model folder the additional files present in the D6EFTStudies project, 
-    from the right folder depending on the version of the UFO (v3) (and in some other folder that MG searches in sometimes):
+    from the right folder depending on the version of the UFO (v3_0 for SMEFTsim releases on github + "NS". v3 for older releases such as SMEFTsim_v3_0, v3_1, v2_1 and so on) (and in some other folder that MG searches in sometimes):
     ```
-    cp ../../D6EFTStudies/madgraph_model/v3/* .
-    ln -ns restricted*.dat SMEFTsim_A_U35_MwScheme_UFO_v3_1/.
+    cp madgraph_model/v3_0/* MG5_aMC_v2_6_5/models/SMEFTsim_U35_MwScheme_UFO
+    #ln -ns restricted*.dat SMEFTsim_A_U35_MwScheme_UFO_v3_1/. #do we really need this??
     ```
   * trivial examples of Madgraph syntax can be found [here](https://www.niu.edu/spmartin/madgraph/madsyntax.html)
   * Go to the D6EFT models folder and prepare the Madgraph commands. Have a look at the commands, as you will have to copy paste them.
-    ```
-    cd ../../D6EFTStudies/generation
+
+<details><summary> ZZ2e2mu instructions </summary><p>
+    
+    cd D6EFTStudies/generation
     cp /afs/cern.ch/user/c/covarell/public/forGiacomo/v3/create1Dfolders_ZZ2e2mu(QCD).py .
     python create1Dfolders_ZZ2e2mu(QCD).py
     more launch_ZZ2e2mu(QCD)_cW_*.txt
@@ -60,8 +62,11 @@ To produce a sample:
     generate p p > e+ e- mu- mu+ j j QCD=0 NP=1 NP^2==2 SMHLOOP=0
     output ZZ2e2mu_cW_QU
     quit
-    ```
+    
     Now you can gon directly to the generation step below.
+
+</p></details>
+
 <details><summary>If you want more details about what's happening under the hood:</summary><p>
  
     Example of generation of VBF Higgs > WW > fully leptonic.
