@@ -67,8 +67,9 @@ To produce a sample:
 
 </p></details>
 
-<details><summary>If you want more details about what's happening under the hood:</summary><p>
- 
+<details><summary> If you want more details about what's happening under the hood: </summary><p>
+   
+    ```
     Example of generation of VBF Higgs > WW > fully leptonic.
     The following syntax allows for having EFT entering both in the production
     and decay vertices of the Higgs boson, 
@@ -123,12 +124,16 @@ To produce a sample:
     * the script ```create2Dfolders.py``` generates the Madgpraph code for the event generation
     with two Wilson coefficients interfering between each other,
     according to the list of operators switched on in the script.
+
 </p></details>
 
 ## generation
 
 Scripts to submit jobs to condor, for the generation of events in Madgraph.
 To submit a job:
+
+<details><summary> ZZ2e2mu instructions </summary><p>
+
   * In the last step before, MadGraph created a directory called something like ZZ2e2mu_cW_QU (<process>_<kMy>_<type>). Go to the D6EFTStudies/generation folder and copy the folder present in the Madgraph directory here:
    ```
    cd ../D6EFTStudies/generation
@@ -144,6 +149,9 @@ where the `param_card.dat`, `run_card.dat` and `proc_card.dat` examples for same
 and `cW` non zero are reported. The three folders refer to the SM case, the interference between SM and BSM
 and the BSM case respectively. 
 Operators of interest are listed [here](https://www.dropbox.com/s/e5yvvzzo98bwdg3/2019-06-ongoing_dim6.pdf?dl=0)
+
+</p></details>
+
   * The script ```postProcess.py``` takes as input a ```*_results``` folder,
     controls some basic parameters for the success of the generation,
     unpacks the LHE files, creates a summary of the run,
