@@ -30,8 +30,10 @@ To produce a sample:
     cp -r SMEFTsim/UFO_models/SMEFTsim_U35_MwScheme_UFO MG5_aMC_v2_6_5/models
     ```
 
-    <details><summary> Older SMEFTsim releases </summary><p>
-
+    <details><summary> Older SMEFTsim releases - BUGS  </summary><p>
+      
+      Older models had bugs in the generation of mixed quadratic interferences terms. However they are fine to be used for the generation of the SM, Linear an Quadratic terms for a single operator insertion. That's why you'll see these models in the MG cards. Here is the recipe to install them in case it is needed.
+      
       * v2_1:
         ```
         wget http://feynrules.irmp.ucl.ac.be/raw-attachment/wiki/SMEFT/SMEFTsim_A_U35_MwScheme_UFO_v2.1.tar.gz
