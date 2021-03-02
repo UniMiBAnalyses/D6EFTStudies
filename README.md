@@ -29,6 +29,31 @@ To produce a sample:
     git clone git@github.com:SMEFTsim/SMEFTsim.git #LATEST VERSION!
     cp -r SMEFTsim/UFO_models/SMEFTsim_U35_MwScheme_UFO MG5_aMC_v2_6_5/models
     ```
+
+    <details><summary> Older SMEFTsim releases </summary><p>
+
+      * v2_1:
+        ```
+        wget http://feynrules.irmp.ucl.ac.be/raw-attachment/wiki/SMEFT/SMEFTsim_A_U35_MwScheme_UFO_v2.1.tar.gz
+        tar xzf SMEFTsim_A_U35_MwScheme_UFO_v2.1.tar.gz
+        mv SMEFTsim_A_U35_MwScheme_UFO_v2.1 MG5_aMC_v2_6_5/models
+        ```
+
+      * v3_1:
+        ```
+        wget http://https://cms-project-generators.web.cern.ch/cms-project-generators/SMEFTsim_A_U35_MwScheme_UFO_v3_1.tar.gz
+        tar xzf SMEFTsim_A_U35_MwScheme_UFO_v3_1.tar.gz
+        mv SMEFTsim_A_U35_MwScheme_UFO_v3_1 MG5_aMC_v2_6_5/models
+        ```
+
+      * All these releases need older restriction cards:
+        ```
+           cp madgraph_model/v3/* MG5_aMC_v2_6_5/models/SMEFTsim_A_U35_MwScheme_UFO_v3_1 
+           cp madgraph_model/v3/* MG5_aMC_v2_6_5/models/SMEFTsim_A_U35_MwScheme_UFO_v2.1 
+        ```
+
+    </p></details>
+
   * copy in the model folder the additional files present in the D6EFTStudies project, 
     from the right folder depending on the version of the UFO (v3_0 for SMEFTsim releases on github + "NS". v3 for older releases such as SMEFTsim_v3_0, v3_1, v2_1 and so on) (and in some other folder that MG searches in sometimes):
     ```
