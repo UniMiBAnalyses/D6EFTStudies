@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # D6EFTStudies
 
 EFT studies with Dim6 Warsaw basis
@@ -58,7 +57,7 @@ To produce a sample:
     ```
     Now type in the strings obtained two steps ago. They should look something like:
     ```
-    import model SMEFTsim_A_U35_MwScheme_UFO_v3_1-cW_massless
+    import model SMEFTsim_U35_MwScheme_UFO-cW_massless
     generate p p > e+ e- mu- mu+ j j QCD=0 NP=1 NP^2==2 SMHLOOP=0
     output ZZ2e2mu_cW_QU
     quit
@@ -70,7 +69,7 @@ To produce a sample:
 <details><summary> If you want more details about what's happening under the hood: </summary><p>
    
     ```
-    Example of generation of VBF Higgs > WW > fully leptonic.
+  * Example of generation of VBF Higgs > WW > fully leptonic.
     The following syntax allows for having EFT entering both in the production
     and decay vertices of the Higgs boson, 
     while it remains not present in the W decays.
@@ -97,7 +96,7 @@ To produce a sample:
     * the model used for the generation is issued with the command `import`, 
     which takes as an argument the model name ad possible restrictions,
     as coded in restriction files. 
-    In the example, the model is the one contained in the folder `SMEFTsim_A_U35_MwScheme_UFO_v3_1`,
+    In the example, the model is the one contained in the folder `SMEFTsim_U35_MwScheme_UFO`,
     while the restriction is the one in the file `restrict_cW_massless.dat`.
     The restriction files present in the D6EFTStudies project 
     produce events with massless light leptons and quarks,
@@ -113,7 +112,7 @@ To produce a sample:
     ```Template/LO/Cards/run_card.dat``` in the Madgraph folder
     * besides the interactive operation, Madgraph may be used with instruction scripts, containing for example:
     ```
-    import model SMEFTsim_A_U35_MwScheme_UFO_v3_1-cW_massless
+    import model SMEFTsim_U35_MwScheme_UFO-cW_massless
     generate p p > e+ ve mu- vm~ NP=1 NP^2==1
     add process p p > e- ve~ mu+ vm NP=1 NP^2==1
     output WW_LI
@@ -129,8 +128,60 @@ To produce a sample:
 
 ## generation
 
-Scripts to submit jobs to condor, for the generation of events in Madgraph.
-To submit a job:
+  * The "create1Dfolders_*.py" scripts generate .txt files that can be read by MG5 allowing only an individual    insertion of an operator and all the others are set to 0. The "create2Dfolders_*.py" do the same but with two operators turned on (this is done loading the right restriction card). The 2D scripts only create the mixied quadratic term aka the interference term between two operator (order Lambda^-4).
+  An example:
+
+  ```
+  cd D6EFTStudies/generation
+  ./create1Dfolders_WZ.py  1
+  for fil in `ls | grep launch_WZ` ; do ./bin/mg5_aMC $fil ;done
+  ```
+  The additional argument in the create1Dfolders allows the generation of the pure SM term.
+  At the end, multiple MG5 folders will be created but no events are generated yet. The event generation can be submitted to condor as described in what follows.
+  Scripts to submit jobs to condor, for the generation of events in Madgraph.
+  To submit a job:
+
+  ```
+  python submit.py <MG_output_folder> <output_path> <nEvents_xjob> <njobs> <executable> <jobs_flavour> 
+  python submit.py $PWD/WZeu_SM $PWD/WZeu_SM 10000 100 job.sh testmatch
+  ```
+
+  This will create a folder under your afs environment (WZeu_SM/WZeu_SM_results) containing the output of each condor job.
+  As results can be heavy, it is common practice to save outputs on eos. 
+  There are many ways to do so, an example:
+
+  ```
+  #create a symbolic link to you eos target folder
+  #substitute initial_letter and your_username with you field for example
+  # /eos/user/g/gboldrin/EFT_LHE
+  eos mkdir /eos/user/initial_letter/your_username/EFT_LHE
+  ln -s /eos/user/initial_letter/your_username/EFT_LHE
+
+  #now launch event generation but change the target folder, remember to provide the absolut path
+  python submit.py $PWD/WZeu_SM $PWD/EFT_LHE 10000 100 job.sh testmatch
+  ```
+
+  * The script ```postProcess.py``` takes as input a ```*_results``` folder,
+    controls some basic parameters for the success of the generation,
+    unpacks the LHE files, creates a summary of the run,
+    and cleans the folder from unnecessary log files when called with the ```clean``` option
+    (keeping those of failed jobs).
+    It also creates the input cfg file for ```read_03.cpp```,
+    adding the cfg file to the folder itself
+
+    ```
+    #./postProcess.py -b <*_results folder> -o <output_folder_for .roots>
+    mkdir EFT_LHE/ntuples
+    ./postProcess.py -b $PWD/EFT_LHE/WZeu_SM_results -o $PWD/EFT_LHE/ntuples
+    ```
+
+    The script unzips the lhe creating large memory consumption which can saturate eos quickly.
+    To optimize the procedure it is convenient to rezip the lhe AFTER running the ntuplizer described in the analysis section (next chapter):
+
+    ```
+    ./postProcess.py -b $PWD/EFT_LHE/WZeu_SM_results -t rezip
+    ```
+
 
 <details><summary> ZZ2e2mu instructions </summary><p>
 
@@ -151,14 +202,6 @@ and the BSM case respectively.
 Operators of interest are listed [here](https://www.dropbox.com/s/e5yvvzzo98bwdg3/2019-06-ongoing_dim6.pdf?dl=0)
 
 </p></details>
-
-  * The script ```postProcess.py``` takes as input a ```*_results``` folder,
-    controls some basic parameters for the success of the generation,
-    unpacks the LHE files, creates a summary of the run,
-    and cleans the folder from unnecessary log files when called with the ```clean``` option
-    (keeping those of failed jobs).
-    It also creates the input cfg file for ```read_03.cpp```,
-    adding the cfg file to the folder itself
 
 ## analysis
 
@@ -407,169 +450,3 @@ taking as input the output CSV files of ```read_results.cpp```.
    ./postProcess.py [folder containing the job outputs and lhe files]
    ```
   * Madgraph totorial [here](https://indico.cern.ch/event/555228/sessions/203428/attachments/1315471/1970459/tutorial-CMSandATLAS-2016.pdf)
-
-
-=======
-# D6tomkDatacard
-
-Tools to convert the output of MG5 generation with EFT components in readable histos for mkDatacards.py in the Latino framework.
-This tool allows to create histograms compatible with the new combine models for EFT fitting in the AnalyticAnomalousCoupling repo.
-
-Useful links:
-* Latinos: https://github.com/latinos/LatinoAnalysis 
-
-* mkDatacard.py: https://github.com/latinos/LatinoAnalysis/blob/master/ShapeAnalysis/scripts/mkDatacards.py 
-
-* example folder: https://github.com/amassiro/PlotsConfigurationsCMSDAS2020CERN/tree/master/ControlRegions/DY 
-
-* D6EFT study for generation: https://github.com/UniMiBAnalyses/D6EFTStudies
-
-* Latino tutorial CmsDas h->ww : https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideCMSDataAnalysisSchoolCERN2020LongHWW
-
-* AnalyticAnomalousCoupling combine model : https://github.com/GiacomoBoldrini/AnalyticAnomalousCoupling
-
----
-
-# Setup
-
-```
-cmsrel CMSSW_10_6_4
-cd CMSSW_10_6_4/src/
-cmsenv
-```
-
-If you want to generate samples clone the D6EFT repo and follow the instruction provided in the link above.
-
-```
-git clone git@github.com:UniMiBAnalyses/D6EFTStudies.git
-```
-
-Setup the latino framework (remember to clone/source with the ssh key connected to git)
-```
-git clone --branch 13TeV git@github.com:latinos/setup.git LatinosSetup
-source LatinosSetup/SetupShapeOnly.sh
-scramv1 b -j 20
-
-cd LatinoAnalysis/Tools/python
-cp userConfig_TEMPLATE.py userConfig.py
-# edit the userConfig.py so the paths correspond to a directory where you have write access (this will be used to write log files)
-cd ../../../
-scram b
-```
-
-Finally clone this repo. The implementation of this framework is independent both from the generation step and from the latinos framework so you can place it wherever you want.
-
-```
-git clone git@github.com:GiacomoBoldrini/D6tomkDatacard.git
-```
-
----
-
-# Configuration
-
-This framework works if you can provide it with samples. So you need to generate them first. There are a bunch of them 1M event under `/afs/cern.ch/user/g/govoni/myeos/samples/2019_EFT`(restricted access)
-
-The routine is specified in a `.cfg` under the cfg folder. It has many sections.
-The `general`section specifies standard naming conventions for the process under study and the output folder/file names in which to store results.
-The `ntuples` section specifies the folder with the ntuples. It can be a list of folders, files will be picked smartly using the `glob` module.
-In the `eft` section one can specify the operators of interest. If they are more than one the full interference pattern will be saved (planning in the future to save different scenarios for example the single-operator/s one).
-For example if two operators are specified you will get a two operator datacard. The section `model` is crucial as it defines how histos will be combined. It follows the nomenclature of AnalyticAnomalousCoupling. 
-The model can be chosen from the following `EFT,EFTNeg,EFTNeg-alt`. It can be a list and all the output shapes will be saved in their own folders.
-Section `cuts,supercuts` are work in progress and do nothing. The `variables` section specifies the tree names of the variables you want to create shapes for. You are suppposed to give a list of bins (one for each variable) and a list of lists ([xmin:xmax],[],..) with the x-axis ranges in order to build histos.
-Sections starting with `d_` creates some dummy files needed for `mkDatacards.py`. You can switch on and off their creation by changin the boolean field `makeDummy` under each section.
-They work but they are not fully reliable due to the enormous flexibility of the Latinos framework. Check and modify them if you have to add backgrounds or different stuffs.
-
----
-
-# File names convention
-
-Folders under the `ntuples/folder` config section do not need to be sorted. However the files should have a definite convention in order for the algorithms to pickup the ones from the right process, component and operator. File ntuple names should have the following syntax:
-
-```
-folder + "/*_" + process + "_" + op + "*.root"
-folder + "/*_" + process + "_{}_{}_".format(op[0], op[1]) + "*.root"
-```
-
-process may be something like "SSWW" and should match the one you are giving under the config section `general/sample`. `op` is the operator name, should match the ones gave in the config section `eft/operators`. The order of `op[0],op[1]` is not important, the script will automatically detect the combination.
-Lastly the file name should specify if it contains events simulating the SM, linear, quadratic or interference components. These will have the postfix
-`SM,LI,QU,IN` respectively (no operator specification for the SM sample).
-
-Some examples of file names:
-
-```
-ntuple_OSWW_SM.root #Opposite sign WW process, SM component
-ntuple_OSWWQCD_cHl1_QU.root # Opposite sign WW QCD quadratic component of op cHl1
-ntuple_SSWW_cHq3_cll1_IN.root # Same sign WW interference term between cHq3 and cll1
-ntuple_SSWW_cHWB_LI.root # Same sign WW linear term of operator cHWB_LI
-```
-
-One root file must have a main tree with ntuples named as the file name minus `ntuple_` such as `OSWW_SM` for the first example above. The root file should also have one auxiliary root histogram (TH1F) containing important information in order to weight histograms. The information needs to be encapsulated in the bin contents as follows (no underflow or overflow involved here):
-- 1st bin: cross_section
-- 2nd bin: total sum of the weights
-
-The histos normalization is computed as: (question: shouldn't we multiply by the weights of the events selected by cuts?)
-`cross_section * 1000. * luminosity / (sum_weights_total)`
-The luminosity is taken from the config file and has to be in pb
-
----
-
-# makeDummies.py
-
-This is a collection of functions that creates dummy configuration files for mkDatacards.py. Not reliable but a good starting point for more complex use-cases.
-
----
-
-# makeDCinputs.py
-
-This is the main script. It reads the ntuples, make histograms according to the specified model and save them in a way mkDatacards.py can read them.
-It only expects a config file input.
-
-
-
----
-
-# Example
-
-```
-cd D6tomkDatacard
-python mkDCInputs.py --cfg cfg/SSWW_to_mkDat.cfg 
-cp -r SSWW_to_Latinos/ where_mkDatacard_can_see_it/
-cd where_mkDatacard_can_see_it/SSWW_to_Latinos/EFTNeg
-mkDatacards.py --pycfg=configuration_SSWW_EFTNeg.py --inputFile=rootFile/cW_cHWB.root 
-```
-
-Inspect the `datacard` folder. It has a subfolder with you process name and many subfolders with the variables you specified from the ntuples.
-Each subfolder has a datacard with the EFT components according to the model you chose and to the AnalyticAnomalousCoupling nomenclature (e.g. lin_, quad_ sm_lin_quad_ etc...).
-You will find the shapes in the `shape` folder.
-
-You can also use `mkPlot.py`, pay attention to the grouping in the `cfg`file.
-
-`mkPlot.py --pycfg=configuration_SSWW_EFTNeg.py --inputFile=rootFile/cW_cHWB.root`
-
-You should see the histograms stacked for the model you specified. If you want to merge the contributions you can act on the grouping options in the `cfg` file,
-before `mkDCInputs.py`
-
----
-
-# To Do
-
-- Add cuts smartly
-- Optimize some sections
-- Skim the cfg file
-- Add "running on batch" option
-- Add intelligent ways of generating AC-DC combine histos for different samples simultaneously
-
----
-
-# Suggestions are welcome
-
-
-
-
-
-
-
-
-
- 
->>>>>>> 7abd76153da3e658d08bf70723120c51f9c241e0
