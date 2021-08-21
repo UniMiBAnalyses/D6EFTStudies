@@ -104,9 +104,9 @@ if __name__ == "__main__":
   for param in params:
     if param[0] not in switchOn : continue   
     f_launchfile = open ('launch_OSWW_' + param[1] + '_LI.txt', 'w')
-    f_launchfile.write ('import model SMEFTsim_A_U35_MwScheme_UFO_v3_1-' + param[1] + '_massless\n')
-    f_launchfile.write ('generate p p > e+ ve mu- vm~ j j QCD=0 NP=1 NP^2==1\n')
-    f_launchfile.write ('add process p p > e- ve~ mu+ vm j j QCD=0 NP=1 NP^2==1\n')
+    f_launchfile.write ('import model SMEFTsim_U35_MwScheme_UFO-' + param[1] + '_massless\n')
+    f_launchfile.write ('generate p p > e+ ve mu- vm~ j j SMHLOOP=0 QCD=0 NP=1 NP^2==1\n')
+    f_launchfile.write ('add process p p > e- ve~ mu+ vm j j SMHLOOP=0 QCD=0 NP=1 NP^2==1\n')
     f_launchfile.write ('output OSWW_' + param[1] + '_LI')
     f_launchfile.close ()
 
@@ -114,18 +114,18 @@ if __name__ == "__main__":
   for param in params:
     if param[0] not in switchOn : continue   
     f_launchfile = open ('launch_OSWW_' + param[1] + '_QU.txt', 'w')
-    f_launchfile.write ('import model SMEFTsim_A_U35_MwScheme_UFO_v3_1-' + param[1] + '_massless\n')
-    f_launchfile.write ('generate p p > e+ ve mu- vm~ j j QCD=0 NP=1 NP^2==2\n')
-    f_launchfile.write ('add process p p > e- ve~ mu+ vm j j QCD=0 NP=1 NP^2==2\n')
+    f_launchfile.write ('import model SMEFTsim_U35_MwScheme_UFO-' + param[1] + '_massless\n')
+    f_launchfile.write ('generate p p > e+ ve mu- vm~ j j SMHLOOP=0 QCD=0 NP=1 NP^2==2\n')
+    f_launchfile.write ('add process p p > e- ve~ mu+ vm j j SMHLOOP=0 QCD=0 NP=1 NP^2==2\n')
     f_launchfile.write ('output OSWW_' + param[1] + '_QU')
     f_launchfile.close ()
 
   # generate the SM component
   if (len (sys.argv) > 1):
     f_launchfile = open ('launch_OSWW_SM.txt', 'w')
-    f_launchfile.write ('import model SMEFTsim_A_U35_MwScheme_UFO_v3_1-SMlimit_massless\n')
-    f_launchfile.write ('generate p p > e+ ve mu- vm~ j j QCD=0\n')
-    f_launchfile.write ('add process p p > e- ve~ mu+ vm j j QCD=0\n')
+    f_launchfile.write ('import model SMEFTsim_U35_MwScheme_UFO-SMlimit_massless\n')
+    f_launchfile.write ('generate p p > e+ ve mu- vm~ j j SMHLOOP=0 QCD=0\n')
+    f_launchfile.write ('add process p p > e- ve~ mu+ vm j j SMHLOOP=0 QCD=0\n')
     f_launchfile.write ('output OSWW_SM')
     f_launchfile.close ()
 
