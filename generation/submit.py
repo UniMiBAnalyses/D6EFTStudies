@@ -34,6 +34,8 @@ if __name__ == "__main__":
         sys.exit (1)
 
     process_name = sys.argv[1].split ('/')[-1]
+    if ".tar.gz" in process_name:
+    	process_name = process_name.split(".tar.gz")[0] #JUST FOR TAR DIRECTORIES
     if (process_name == "") : process_name = sys.argv[1].split ('/')[-2]
 
 
@@ -76,7 +78,8 @@ if __name__ == "__main__":
 
     job_file = jobconfig_folder + '/' + shell_script_template
     shutil.copy2 (shell_script_template, job_file)
-
+    
+    print(process_name, MGfolder, os.getcwd ())
     replace = [
         ['PROCESS_NAME_CHANGEME'   , process_name   ],
         ['BASE_FOLDER_CHANGEME'    , os.getcwd ()   ],
