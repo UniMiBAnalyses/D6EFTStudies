@@ -174,7 +174,7 @@ To produce a sample:
   ```
 
   This will create a folder under your afs environment (WZeu_SM/WZeu_SM_results) containing the output of each condor job.
-  As results can be heavy, it is common practice to save outputs on eos. 
+  As results can be heavy, and furthermore one should avoid to access (read or write) afs resources from condor worker nodes, it is common practice to save input and outputs on eos (which is mounted on condor workers). 
   There are many ways to do so, an example:
 
   ```
@@ -183,9 +183,18 @@ To produce a sample:
   # /eos/user/g/gboldrin/EFT_LHE
   eos mkdir /eos/user/initial_letter/your_username/EFT_LHE
   ln -s /eos/user/initial_letter/your_username/EFT_LHE
+  mv WZeu_SM EFT_LHE
 
   #now launch event generation but change the target folder, remember to provide the absolut path
-  python submit.py $PWD/WZeu_SM $PWD/EFT_LHE 10000 100 job.sh testmatch
+  python submit.py EFT_LHE/WZeu_SM $PWD/EFT_LHE 10000 100 job.sh testmatch
+  ```
+  
+  MG process folders can contain a large number of files. It can be that during the copy of the MG input folder from eos to the condor worker node some files will be lost (typically some .f files) resulting in failing compilation of the folder and failing of many if not all jobs.
+  A specific executable allows to submit compressed MG folders to worker nodes (which is one file and reduces the possibility of a failed copy).
+  
+  ```
+  cd EFT_LHE && tar -zcfv WZeu_SM.tar.gz WZeu_SM && cd ..
+  python submit.py EFT_LHE/WZeu_SM.tar.gz $PWD/EFT_LHE 10000 100 job_tar.sh testmatch
   ```
 
   * The script ```postProcess.py``` takes as input a ```*_results``` folder,
