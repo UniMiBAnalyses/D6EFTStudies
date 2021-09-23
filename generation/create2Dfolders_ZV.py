@@ -9,14 +9,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Command line parser')
     parser.add_argument('--v', dest='verbose', help='Verbose prints', default = False, action = 'store_true', required = False)
     parser.add_argument('--qcd', dest='qcd', help='QCD production. Default is EWK', default = False, action = 'store_true', required = False)
-    parser.add_argument('--sm', dest='sm', help='SM cards', default = False, action = 'store_true', required = False)
-    parser.add_argument('--smonly', dest='smonly', help='Generate only SM cards', default = False, action = 'store_true', required = False)
     parser.add_argument('--diagfilter', dest='diagfilter', help='Force QCD==2', default = False, action = 'store_true', required = False)
     args = parser.parse_args()
 
     #switchOn = ['2','4','5','7','9','21','22','24','25','29','30','31','32','33','34']
-    #switchOn = ['2', '4', '7', '21', '24', '25', '31', '32', '33', '34'] # production succeeded
-    switchOn = ['9','22','29','30']
+    #switchOn = ['2', '7', '21', '24', '25', '31', '32', '33', '34']
+    switchOn = ['2', '5', '21', '24', '25']
     params = [( '1' , 'cG'),
               ('2' , 'cW'),
               ('3' , 'cH'),
@@ -68,15 +66,7 @@ if __name__ == "__main__":
               ('49' , 'cqe'),
               ('50' , 'cqu1'),
               ('51' , 'cqu8'),
-              ('52' , 'cqd1'),
-              ('53' , 'cqd8'),
-              ('54' , 'cledqRe'),
-              ('55' , 'cquqd1Re'),
-              ('56' , 'cquqd11Re'),
-              ('57' , 'cquqd8Re'),
-              ('58' , 'cquqd81Re'),
-              ('59' , 'clequ1Re'),
-              ('60' , 'clequ3Re')]
+              ('52' , 'cqd1')] 
 
     if args.qcd:
         proc_IDs = [('ZWmQCD', 'w-'), ('ZWpQCD', 'w+'), ('ZZQCD', 'z')]
@@ -86,56 +76,16 @@ if __name__ == "__main__":
         MG_constr = 'QCD=0'
     print ('Generating ' + ' and '.join(zip(*proc_IDs)[0]) + ' cards with constraint ' + MG_constr)
 
-    # reweight coefficients
-    coefficients = ['0.0', '1.0', '-1.0', '2.0', '-2.0'] # default
-
-    if args.sm:
-        for proc in proc_IDs:
-            # clean directory
-            prefix = '{0}_SM'.format(proc[0])
-            dirname = './{0}_SM/'.format(proc[0])
-            if os.path.isdir(dirname):
-                os.system('rm -rf ' + dirname)
-            os.mkdir(dirname)
-            # cards names
-            runcard = dirname + prefix + '_run_card.dat'
-            extramodels = dirname + prefix + '_extramodels.dat'
-            proccard = dirname + prefix + '_proc_card.dat'
-            # run card
-            if args.verbose:
-                print ('\n[INFO] producing ' + prefix + '_run_card.dat')
-            os.system('cp ./run_card.dat ' + runcard)
-            # extramodels card
-            if args.verbose:
-                print ('[INFO] producing ' + prefix + '_extramodels.dat')
-            with open(extramodels, 'w') as e:
-                e.write('SMEFTsim_U35_MwScheme_UFO.tar.gz')
-            # proc card
-            if args.verbose:
-                print ('[INFO] producing ' + prefix + '_proc_card.dat')
-            with open(proccard, 'w') as p:
-                p.write('set group_subprocesses Auto\n')
-                p.write('set ignore_six_quark_processes False\n')
-                p.write('set loop_optimized_output True\n')
-                p.write('set complex_mass_scheme False\n')
-                p.write('define p = g u c d s b u~ c~ d~ s~ b~\n')
-                p.write('define j = p\n')
-                p.write('define l+ = e+ mu+ ta+\n')
-                p.write('define l- = e- mu- ta-\n')
-                p.write('define vl = ve vm vt\n')
-                p.write('define vl~ = ve~ vm~ vt~\n')
-                p.write('import model SMEFTsim_U35_MwScheme_UFO-SMlimit_massless\n')
-                p.write('generate p p > z {0} j j {1} SMHLOOP=0 NP=0, z > l+ l- NP=0, {0} > j j NP=0\n'.format(proc[1], MG_constr))
-                p.write('output ' + prefix)
-
-    if not args.smonly:
-        for param in params:
-            if param[0] not in switchOn: continue
+    for i in range(len(params)):
+        for j in range(i+1, len(params)):
+            if params[i][0] not in switchOn or params[j][0] not in switchOn: continue
+            # reweight coefficients
+            coefficients = [('0.0','0.0'), ('1.0','0.0'), ('0.0','1.0'), ('1.0','1.0'), ('0.0','-1.0'), ('-1.0','0.0')] # default
             # loop over processes
             for proc in proc_IDs:
                 # clean directory
-                prefix = '{0}_{1}_SM_LI_QU'.format(proc[0], param[1])
-                dirname = './{0}_{1}_SM_LI_QU/'.format(proc[0], param[1])
+                prefix = '{0}_{1}_{2}_SM_LI_QU_IN'.format(proc[0], params[i][1], params[j][1])
+                dirname = './{0}_{1}_{2}_SM_LI_QU_IN/'.format(proc[0], params[i][1], params[j][1])
                 if os.path.isdir(dirname):
                     os.system('rm -rf ' + dirname)
                 os.mkdir(dirname)
@@ -168,7 +118,7 @@ if __name__ == "__main__":
                     p.write('define l- = e- mu- ta-\n')
                     p.write('define vl = ve vm vt\n')
                     p.write('define vl~ = ve~ vm~ vt~\n')
-                    p.write('import model SMEFTsim_U35_MwScheme_UFO-{0}_massless\n'.format(param[1]))
+                    p.write('import model SMEFTsim_U35_MwScheme_UFO-{0}_{1}_massless\n'.format(params[i][1], params[j][1]))
                     if args.diagfilter:
                         p.write('generate p p > z {0} j j {1} SMHLOOP=0 NP=1, z > l+ l- NP=1, {0} > j j NP=1 @0 NP=1 --diagram_filter\n'.format(proc[1], MG_constr))
                     else:
@@ -178,19 +128,23 @@ if __name__ == "__main__":
                 if args.verbose:
                     print ('[INFO] producing ' + prefix + '_customizecards.dat')
                 with open(customize, 'w') as c:
-                    c.write('set param_card SMEFT {0} 1.0'.format(param[0]))
+                    c.write('set param_card SMEFT {0} 1.0\n'.format(params[i][0]))
+                    c.write('set param_card SMEFT {0} 1.0'.format(params[j][0]))
                 # reweight card
                 if args.verbose:
                     print ('[INFO] producing ' + prefix + '_reweight_card.dat\n')
                 with open(reweightcard, 'w') as r:
-                    #if args.qcd:
-                    #    r.write('change model SMEFTsim_U35_MwScheme_UFO-{0}_massless\n'.format(param[1]))
+                    if args.qcd:
+                        r.write('change model SMEFTsim_U35_MwScheme_UFO-{0}_{1}_massless\n'.format(params[i][1], params[j][1]))
                     r.write('change helicity False\n')
                     if proc[0] == 'ZZ' or proc[0] == 'ZZQCD':
                         r.write('change keep_ordering True\n')
                     r.write('change rwgt_dir rwgt\n')
-                    r.write('# {0} {1}\n'.format(param[0], param[1]))
+                    r.write('# {0} {1}\n'.format(params[i][0], params[i][1]))
+                    r.write('# {0} {1}\n'.format(params[j][0], params[j][1]))
                     for coeff in coefficients:
-                        r.write('launch\n    set SMEFT {0} {1}\n'.format(param[0], coeff))
+                        r.write('launch\n')
+                        r.write('    set SMEFT {0} {1}\n'.format(params[i][0], coeff[0]))
+                        r.write('    set SMEFT {0} {1}\n'.format(params[j][0], coeff[1]))
 
     print ('Cards created successfully')
