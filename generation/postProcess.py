@@ -37,7 +37,7 @@ def readCondorReport (path):
         linecount = 5
         for line in f.readlines () :
             linecount += 1
-            if 'Job terminated' in line :
+            if line.endswith('Job terminated.\n') :
                 linecount = 0
                 jobID =  line.split ()[1][1:-1].split ('.')[1]
             if linecount == 1 :
