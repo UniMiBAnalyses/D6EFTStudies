@@ -17,6 +17,11 @@ To produce a sample:
     export LHAPDF_DATA_PATH=/cvmfs/sft.cern.ch/lcg/external/lhapdfsets/current/
     export LHAPDF_DATA_PATH=/cvmfs/sft.cern.ch/lcg/views/LCG_96/x86_64-centos7-gcc8-opt/share/LHAPDF/:$LHAPDF_DATA_PATH
     ``` 
+    
+  * If in a CMSSW release one can issue
+     ```
+     scram setup lhapdf
+     ``` 
   * clone this package in your local area
       ```
       git clone https://github.com/UniMiBAnalyses/D6EFTStudies
