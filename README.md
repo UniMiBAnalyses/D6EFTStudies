@@ -22,6 +22,87 @@ To produce a sample:
      ```
      scram setup lhapdf
      ``` 
+     
+     <details><summary> lhapdf details </summary><p>
+     If one runs `scram setup lhapdf` from CMSSW_10_6_4 by default it will source the lhapdf v6.2.1. You will see it will setup some paths like (updated version to v6.2.3)
+ 
+     ```
+     Runtime variable LHAPDF_DATA_PATH set to "/cvmfs/cms.cern.ch/slc7_amd64_gcc700/external/lhapdf/6.2.3-a2a84f5990d32c24c7240b02577bf55e/share/LHAPDF"
+
+     Runtime path settings for ROOT_INCLUDE_PATH:
+
+      Checks [OK] for /cvmfs/cms.cern.ch/slc7_amd64_gcc700/external/lhapdf/6.2.3-a2a84f5990d32c24c7240b02577bf55e/include
+
+     Runtime path settings for PATH:
+
+      Checks [OK] for /cvmfs/cms.cern.ch/slc7_amd64_gcc700/external/lhapdf/6.2.3-a2a84f5990d32c24c7240b02577bf55e/bin
+     ```
+ 
+     to change this you can see the available sets under `ls /cvmfs/cms.cern.ch/slc7_amd64_gcc700/external/lhapdf/`
+ 
+     ```
+     [gboldrin@lxplus733 3Lepton_SM]$ ls /cvmfs/cms.cern.ch/slc7_amd64_gcc700/external/lhapdf/
+      6.2.1          6.2.1-gnimlf3  6.2.1-mmelna   6.2.1-ogkkac   6.2.1-omkpbe   6.2.1-omkpbe4  6.2.1-pafccj3
+      6.2.1-gnimlf   6.2.1-gnimlf4  6.2.1-mmelna2  6.2.1-ogkkac2  6.2.1-omkpbe2  6.2.1-pafccj   6.2.3-a2a84f5990d32c24c7240b02577bf55e
+      6.2.1-gnimlf2  6.2.1-ikaegh   6.2.1-nmpfii   6.2.1-ogkkac3  6.2.1-omkpbe3  6.2.1-pafccj2  6.4.0-6e1c0caa626970b41aec7b22a0ff6a95
+     ```
+ 
+     to source one of the sets you need to define the tool under scram .xml configs:
+     ```
+     vim CMSSW_10_6_4/config/toolbox/slc7_amd64_gcc700/tools/available/lhapdf.xml 
+     ```
+ 
+     ```
+     <tool name="lhapdf" version="6.2.3-a2a84f5990d32c24c7240b02577bf55e">
+       <lib name="LHAPDF"/>
+       <client>
+         <environment name="LHAPDF_BASE" default="/cvmfs/cms.cern.ch/slc7_amd64_gcc700/external/lhapdf/6.2.3-a2a84f5990d32c24c7240b02577bf55e"/>
+         <environment name="LIBDIR" default="$LHAPDF_BASE/lib"/>
+         <environment name="INCLUDE" default="$LHAPDF_BASE/include"/>
+       </client>
+       <use name="yaml-cpp"/>
+       <runtime name="LHAPDF_DATA_PATH" value="$LHAPDF_BASE/share/LHAPDF"/>
+       <runtime name="PATH" value="$LHAPDF_BASE/bin" type="path"/>
+       <runtime name="ROOT_INCLUDE_PATH" value="$INCLUDE" type="path"/>
+       <use name="root_cxxdefaults"/>
+     </tool>
+     ```
+ 
+     just change the `"LHAPDF_BASE"` to the wanted one and also the `version` field. 
+   
+      **Unfortunately this setup miss the lhapdf-config file**. One needs to        define it once and for all in the scram config adding a line to define the environment variable `LHAPDFCONFIG` to (for lhapdf v6.2.3) `/cvmfs/cms.cern.ch/slc7_amd64_gcc700/external/lhapdf/6.2.3-a2a84f5990d32c24c7240b02577bf55e/bin/lhapdf-config`
+ 
+     All in all the .xml file should look something like this depending on your CMSSW and pdfset chosen
+ 
+     ```
+     <tool name="lhapdf" version="6.2.3-a2a84f5990d32c24c7240b02577bf55e">
+       <lib name="LHAPDF"/>
+       <client>
+         <environment name="LHAPDF_BASE" default="/cvmfs/cms.cern.ch/slc7_amd64_gcc700/external/lhapdf/6.2.3-a2a84f5990d32c24c7240b02577bf55e"/>
+         <environment name="LIBDIR" default="$LHAPDF_BASE/lib"/>
+         <environment name="INCLUDE" default="$LHAPDF_BASE/include"/>
+       </client>
+       <use name="yaml-cpp"/>
+       <runtime name="LHAPDF_DATA_PATH" value="$LHAPDF_BASE/share/LHAPDF"/>
+       <runtime name="LHAPDFCONFIG" value="$LHAPDF_BASE/bin/lhapdf-config"/>
+       <runtime name="PATH" value="$LHAPDF_BASE/bin" type="path"/>
+       <runtime name="ROOT_INCLUDE_PATH" value="$INCLUDE" type="path"/>
+       <use name="root_cxxdefaults"/>
+     </tool> 
+     ```
+ 
+     One can then run 
+     ``` 
+        scram setup lhapdf 
+        cmsenv
+     ```
+ 
+     and run madgraph event generation
+
+     </p></details>
+     
+     
+     
   * clone this package in your local area
       ```
       git clone https://github.com/UniMiBAnalyses/D6EFTStudies
