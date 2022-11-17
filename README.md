@@ -16,6 +16,10 @@ To produce a sample:
     ``` 
     export LHAPDF_DATA_PATH=/cvmfs/sft.cern.ch/lcg/external/lhapdfsets/current/
     export LHAPDF_DATA_PATH=/cvmfs/sft.cern.ch/lcg/views/LCG_96/x86_64-centos7-gcc8-opt/share/LHAPDF/:$LHAPDF_DATA_PATH
+    
+    # If not working one can try
+    # export LHAPDF_DATA_PATH=/cvmfs/cms.cern.ch/slc7_amd64_gcc700/external/lhapdf/6.2.3-a2a84f5990d32c24c7240b02577bf55e/share/LHAPDF
+    # export LHAPDFCONFIG=/cvmfs/cms.cern.ch/slc7_amd64_gcc700/external/lhapdf/6.2.3-a2a84f5990d32c24c7240b02577bf55e/bin/lhapdf-config
     ``` 
     
   * If in a CMSSW release one can issue
