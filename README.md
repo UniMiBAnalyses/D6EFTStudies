@@ -24,7 +24,8 @@ To produce a sample:
      ``` 
      
      <details><summary> lhapdf details </summary><p>
-     If one runs `scram setup lhapdf` from CMSSW_10_6_4 by default it will source the lhapdf v6.2.1. You will see it will setup some paths like (updated version to v6.2.3)
+ 
+     If one runs  `scram setup lhapdf` from CMSSW_10_6_4 by default it will source the lhapdf v6.2.1. You will see it will setup some paths like (updated version to v6.2.3)
  
      ```
      Runtime variable LHAPDF_DATA_PATH set to "/cvmfs/cms.cern.ch/slc7_amd64_gcc700/external/lhapdf/6.2.3-a2a84f5990d32c24c7240b02577bf55e/share/LHAPDF"
