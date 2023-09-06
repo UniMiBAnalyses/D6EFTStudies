@@ -4,6 +4,7 @@
 
 using namespace std ;
 
+const float massZ = 91.1876;
 
 histos::histos (TString name, double XS, double lumi) : 
   m_name (name), 
@@ -12,6 +13,7 @@ histos::histos (TString name, double XS, double lumi) :
   {
     makeHisto ("m_mjj", 48, 200., 5000.) ;
     makeHisto ("m_mll", 15, 0., 1500.) ;
+    makeHisto ("m_m4l", 15, 0., 1500.) ;
     makeHisto ("m_ptl1", 15, 0., 1500.) ;
     makeHisto ("m_ptl2", 15, 0., 1500.) ;
     makeHisto ("m_met", 20, 0., 2000.) ;
@@ -106,6 +108,7 @@ fillHistos (LHEF::Reader & reader, histos & Histos, int max)
       vector<TLorentzVector> v_f_leptons ;
       vector<TLorentzVector> v_f_neutrinos ;
 
+       cout<<"loop particles"<< endl;
       // loop over particles in the event
       for (int iPart = 0 ; iPart < reader.hepeup.IDUP.size (); ++iPart) 
         {
@@ -161,16 +164,29 @@ fillHistos (LHEF::Reader & reader, histos & Histos, int max)
       if (v_f_quarks.at (1).Pt () < 30) continue ;
 
       TLorentzVector ME = v_f_neutrinos.at (0) + v_f_neutrinos.at (1) ;
-      if (ME.Pt () < 40) continue ;
+      //      if (ME.Pt () < 40) continue ; no MET selection in VBS ZZ baseline
+      if (events++ % 10000 == 0)cout <<"no ME selection"<<endl;
 
       TLorentzVector v_jj = v_f_quarks.at (0) + v_f_quarks.at (1) ;
       if (fabs (v_f_quarks.at (0).Eta () - v_f_quarks.at (1).Eta ()) < 2.5 ) continue ;
-      if (v_jj.M () < 500) continue ;
+      if (v_jj.M () < 100) continue ;
+      if (events++ % 10000 == 0)cout<<"quark selection"<<endl;
 
       TLorentzVector v_ll = v_f_leptons.at (0) + v_f_leptons.at (1) ;
       if (v_ll.M () < 20) continue ;
-      if (fabs (zetaStar (v_f_quarks.at (0).Eta (), v_f_quarks.at (1).Eta (), v_f_leptons.at (0).Eta ())) > 0.75) continue ;
-      if (fabs (zetaStar (v_f_quarks.at (0).Eta (), v_f_quarks.at (1).Eta (), v_f_leptons.at (1).Eta ())) > 0.75) continue ;
+      // if (fabs (zetaStar (v_f_quarks.at (0).Eta (), v_f_quarks.at (1).Eta (), v_f_leptons.at (0).Eta ())) > 0.75) continue ;
+      //if (fabs (zetaStar (v_f_quarks.at (0).Eta (), v_f_quarks.at (1).Eta (), v_f_leptons.at (1).Eta ())) > 0.75) continue ;
+
+      if (events++ % 10000 == 0)cout <<"di-lepton selection"<<endl;
+      TLorentzVector v_4l;
+      if ( v_f_leptons.size() < 4 ) continue;
+      cout<<"At least 4 leptons"<< endl;
+      v_4l = v_ll + v_f_leptons.at (2) + v_f_leptons.at (3) ;
+      if (v_4l.M () < 100) continue ; // cut on ZZmass
+      cout<<"mass m4l = "<< v_4l.M() <<endl;
+      //      if (fabs (zetaStar (v_f_quarks.at (0).Eta (), v_f_quarks.at (1).Eta (), v_f_leptons.at (2).Eta ())) > 0.75) continue ; //WHAT  IS Z*
+      //      if (fabs (zetaStar (v_f_quarks.at (0).Eta (), v_f_quarks.at (1).Eta (), v_f_leptons.at (3).Eta ())) > 0.75) continue ;
+
 
       //PG fill histograms
       //PG ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
@@ -179,9 +195,13 @@ fillHistos (LHEF::Reader & reader, histos & Histos, int max)
 //      Histos.m_mll->Fill (v_ll.M (), reader.hepeup.XWGTUP) ;
       Histos.fill ("m_mjj", v_jj.M (), weight) ;
       Histos.fill ("m_mll", v_ll.M (), weight) ;
+      Histos.fill ("m_m4l", v_4l.M (), weight) ;
 
       float ptl1 = v_f_leptons.at (0).Pt () ;
       float ptl2 = v_f_leptons.at (1).Pt () ;
+
+      //NEED TO ADD pTZ1, pTZ2
+      // NEED to SORT pT of all 4 LEPTONS
 
       if (ptl1 < ptl2) swap (ptl1, ptl2) ;
 
@@ -336,7 +356,7 @@ float deltaPhi (float phi1, float phi2)
 
 bool largerPt (const pair <int, TLorentzVector>& i, const pair <int, TLorentzVector>& j)
 {
-  return (i.second.Pt () < j.second.Pt ()) ;
+  return (i.second.Pt () > j.second.Pt ()) ;
 }
 
 
@@ -346,7 +366,9 @@ bool largerPt (const pair <int, TLorentzVector>& i, const pair <int, TLorentzVec
 double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max, bool applyCuts)
 {
   int events = 0 ;
-   
+
+  int nsel[10] = { };  
+
   //PG loop over input events
   while (reader.readEvent ()) 
     {
@@ -358,8 +380,12 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max, bool applyCu
       vector<TLorentzVector> v_f_jets ;
       vector<TLorentzVector> v_f_gluons ;
       vector<TLorentzVector> v_f_quarks ;
+      //      vector<TLorentzVector> v_f_photons ;
+
       vector<pair<int, TLorentzVector>> v_f_leptons ;
       vector<pair<int, TLorentzVector>> v_f_neutrinos ;
+
+      string chan ="2e2mu";
 
       // loop over particles in the event
       for (int iPart = 0 ; iPart < reader.hepeup.IDUP.size (); ++iPart) 
@@ -391,6 +417,13 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max, bool applyCu
                   p.second = dummy ;
                   v_f_leptons.push_back (p) ;
                 } // leptons
+
+	      //photons
+	      /*   else if (abs (reader.hepeup.IDUP.at (iPart)) == 22 ) 
+                {
+                  v_f_photons.push_back (dummy) ;       
+		  } // photons*/
+
               // neutrinos
               else if (abs (reader.hepeup.IDUP.at (iPart)) == 12 ||
                        abs (reader.hepeup.IDUP.at (iPart)) == 14 ||
@@ -436,6 +469,16 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max, bool applyCu
       float etaj2 = -1. ;
       float phij1 = -1. ;
       float phij2 = -1. ;
+      float ptZ   = -1. ;
+      float ptee  = -1. ;
+      float ptmumu  = -1. ;
+      float m4l     = -1. ;
+      float mll     = -1.;
+      float mee     = -1.;
+      float mmumu   = -1.;
+      float ptll    = -1.;
+      float ptemuplus    = -1.;
+      float ptemuminus   = -1.;
 
       //cout << ">>> FillNtuple:: this is the jets' size ::  " << v_f_jets.size() << endl;
       //cout << "                 these are from quarks ::  " << v_f_quarks.size() << endl;
@@ -473,8 +516,6 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max, bool applyCu
           //cout << ">>>>>> mjj ::  " << mjj  << endl;
         }
 
-      TLorentzVector v_ll ;
-      TLorentzVector v_ee ; 
       TLorentzVector ME ;
 
       for (int inu = 0 ; inu < v_f_neutrinos.size () ; inu++)
@@ -482,46 +523,202 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max, bool applyCu
           ME += v_f_neutrinos.at (inu) .second ;
         }
 
-      for (int ilep = 0 ; ilep < v_f_leptons.size () ; ilep++)
-        {
-          v_ll += v_f_leptons.at (ilep) .second ;
-        }
-      // Lorentz vector of electrons only for WZ
-      for (int ilep = 0 ; ilep < v_f_leptons.size () ; ilep++)
-        {
-          if (abs(v_f_leptons.at (ilep) .first) == 11)
-           {
-             v_ee += v_f_leptons.at (ilep) .second ;
-           }  
-        }
-
       if (applyCuts)
         {
+	  //nJets
           if (v_f_jets.size () < 2)
             {
               cerr << "cannot apply VBS selections without two jets, exiting\n" ;
               exit (1) ;
             }
-          if (ptj1 < 30) continue ;
-          if (ptj2 < 30) continue ;
 
-          if (ME.Pt () < 40) continue ;
+	  //nLeptons
+          if (v_f_leptons.size () < 4)
+            {
+              cerr << "cannot apply final state selection without 4 leptons, Exiting\n" ;
+              exit (1) ;
+            }
 
-          if (fabs (v_f_jets.at (0).Eta () - v_f_jets.at (1).Eta ()) < 2.5 ) continue ;
-          if (mjj < 500) continue ;
+	  ++nsel[0];
 
-          if (v_ll.M () < 20) continue ;
-          if (fabs (zetaStar (v_f_jets.at (0).Eta (), v_f_jets.at (1).Eta (), v_f_leptons.at (0).second.Eta ())) > 0.75) continue ;
-          if (fabs (zetaStar (v_f_jets.at (0).Eta (), v_f_jets.at (1).Eta (), v_f_leptons.at (1).second.Eta ())) > 0.75) continue ;
-        }
+	  //Jets selection
+	  vector<TLorentzVector> v_goodJets ;
+	  for (int j = 0 ; j < v_f_jets.size () ; j++)
+	    {
+	      TLorentzVector v_j = v_f_jets.at (j) ;
+	      if (fabs (v_j.Eta()) < 4.7 && v_j.Pt() > 30 ) v_goodJets.push_back(v_j);
+	    }
+
+	  //Leading(sub-) jets selection
+          if (ptj1 < 30 || fabs(etaj1) > 4.7) continue ;
+          if (ptj2 < 30 || fabs(etaj2) > 4.7) continue ;
+	  //          if (ME.Pt () < 40) continue ; NO METselection in ZZ
+	  ++nsel[1];
+
+	  //VBS ZZ enriched selection LOOSE WP
+          if (fabs (v_f_jets.at (0).Eta () - v_f_jets.at (1).Eta ()) < 2.4 ) continue ; 
+          if (mjj < 400) continue ;
+  	  ++nsel[2];
+
+	  
+	  //Lepton selection
+	  vector<TLorentzVector> v_goodMuons ;	  
+	  vector<TLorentzVector> v_goodElectrons ;	 
+	  vector<int> v_leptonPlus;  // indices +ly charged leps
+	  vector<int> v_leptonMinus; // indices -ly charged leps
+
+	  bool pTl1min = false; 
+	  int  pTl2min = 0;
+  
+	  int sumtype_e=0;
+	  int sumtype_m=0;
+
+	  mll  = ( v_f_leptons.at(0).second + v_f_leptons.at(1).second ).M();
+	  ptll = ( v_f_leptons.at(0).second + v_f_leptons.at(1).second ).Pt();
+
+	  for (int l = 0 ; l < v_f_leptons.size () ; l++)
+	    {
+	      int type           = v_f_leptons.at (l) .first ;
+	      TLorentzVector v_l = v_f_leptons.at (l) .second ;
+	      	      
+	      if (fabs (v_l.Eta()) < 2.5 && v_l.Pt() > 5 ) //good leptons 
+		{
+		  if ( abs(type) == 11 || abs(type) == 13 ) 
+		    {
+		      if (v_l.Pt() > 20) pTl1min = true; //ptmin 20 at least one lep in event
+		      if (v_l.Pt() > 10) pTl2min +=1;    //ptmin 10 at least two leps in event
+
+		      //correct lepton pT if neighbouring photon - no FSR @LHE level
+		      /*      for (int y = 0 ; y < v_f_photons.size () ; y++)
+			{
+			  TLorentzVector v_gamma = v_f_photons.at (y) ;
+			  float dummy = v_l.Pt(); 
+
+			  if( v_gamma.DeltaR(v_l)<0.1) v_l += v_gamma;
+                          cout << events << "type = " << type <<"pT = "<< dummy << endl;
+           		  cout << events << " photon pT = " << v_gamma.Pt() << "corrected lepton pT =" << v_l.Pt() << endl;
+			  } */
+
+		      if (type>0) v_leptonPlus.push_back(l);  
+		      else        v_leptonMinus.push_back(l); 
+
+		    }
+
+		  if ( abs(type) == 11 ) //electrons 
+		    {
+		      v_goodElectrons.push_back(v_l);
+		      sumtype_e+=type; 
+		      //cout<<"electron loop " << sumtype_e<<endl;
+		    }
+
+	          if ( abs(type) == 13 ) //muons
+		    {
+		      v_goodMuons.push_back(v_l);	
+		      sumtype_m+=type;
+		      //cout<<"muon loop " << sumtype_m<<endl;
+		    }
+
+		}
+	    }
+	  	  
+
+	  //Leading(sub-) leptons selection
+	  //	  if (!pTl1min || pTl2min<2 ) continue;
+	  if (!pTl1min || pTl2min<2 ) continue;
+
+	  //Check pairwise OS electrons and muons 
+	  if ( sumtype_e != 0 || sumtype_m != 0 ) continue;
+	  ++nsel[3];
+
+	  //Jet-lepton separation
+	  for (int j = 0 ; j < v_goodJets.size () ; j++)
+	    {
+	      TLorentzVector v_j = v_goodJets.at(j) ;
+	      //cout <<"jet" << j << "pT ="<< v_j.Pt()<< endl;
+
+	      for (int el = 0 ; el < v_goodElectrons.size () ; el++)
+		{
+		  if (v_j.DeltaR(v_goodElectrons.at(el))<0.4) continue;
+		  //cout << "e" << el << "pT ="<< v_goodElectrons.at(el).Pt()<< endl;
+		  //cout << "dR(j" <<j <<",e"<<el<<")="<< v_j.DeltaR(v_goodElectrons.at(el)) <<endl;
+		}
+
+	      for (int mu = 0 ; mu < v_goodMuons.size () ; mu++)
+		{
+		  if (v_j.DeltaR(v_goodMuons.at(mu))<0.4) continue;
+		  //cout << "mu" << mu << "pT ="<< v_goodMuons.at(mu).Pt()<< endl;
+		  //cout << "dR(j" <<j <<",mu"<<mu<<")="<< v_j.DeltaR(v_goodMuons.at(mu)) <<endl;
+		}
+	    }
+	  ++nsel[4];
+
+	  
+	  if (chan =="2e2mu")
+	    {
+	      if ( v_goodElectrons.size()<2 || v_goodMuons.size()<2 ) continue;
+
+	      TLorentzVector v_ee = v_goodElectrons[0]+v_goodElectrons[1];
+	      TLorentzVector v_mm =     v_goodMuons[0]+    v_goodMuons[1];
+  
+	      //mZ selection
+	      //   cout << "mee = " << v_ee.M() << " m_mm =" << v_mm.M()<<endl;
+              if (v_ee.M() <60 || v_ee.M() >120) continue;
+	      if (v_mm.M() <60 || v_mm.M() >120) continue;
+	      ++nsel[5];
+
+	      //deltaR cuts
+	      /*  TLorentzVector v_e1  = v_goodElectrons[0] ;
+	      TLorentzVector v_e2  = v_goodElectrons[1] ;
+	      TLorentzVector v_mu1 = v_goodMuons    [0] ;
+	      TLorentzVector v_mu2 = v_goodMuons    [1] ;
+
+	      if (v_e1.DeltaR(v_e2)<0.02  || v_mu1.DeltaR(v_mu2)<0.02) cout << "boosted Z topology"<< endl;
+	      if (v_e1.DeltaR(v_mu1)<0.05 ||  v_e1.DeltaR(v_mu2)<0.05 || v_e2.DeltaR(v_mu1)<0.05 || v_e2.DeltaR(v_mu2)<0.05) cout << "e-mu pair collimated"<<endl; 
+	      */
+
+	      //Main variables ptZ and m4l
+	      ptee   = v_ee.Pt();
+	      ptmumu = v_mm.Pt();
+
+	      mee   = v_ee.M();
+	      mmumu = v_mm.M();
+
+	      ptZ    = fabs(massZ -v_ee.M()) < fabs(massZ -v_mm.M()) ? v_ee.Pt() : v_mm.Pt();
+	      m4l    = (v_goodElectrons[0]+v_goodElectrons[1]+v_goodMuons[0]+v_goodMuons[1]).M();
+
+	      ptemuplus  = ( v_f_leptons.at(v_leptonPlus[0]).second  + v_f_leptons.at(v_leptonPlus[1]).second ).Pt();
+	      ptemuminus = ( v_f_leptons.at(v_leptonMinus[0]).second + v_f_leptons.at(v_leptonMinus[1]).second ).Pt();
+
+	      //cout << "indices ++ = "<< v_leptonPlus[0] <<v_leptonPlus[1] << " pTemu++ = " << ptemuplus << endl;
+	      //cout << "indices -- = "<< v_leptonMinus[0]<<v_leptonMinus[1] << " pTemu-- = " << ptemuminus << endl;
+
+	      // cout << "fabs(massZ -m_ee) ="<< fabs(massZ -v_ee.M()) << " fabs(massZ -m_mm) ="<< fabs(massZ -v_mm.M()) << endl;
+	      // cout <<" m4l =" <<m4l<< " ptZ =" << ptZ <<" ptee ="<<v_ee.Pt() << " ptmumu =" << v_mm.Pt() << endl; 
+           }
+	  
+	  //m4l selection
+	  if(m4l < 180) continue ;
+	  ++nsel[6];
+	  
+	  //No Zeta* cuts in VBS ZZ analysis
+          //if (fabs (zetaStar (v_f_jets.at (0).Eta (), v_f_jets.at (1).Eta (), v_f_leptons.at (0).second.Eta ())) > 0.75) continue ;
+          //if (fabs (zetaStar (v_f_jets.at (0).Eta (), v_f_jets.at (1).Eta (), v_f_leptons.at (1).second.Eta ())) > 0.75) continue ;
+	   
+        } //end apply cuts loop
 
       //PG fill variables
       //PG ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
       
       Ntuple.setvalue ("mjj", mjj) ;
-      Ntuple.setvalue ("mll", v_ll.M ()) ;
-      Ntuple.setvalue ("mee", v_ee.M ()) ;
+      Ntuple.setvalue ("mll", mll) ; 
+      Ntuple.setvalue ("mee", mee) ; 
+      Ntuple.setvalue ("mmumu", mmumu) ;
 
+      Ntuple.setvalue ("m4l", m4l) ;      
+      Ntuple.setvalue ("ptZ", ptZ);
+      Ntuple.setvalue ("ptee", ptee);
+      Ntuple.setvalue ("ptmumu", ptmumu);
+ 
       Ntuple.setvalue ("ptj1", ptj1) ;
       Ntuple.setvalue ("ptj2", ptj2) ;
       Ntuple.setvalue ("etaj1", etaj1) ;
@@ -531,9 +728,12 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max, bool applyCu
       Ntuple.setvalue ("deltaetajj", fabs (etaj1 - etaj2)) ;
       Ntuple.setvalue ("deltaphijj", deltaPhi (phij1, phij2)) ;
 
-// Ordering v_f_Leptons according to Pt.
+      // Ordering v_f_Leptons according to Pt.
 
+      //      cout << "--------------------------"<< endl;
+      // cout << v_f_leptons.at(0).second.Pt() << " " << v_f_leptons.at(1).second.Pt() << " " << v_f_leptons.at(2).second.Pt() <<" " <<  v_f_leptons.at(3).second.Pt() << endl ;
       sort (v_f_leptons.begin (), v_f_leptons.end (), largerPt ) ;     
+      //cout << v_f_leptons.at(0).second.Pt() << " " << v_f_leptons.at(1).second.Pt() << " " << v_f_leptons.at(2).second.Pt() <<" " <<  v_f_leptons.at(3).second.Pt() << endl ;
 
       float ptl = 0 ;
       float etal = 0 ;
@@ -549,17 +749,13 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max, bool applyCu
         }
 
       Ntuple.setvalue ("met", ME.Pt ()) ;
-      Ntuple.setvalue ("ptll", v_ll.Pt ()) ;
-      Ntuple.setvalue ("ptee", v_ee.Pt ()) ;
-    
-      // define transverse mass variables
-      float mtww = TMath::Sqrt(2*v_ll.Pt ()*ME.Pt ()*(1-TMath::Cos(deltaPhi (v_ll.Phi(), ME.Phi())))) ;
-      float mtl1 = TMath::Sqrt(2*v_f_leptons.at(0).second.Pt ()*ME.Pt ()*(1-TMath::Cos(deltaPhi (v_f_leptons.at(0).second.Phi(), ME.Phi())))) ;
-      float mtl2 = TMath::Sqrt(2*v_f_leptons.at(1).second.Pt ()*ME.Pt ()*(1-TMath::Cos(deltaPhi (v_f_leptons.at(1).second.Phi(), ME.Phi())))) ;
-
-      Ntuple.setvalue ("mtww", mtww) ;
-      Ntuple.setvalue ("mtl1", mtl1) ;
-      Ntuple.setvalue ("mtl2", mtl2) ;
+      Ntuple.setvalue ("ptll", ptll ) ;
+      Ntuple.setvalue ("ptemuplus" , ptemuplus  ) ;
+      Ntuple.setvalue ("ptemuminus", ptemuminus ) ;
+     
+      for(int wgt_idx = 1; wgt_idx <= 101; ++wgt_idx){
+         Ntuple.setvalue(Form("rwgt_%d", wgt_idx), reader.hepeup.namedweights[wgt_idx-1].weights[0]);
+      }
 
       Ntuple.fill (eventWeight) ;
 
@@ -568,7 +764,32 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max, bool applyCu
           cout << max << " events reached, exiting" << endl ;
           break ;
         }
+
     } //PG loop over input events
+
+  //Print cutflow summary
+  double fracAbs[10];
+  double fracRel[10];
+  std::string cuts[10];
+ 
+  cuts[0] = "nJet and nLeptons";
+  cuts[1] = "Jet kinematics";
+  cuts[2] = "detajj and mjj sel";
+  cuts[3] = "Lepton kinematics";
+  cuts[4] = "Lepton-jet deltaR(l;j)";
+  cuts[5] = "mZ selection";
+  cuts[6] = "mZZ selection";
+  
+  printf ("%-23s  %10s  %10s  %10s \n", std::string("Cut flow").c_str(), std::string("# events").c_str(), std::string("absolute").c_str(), std::string("relative").c_str() ); 
+  for ( int i = 0; i < 7; ++i ) 
+    {
+      fracAbs[i] = double(nsel[i])/nsel[0];
+      if ( i>0 )
+	fracRel[i] = double(nsel[i])/nsel[i-1];
+      else
+	fracRel[i] = fracAbs[i];
+      printf ("%-23s  %10d  %10.3f  %10.3f \n", cuts[i].c_str(), nsel[i], fracAbs[i], fracRel[i] ); 
+    }
 
   return events ;
 }

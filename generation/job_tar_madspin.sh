@@ -24,8 +24,6 @@ tar -axvf $3.tar.gz
 cd $3
 
 source /cvmfs/sft.cern.ch/lcg/views/LCG_96/x86_64-centos7-gcc8-opt/setup.sh 
-# export LHAPDF_DATA_PATH=/cvmfs/sft.cern.ch/lcg/views/LCG_96/x86_64-centos7-gcc8-opt/share/LHAPDF/
-# export LHAPDF_DATA_PATH=/cvmfs/sft.cern.ch/lcg/external/lhapdfsets/current/:$LHAPDF_DATA_PATH
 
 export LHAPDF_DATA_PATH=/cvmfs/cms.cern.ch/slc7_amd64_gcc700/external/lhapdf/6.2.3-a2a84f5990d32c24c7240b02577bf55e/share/LHAPDF
 export LHAPDFCONFIG=/cvmfs/cms.cern.ch/slc7_amd64_gcc700/external/lhapdf/6.2.3-a2a84f5990d32c24c7240b02577bf55e/bin/lhapdf-config
@@ -71,7 +69,7 @@ echo "event generation done" >> $6/$1/$4_running
 
 echo "copying events to "$6"/"$1 >> $6/$1/$4_running
 
-cp -r Events/$4 $6/$1
+cp -r Events/"$4"_decayed_1 $6/$1
 mv $6/$1/$4_running $6/$1/$4.log
 
 

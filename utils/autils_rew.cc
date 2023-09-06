@@ -551,7 +551,7 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max, bool applyCu
       Ntuple.setvalue ("met", ME.Pt ()) ;
       Ntuple.setvalue ("ptll", v_ll.Pt ()) ;
       Ntuple.setvalue ("ptee", v_ee.Pt ()) ;
-    
+
       // define transverse mass variables
       float mtww = TMath::Sqrt(2*v_ll.Pt ()*ME.Pt ()*(1-TMath::Cos(deltaPhi (v_ll.Phi(), ME.Phi())))) ;
       float mtl1 = TMath::Sqrt(2*v_f_leptons.at(0).second.Pt ()*ME.Pt ()*(1-TMath::Cos(deltaPhi (v_f_leptons.at(0).second.Phi(), ME.Phi())))) ;
@@ -560,6 +560,20 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max, bool applyCu
       Ntuple.setvalue ("mtww", mtww) ;
       Ntuple.setvalue ("mtl1", mtl1) ;
       Ntuple.setvalue ("mtl2", mtl2) ;
+ 
+      //Ntuple.setvalue("rwgt_1", reader.hepeup.namedweights[0].weights[0]);     
+      //Ntuple.setvalue("rwgt_2", reader.hepeup.namedweights[1].weights[0]);
+      //Ntuple.setvalue("rwgt_3", reader.hepeup.namedweights[2].weights[0]);
+
+       for(int wgt_idx = 1; wgt_idx <= 136; ++wgt_idx){
+          // skipping initial weights
+          Ntuple.setvalue(Form("rwgt_%d", wgt_idx), reader.hepeup.namedweights[147 + wgt_idx-1].weights[0]);
+       } 
+      // Ntuple.setvalue("rwgt_1", reader.hepeup.namedweights[0].weights[0]);
+      // Ntuple.setvalue("rwgt_2", reader.hepeup.namedweights[1].weights[0]);
+      // Ntuple.setvalue("rwgt_3", reader.hepeup.namedweights[2].weights[0]);
+      // Ntuple.setvalue("rwgt_4", reader.hepeup.namedweights[3].weights[0]);
+      // Ntuple.setvalue("rwgt_5", reader.hepeup.namedweights[4].weights[0]);
 
       Ntuple.fill (eventWeight) ;
 

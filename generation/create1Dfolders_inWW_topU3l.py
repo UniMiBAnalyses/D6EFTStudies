@@ -209,7 +209,7 @@ if __name__ == "__main__":
   # generate the linear component folders
   for param in params:
     if param[0] not in switchOn : continue   
-    f_launchfile = open ('launch_OSWW_' + param[1] + '_LI.txt', 'w')
+    f_launchfile = open ('launch_inWW_' + param[1] + '_LI.txt', 'w')
     f_launchfile.write ('import model SMEFTsim_topU3l_MwScheme_UFO_b_massless-' + param[1] + '_massless\n')
     f_launchfile.write ("define p = g u c d s u~ c~ d~ s~ b b~\n")
     f_launchfile.write ("define j = p\n")
@@ -217,14 +217,14 @@ if __name__ == "__main__":
     f_launchfile.write ("define l- = e- mu-\n")
     f_launchfile.write ("define vl = ve vm\n")
     f_launchfile.write ("define vl~ = ve~ vm~\n")
-    f_launchfile.write ('generate p p > e+ mu- ve vm~ j j QCD=0 SMHLOOP=0 NP=1 NP^2==1\n')
-    f_launchfile.write ('output OSWW_' + param[1] + '_LI')
+    f_launchfile.write ('generate p p > e+ mu- ve vm~ QCD=0 SMHLOOP=0 NP=1 NP^2==1\n')
+    f_launchfile.write ('output inWW_' + param[1] + '_LI')
     f_launchfile.close ()
 
   # generate the quadratic component folders
   for param in params:
     if param[0] not in switchOn : continue   
-    f_launchfile = open ('launch_OSWW_' + param[1] + '_QU.txt', 'w')
+    f_launchfile = open ('launch_inWW_' + param[1] + '_QU.txt', 'w')
     f_launchfile.write ('import model SMEFTsim_topU3l_MwScheme_UFO_b_massless-' + param[1] + '_massless\n')
     f_launchfile.write ("define p = g u c d s u~ c~ d~ s~ b b~\n")
     f_launchfile.write ("define j = p\n")
@@ -232,13 +232,13 @@ if __name__ == "__main__":
     f_launchfile.write ("define l- = e- mu-\n")
     f_launchfile.write ("define vl = ve vm\n")
     f_launchfile.write ("define vl~ = ve~ vm~\n")
-    f_launchfile.write ('generate p p > e+ mu- ve vm~ j j QCD=0 SMHLOOP=0 NP=1 NP^2==2\n')
-    f_launchfile.write ('output OSWW_' + param[1] + '_QU')
+    f_launchfile.write ('generate p p > e+ mu- ve vm~ QCD=0 SMHLOOP=0 NP=1 NP^2==2\n')
+    f_launchfile.write ('output inWW_' + param[1] + '_QU')
     f_launchfile.close ()
 
   # generate the SM component
   if (len (sys.argv) > 1):
-    f_launchfile = open ('launch_OSWW_SM.txt', 'w')
+    f_launchfile = open ('launch_inWW_SM.txt', 'w')
     f_launchfile.write ('import model SMEFTsim_topU3l_MwScheme_UFO_b_massless\n')
     f_launchfile.write ("define p = g u c d s u~ c~ d~ s~ b b~\n")
     f_launchfile.write ("define j = p\n")
@@ -246,7 +246,7 @@ if __name__ == "__main__":
     f_launchfile.write ("define l- = e- mu-\n")
     f_launchfile.write ("define vl = ve vm\n")
     f_launchfile.write ("define vl~ = ve~ vm~\n")
-    f_launchfile.write ('generate p p > e+ mu- ve vm~ j j QCD=0 SMHLOOP=0\n')
-    f_launchfile.write ('output OSWW_SM')    
+    f_launchfile.write ('generate p p > e+ mu- ve vm~ QCD=0 SMHLOOP=0\n')
+    f_launchfile.write ('output inWW_SM')    
     f_launchfile.close ()
 

@@ -15,11 +15,12 @@ import subprocess
 import argparse 
 from math import sqrt 
 import glob
-
+import numpy as np
 
 usual_errors = []
 usual_errors.append ('stty: standard input: Inappropriate ioctl for device')
-
+usual_errors.append ('impossibile creare la directory "tmp"')
+usual_errors.append ('WARNING: In non-interactive mode release checks e.g. deprecated releases, production architectures are disabled.')
 
 
 def readCondorReport (path):
@@ -37,7 +38,7 @@ def readCondorReport (path):
         linecount = 5
         for line in f.readlines () :
             linecount += 1
-            if line.endswith('Job terminated.\n') :
+            if 'Job terminated' in line :
                 linecount = 0
                 jobID =  line.split ()[1][1:-1].split ('.')[1]
             if linecount == 1 :
@@ -79,8 +80,8 @@ def errFileHasIssues (filename):
                     break
             if known == 1: continue
             counter = counter + 1
-    if counter > 0: return [True, filename.split('.')[-2], filename]
-    return [False, filename.split('.')[-2], filename]
+    if counter > 0: return [True,( filename.split('_')[-1]).split('.')[-2], filename] #modified to match the naming convention of gridpack gen files
+    return [False, (filename.split('_')[-1]).split('.')[-2], filename]
   
 
 # ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
@@ -98,7 +99,8 @@ def getFilesList (basefolder, pattern, discard):
             fullname = os.path.join (root, filename)
             count = 0
             for elem in discard:
-                if ('.'+elem+'.' in fullname) or ('_'+elem+'/' in fullname): 
+                if ('.'+elem+'.' in fullname) or ('_'+elem+'/' in fullname) or ('_'+elem+'.' in fullname):
+                 #added or ('_'+elem+'.' in fullname) to match naming convention of gridpack gen files
                     count = 1
                     break
             if count > 0 : continue
@@ -119,6 +121,7 @@ def countEvents (filename):
 
 
 def checkClosure (filename):
+    print(filename)
     objFile = open (filename, 'r')
     fileContent = objFile.read ().split ()
     return (fileContent[-1] == "</LesHouchesEvents>")
@@ -132,36 +135,12 @@ def findXS (filename):
     fileContent = objFile.read ().split ()
     return fileContent[-4]
 
-
-# ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
-
-
-def findXSwE (filename): 
-    print(filename)
-    XSline = ''
-    Nline = ''
-    with open(filename, 'r') as file:
-        counter = 0
-        for line in file:
-            if counter > 0:
-                Nline = line
-                break
-            if 'Cross-section' in line:
-                XSline = line
-                counter = counter + 1
-    crossSection = float (XSline.split ()[2])
-    crossSectionError = float (XSline.split ()[4])
-    numberOfEvents = int (Nline.split ()[4])
-    return (crossSection, crossSectionError, numberOfEvents)
-
-
-# ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
 # ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
 
 def findXS4SM (filename):
     objFile = open (filename, 'r')
     content = objFile.readlines()
-
+    
     xs = []
     for idx, line in enumerate(content):
        if line.startswith("<MGGenerationInfo>"):
@@ -170,8 +149,8 @@ def findXS4SM (filename):
           infos = [i for i in content[idx+2].split(" ") if i != ""]
           xsec, xsec_err = float(infos[0]), float(infos[1])
           break
-
-    print(nevents, xsec, xsec_err)
+    
+    print(nevents, xsec, xsec_err) 
     return (xsec, xsec_err, nevents)
     """
     for idx, line in enumerate(content):
@@ -186,8 +165,47 @@ def findXS4SM (filename):
     print(np.unique(xs),mean_xs, np.std(xs) )
     return mean_xs
     """
+# ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
 
-# ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+def findXSwE (filename):
+
+    print("checking ", filename)
+    XSline = ''
+    Nline = ''
+    XS_ERROR_LINE = ''
+    with open(filename, 'r') as file:
+        task = ''
+        counter = 0
+        for line in file:
+            #print(line)
+            if task=='get n':
+                counter+=1
+                Nline=line 
+                task=''
+            if 'run finished, produced number of events:' in line:
+                task='get n'
+            if 'Original cross-section:' in line:
+                XSline = line
+                counter+=1
+            if 'PDF variation:' in line:
+                XS_ERROR_LINE=line
+                counter+=1
+            if counter == 3:
+                break
+    crossSection = float (XSline.split ("(cross-section from sum of weights: ")[-1].split(")")[0])
+    try:
+        crossSectionError = crossSection*float (XS_ERROR_LINE.split ()[3][1:-1])/100.
+    except:
+        crossSectionError = crossSection*0.01 # if there is no # PDF variation, add dummy pdf uncertainty 0.01
+    numberOfEvents = int (Nline.split ()[0])
+    #print("check ", filename)
+    print(crossSection, crossSectionError, numberOfEvents)
+    return (crossSection, crossSectionError, numberOfEvents)
+
+
+# ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
+
 
 # this function runs on a list of outputs
 # of the findXSwE function,
@@ -211,6 +229,14 @@ def calcTotXS (singleGenInfoList):
 
 def makeNtupleProdCfg (basefolder,outfolder, LHEfiles, XS):
 
+    #jetsVars = ['mjj', 'ptj1', 'ptj2', 'etaj1', 'etaj2', 'phij1', 'phij2', 'deltaetajj', 'deltaphijj']
+    #jjs = ['V', 'V2', 'noV', 'mjjmax', 'mjjnomax']
+    #varList = [jetsVar + '_' + jj for jetsVar in jetsVars for jj in jjs]
+    #varList = [v.replace('mjj_mjj', 'mjj_') for v in varList]
+    #varList = varList + jetsVars + ['mll', 'ptl1', 'ptl2', 'etal1', 'etal2', 'ptll']
+    rwgtList = ['rwgt_1', 'rwgt_2', 'rwgt_3']
+    varList = ['mjj', 'mll', 'ptj1', 'ptj2', 'etaj1', 'etaj2', 'phij1', 'phij2', 'ptl1', 'ptl2', 'etal1', 'etal2', 'met', 'ptll', 'deltaetajj', 'deltaphijj']
+    # varList = ['mll', 'ptl1', 'ptl2', 'etal1', 'etal2', 'met', 'ptll']
     processName = basefolder.split ('/')[-1]
     processName = processName.replace ('_results', '')
 
@@ -219,7 +245,7 @@ def makeNtupleProdCfg (basefolder,outfolder, LHEfiles, XS):
 
     outf.write ('[general]\n')
     outf.write ('samples = ' + processName + '\n')
-    outf.write ('variables = mjj, mll, ptj1, ptj2, etaj1, etaj2, phij1, phij2, ptl1, ptl2, etal1, etal2, met, ptll, deltaetajj, deltaphijj\n')
+    outf.write ('variables = {0}\n'.format(', '.join(varList+rwgtList)))
     outf.write ('outputFile = '+ outfolder +'/ntuple_' + processName + '.root\n')
     outf.write ('applycuts = false\n')
     outf.write ('\n')
@@ -301,38 +327,42 @@ if __name__ == '__main__':
 
     # FIXME use the numbers to discard failed jobs
     # FIXME make a histogram of the time duration of jobs
-    readCondorReport (basefolder)
+    # readCondorReport (basefolder)
 
     # collect the list of err files
     # ---- ---- ---- ---- ---- ---- ---- ---- ---- 
 
-    print ('reading folder ' + basefolder + '\n')
+    discard=[] #check if something went wrong in the generation and discard those files. Prevent findXSwE to raise 'not found' err.
+    #print ('reading folder ' + basefolder + '\n')
 
     print ('checking error reports...')
-    #files_err = getFilesList (basefolder, '*.err', [])
-    #issues = [errFileHasIssues (file) for file in files_err[0]]
-    #discard = [ID for prob, ID, filename in issues if prob == True]
-    discard = []
-    print ('checking not finished runs...')
-    files_run = getFilesList (basefolder, '*running', [])
-    discard = discard + [name.split ('_')[3] for name in files_run[1]]
+    # files_err = getFilesList (basefolder, '*.err', [])
+    # issues = [errFileHasIssues (file) for file in files_err[0]]
+    # discard = [ID for prob, ID, filename in issues if prob == True]
+
+    #print ('checking not finished runs...')
+    #files_run = getFilesList (basefolder, '*running', [])
+    #discard = discard + [name.split ('_')[3] for name in files_run[1]]
 
     for elem in discard: print ('ignoring job ' + elem)
 
     # unzip LHE files
-    # ---- ---- ---- ---- ---- ---- ---- ---- ---- 
+    ## ---- ---- ---- ---- ---- ---- ---- ---- ---- 
 
-    print ('unzipping...')
-    # https://linuxhandbook.com/execute-shell-command-python/
-    os.system ('for fil in  `find  ' + basefolder + ' -name \"*gz\"` ; do gunzip $fil ; done')
-    
-    # check lhe files integrity
-    # ---- ---- ---- ---- ---- ---- ---- ---- ---- 
-
+    #print ('unzipping...')
+    ## https://linuxhandbook.com/execute-shell-command-python/
+    #os.system ('for fil in  `find  ' + basefolder + ' -name \"*gz\"` ; do gunzip $fil ; done')
+    #
+    ## check lhe files integrity
+    ## ---- ---- ---- ---- ---- ---- ---- ---- ---- 
     print ('checking LHE files integrity...')
     files_lhe = getFilesList (basefolder, '*.lhe', discard)
-    closure = [checkClosure (file) for file in files_lhe[0]]
     closure = []
+    #for i in range(len(files_lhe[0])):
+    #    if i % 100  == 0: print("{}/{}".format(i, len(files_lhe[0])))
+    #    closure.append(checkClosure(files_lhe[0][i]))
+    #closure = [checkClosure (file) for file in files_lhe[0]]
+
     allOK = 0
     for i in range (len (closure)):
         if (closure[i] == False):
@@ -347,7 +377,6 @@ if __name__ == '__main__':
         print ('\nLIST OF LHE FILES:')
         print (','.join (files_lhe[0]))
         print ('\n')
-
     # get number of events from LHE files
     # ---- ---- ---- ---- ---- ---- ---- ---- ---- 
     # this returns a list with the same elements found in findWSwE, but with different ordering
@@ -355,11 +384,13 @@ if __name__ == '__main__':
 
     # add final report to the results folder
     # ---- ---- ---- ---- ---- ---- ---- ---- ---- 
-    
-    files_out = getFilesList (basefolder, '*.out', discard)
-    XSs = [findXS4SM (file) for file in files_lhe[0]]
-    print(files_out, files_lhe)
 
+    files_out = getFilesList (basefolder, '*.out', discard)
+    if DEBUG:
+        print(files_out)
+    #XSs = [findXSwE (file) for file in files_out[0]]
+    XSs = [findXS4SM (file) for file in files_lhe[0]]
+    print(XSs)
     totXS = calcTotXS (XSs)
     print ('average XS: ' + str (totXS[0]) + ' +- ' + str (totXS[1]) + ' pb')
     print ('average XS: ' + str (1000. * totXS[0]) + ' +- ' + str (1000. * totXS[1]) + ' fb')

@@ -24,12 +24,8 @@ tar -axvf $3.tar.gz
 cd $3
 
 source /cvmfs/sft.cern.ch/lcg/views/LCG_96/x86_64-centos7-gcc8-opt/setup.sh 
-# export LHAPDF_DATA_PATH=/cvmfs/sft.cern.ch/lcg/views/LCG_96/x86_64-centos7-gcc8-opt/share/LHAPDF/
-# export LHAPDF_DATA_PATH=/cvmfs/sft.cern.ch/lcg/external/lhapdfsets/current/:$LHAPDF_DATA_PATH
-
-export LHAPDF_DATA_PATH=/cvmfs/cms.cern.ch/slc7_amd64_gcc700/external/lhapdf/6.2.3-a2a84f5990d32c24c7240b02577bf55e/share/LHAPDF
-export LHAPDFCONFIG=/cvmfs/cms.cern.ch/slc7_amd64_gcc700/external/lhapdf/6.2.3-a2a84f5990d32c24c7240b02577bf55e/bin/lhapdf-config
-
+export LHAPDF_DATA_PATH=/cvmfs/sft.cern.ch/lcg/views/LCG_96/x86_64-centos7-gcc8-opt/share/LHAPDF/
+export LHAPDF_DATA_PATH=/cvmfs/sft.cern.ch/lcg/external/lhapdfsets/current/:$LHAPDF_DATA_PATH
 
 events_number=10000
 # check existence of the variable
@@ -44,7 +40,8 @@ pwd >> $6/$1/$4_running
 # run the event production
 # ---.---.---.---.---.---.---.---.---
 
-echo "submitting: printf \"0\\n set iseed $RANDOM\\n set nevents $events_number\\n done\\n\" |./bin/generate_events "$4 >> $6/$1/$4_running
+#echo "submitting: printf \"0\\n set iseed $RANDOM\\n set nevents $events_number\\n done\\n\" |./bin/generate_events "$4 >> $6/$1/$4_running
+echo "submitting: printf \"0\\n set iseed $RANDOM\\n set nevents $events_number\\n set ptj 20 \\n set mmjj 150 \\n done\\n\" |./bin/generate_events "$4 >> $6/$1/$4_running
 printf "0\n set iseed $RANDOM\n set nevents $events_number\n done\n" | ./bin/generate_events $4
 echo "event generation done" >> $6/$1/$4_running
 

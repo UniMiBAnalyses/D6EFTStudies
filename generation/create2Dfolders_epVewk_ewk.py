@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 
 # prepare command files to be passed to Madgraph to produce the folders
 # for the event generation, for linear and quadratic BSM components
@@ -7,20 +7,18 @@
 # since I am not sure that the right environment would be setup.
 # to submit the folder generation:  for fil in `ls | grep launch_` ; do ./bin/mg5_aMC $fil ;done
 
+
 import os
 import sys
 
-
 if __name__ == "__main__":
 
-
-  # switchOn = ['21','24','25','28','32','45','46','48','49','53','54','55','56','57','58']
-  # switchOn = ['57', '58', '55', '56', '24', '28','53' ]
-  # switchOn = ['105']
+  #switchOn = ['21','24','25','28','32','45','46','48','49','53','54','55','56','57','58']
+  #switchOn = ['21', '32', '46', '48', '49', '54']
+  
   #switchOn = ["70", "32", "2","4","7","8","9","17","26","27","28","29","30","31","35", "36", "37", "42"]
-  switchOn = [2,4,5,7,8,9,26,27,28,29,30,31,32,33,36,37,38,39,40,41,42,43,44,45,70,71,72,73,103,104,105,107,19,17,139,137,35,151]
-  switchOn = [str(i) for i in switchOn]
-
+  
+  switchOn = ["105", "4"]
   params = [
     ("1", "cG",         "SMEFT", "1"),
     ("2", "cW",         "SMEFT","2"),
@@ -206,47 +204,28 @@ if __name__ == "__main__":
     ("181", "cleQt1Im", "SMEFTcpv", "52"), 
     ("182", "cleQt3Im", "SMEFTcpv", "53")
   ]
-  # generate the linear component folders
-  for param in params:
-    if param[0] not in switchOn : continue   
-    f_launchfile = open ('launch_OSWW_' + param[1] + '_LI.txt', 'w')
-    f_launchfile.write ('import model SMEFTsim_topU3l_MwScheme_UFO_b_massless-' + param[1] + '_massless\n')
-    f_launchfile.write ("define p = g u c d s u~ c~ d~ s~ b b~\n")
-    f_launchfile.write ("define j = p\n")
-    f_launchfile.write ("define l+ = e+ mu+\n")
-    f_launchfile.write ("define l- = e- mu-\n")
-    f_launchfile.write ("define vl = ve vm\n")
-    f_launchfile.write ("define vl~ = ve~ vm~\n")
-    f_launchfile.write ('generate p p > e+ mu- ve vm~ j j QCD=0 SMHLOOP=0 NP=1 NP^2==1\n')
-    f_launchfile.write ('output OSWW_' + param[1] + '_LI')
-    f_launchfile.close ()
 
-  # generate the quadratic component folders
-  for param in params:
-    if param[0] not in switchOn : continue   
-    f_launchfile = open ('launch_OSWW_' + param[1] + '_QU.txt', 'w')
-    f_launchfile.write ('import model SMEFTsim_topU3l_MwScheme_UFO_b_massless-' + param[1] + '_massless\n')
-    f_launchfile.write ("define p = g u c d s u~ c~ d~ s~ b b~\n")
-    f_launchfile.write ("define j = p\n")
-    f_launchfile.write ("define l+ = e+ mu+\n")
-    f_launchfile.write ("define l- = e- mu-\n")
-    f_launchfile.write ("define vl = ve vm\n")
-    f_launchfile.write ("define vl~ = ve~ vm~\n")
-    f_launchfile.write ('generate p p > e+ mu- ve vm~ j j QCD=0 SMHLOOP=0 NP=1 NP^2==2\n')
-    f_launchfile.write ('output OSWW_' + param[1] + '_QU')
-    f_launchfile.close ()
+  selected = [x for x in params if x[0] in switchOn]
 
-  # generate the SM component
-  if (len (sys.argv) > 1):
-    f_launchfile = open ('launch_OSWW_SM.txt', 'w')
-    f_launchfile.write ('import model SMEFTsim_topU3l_MwScheme_UFO_b_massless\n')
-    f_launchfile.write ("define p = g u c d s u~ c~ d~ s~ b b~\n")
-    f_launchfile.write ("define j = p\n")
-    f_launchfile.write ("define l+ = e+ mu+\n")
-    f_launchfile.write ("define l- = e- mu-\n")
-    f_launchfile.write ("define vl = ve vm\n")
-    f_launchfile.write ("define vl~ = ve~ vm~\n")
-    f_launchfile.write ('generate p p > e+ mu- ve vm~ j j QCD=0 SMHLOOP=0\n')
-    f_launchfile.write ('output OSWW_SM')    
-    f_launchfile.close ()
+# sort the list alphabetically according to the parameter name
+  from operator import itemgetter
+  sortedsel = sorted (selected, key = itemgetter (1))
+
+  for i in range (len (sortedsel)):
+    for j in range (i+1, len (sortedsel)):
+      tag = sortedsel[i][1] + '_' + sortedsel[j][1]
+      
+      f_launchfile = open ('launch_epVewk_' + tag + '_IN.txt', 'w')
+      f_launchfile.write ('import model SMEFTsim_topU3l_MwScheme_UFO_b_massless-' + tag + '_massless\n')
+      f_launchfile.write ("define p = g u c d s u~ c~ d~ s~ b b~\n")
+      f_launchfile.write ("define j = p\n")
+      f_launchfile.write ("define l+ = e+\n")
+      f_launchfile.write ("define l- = e-\n")
+      f_launchfile.write ("define vl = ve\n")
+      f_launchfile.write ("define vl~ = ve~\n")
+      f_launchfile.write ('generate p p > l+ vl j j j j QCD=0 SMHLOOP=0 NP==1 NP' + sortedsel[i][1] + '^2==1   NP' + sortedsel[j][1] + '^2==1\n')
+      f_launchfile.write ('output epVewk_' + tag + '_IN')
+
+  sys.exit (0)
+
 

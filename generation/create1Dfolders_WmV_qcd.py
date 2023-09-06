@@ -16,10 +16,8 @@ if __name__ == "__main__":
 
   # switchOn = ['21','24','25','28','32','45','46','48','49','53','54','55','56','57','58']
   # switchOn = ['57', '58', '55', '56', '24', '28','53' ]
-  # switchOn = ['105']
-  #switchOn = ["70", "32", "2","4","7","8","9","17","26","27","28","29","30","31","35", "36", "37", "42"]
-  switchOn = [2,4,5,7,8,9,26,27,28,29,30,31,32,33,36,37,38,39,40,41,42,43,44,45,70,71,72,73,103,104,105,107,19,17,139,137,35,151]
-  switchOn = [str(i) for i in switchOn]
+  # switchOn = ['21', '24', '25', '28', '32']
+  switchOn = ["1","2","4","6","7","8","9","17","26","27","28","29","30","31","35"]
 
   params = [
     ("1", "cG",         "SMEFT", "1"),
@@ -206,47 +204,18 @@ if __name__ == "__main__":
     ("181", "cleQt1Im", "SMEFTcpv", "52"), 
     ("182", "cleQt3Im", "SMEFTcpv", "53")
   ]
-  # generate the linear component folders
-  for param in params:
-    if param[0] not in switchOn : continue   
-    f_launchfile = open ('launch_OSWW_' + param[1] + '_LI.txt', 'w')
-    f_launchfile.write ('import model SMEFTsim_topU3l_MwScheme_UFO_b_massless-' + param[1] + '_massless\n')
-    f_launchfile.write ("define p = g u c d s u~ c~ d~ s~ b b~\n")
-    f_launchfile.write ("define j = p\n")
-    f_launchfile.write ("define l+ = e+ mu+\n")
-    f_launchfile.write ("define l- = e- mu-\n")
-    f_launchfile.write ("define vl = ve vm\n")
-    f_launchfile.write ("define vl~ = ve~ vm~\n")
-    f_launchfile.write ('generate p p > e+ mu- ve vm~ j j QCD=0 SMHLOOP=0 NP=1 NP^2==1\n')
-    f_launchfile.write ('output OSWW_' + param[1] + '_LI')
-    f_launchfile.close ()
-
-  # generate the quadratic component folders
-  for param in params:
-    if param[0] not in switchOn : continue   
-    f_launchfile = open ('launch_OSWW_' + param[1] + '_QU.txt', 'w')
-    f_launchfile.write ('import model SMEFTsim_topU3l_MwScheme_UFO_b_massless-' + param[1] + '_massless\n')
-    f_launchfile.write ("define p = g u c d s u~ c~ d~ s~ b b~\n")
-    f_launchfile.write ("define j = p\n")
-    f_launchfile.write ("define l+ = e+ mu+\n")
-    f_launchfile.write ("define l- = e- mu-\n")
-    f_launchfile.write ("define vl = ve vm\n")
-    f_launchfile.write ("define vl~ = ve~ vm~\n")
-    f_launchfile.write ('generate p p > e+ mu- ve vm~ j j QCD=0 SMHLOOP=0 NP=1 NP^2==2\n')
-    f_launchfile.write ('output OSWW_' + param[1] + '_QU')
-    f_launchfile.close ()
 
   # generate the SM component
   if (len (sys.argv) > 1):
-    f_launchfile = open ('launch_OSWW_SM.txt', 'w')
+    f_launchfile = open ('launch_emVqcd_SM.txt', 'w')
     f_launchfile.write ('import model SMEFTsim_topU3l_MwScheme_UFO_b_massless\n')
     f_launchfile.write ("define p = g u c d s u~ c~ d~ s~ b b~\n")
     f_launchfile.write ("define j = p\n")
-    f_launchfile.write ("define l+ = e+ mu+\n")
-    f_launchfile.write ("define l- = e- mu-\n")
-    f_launchfile.write ("define vl = ve vm\n")
-    f_launchfile.write ("define vl~ = ve~ vm~\n")
-    f_launchfile.write ('generate p p > e+ mu- ve vm~ j j QCD=0 SMHLOOP=0\n')
-    f_launchfile.write ('output OSWW_SM')    
+    f_launchfile.write ("define l+ = e+\n")
+    f_launchfile.write ("define l- = e-\n")
+    f_launchfile.write ("define vl = ve\n")
+    f_launchfile.write ("define vl~ = ve~\n")
+    f_launchfile.write ('generate p p > l- vl~ j j j j QCD==2 SMHLOOP=0\n')
+    f_launchfile.write ('output emVqcd_SM')    
     f_launchfile.close ()
 

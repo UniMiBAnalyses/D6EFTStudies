@@ -1,8 +1,13 @@
-
 #include "autils.h"
 #include "dcutils.h"
 
+#include "Math/Vector4Dfwd.h"
+#include "Math/GenVector/LorentzVector.h"
+#include "Math/GenVector/PtEtaPhiM4D.h"
+#include "Math/GenVector/Boost.h"
+#include "Math/GenVector/VectorUtil.h"
 using namespace std ;
+using namespace ROOT::Math;
 
 
 histos::histos (TString name, double XS, double lumi) : 
@@ -334,6 +339,169 @@ float deltaPhi (float phi1, float phi2)
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 
+vector<pair<int, TLorentzVector>>
+findLeptonW (vector<pair<int, TLorentzVector>> v_f_leptons)
+{
+  vector<pair<int, TLorentzVector>> L ;
+  double mZ = 91.1876 ;
+
+  int f0 = v_f_leptons.at(0).first ;
+  int f1 = v_f_leptons.at(1).first ;
+  int f2 = v_f_leptons.at(2).first ;
+  if (abs(f0) == abs(f1) && abs(f0) != abs(f2))
+    {
+      L.push_back(v_f_leptons.at(2)) ;
+      L.push_back(v_f_leptons.at(0)) ;
+      L.push_back(v_f_leptons.at(1)) ;
+    }
+  else if (abs(f0) == abs(f2) && abs(f0) != abs(f1))
+    {
+      L.push_back(v_f_leptons.at(1)) ;
+      L.push_back(v_f_leptons.at(0)) ;
+      L.push_back(v_f_leptons.at(2)) ;
+    }
+  else if (abs(f1) == abs(f2) && abs(f1) != abs(f0))
+    {
+      L.push_back(v_f_leptons.at(0)) ;
+      L.push_back(v_f_leptons.at(1)) ;
+      L.push_back(v_f_leptons.at(2)) ;
+    }
+  else if (abs(f0) == abs(f1) && abs(f0) == abs(f2))
+    {
+      pair <int, TLorentzVector> os ;
+      vector<pair<int, TLorentzVector>> ss ;
+      for (int i=0; i<3; i++) 
+        {
+          if (abs(v_f_leptons.at(i).first) != (f0+f1+f2))
+            {
+              os = v_f_leptons.at(i) ;
+            }
+          else
+            {
+              ss.push_back(v_f_leptons.at(i)) ;
+            }
+        }
+      TLorentzVector v_0 = os.second + ss.at(0).second ;
+      TLorentzVector v_1 = os.second + ss.at(1).second ;
+      if (abs(v_0.M()-mZ) < abs(v_1.M()-mZ))
+        {
+          L.push_back(ss.at(1)) ;
+          if (ss.at(0).second.Pt() > os.second.Pt())
+            {
+              L.push_back(ss.at(0)) ;
+              L.push_back(os) ;
+            }
+          else
+            {
+              L.push_back(os) ;
+              L.push_back(ss.at(0)) ;
+            }
+        }
+      else 
+        {
+          L.push_back(ss.at(0)) ;
+          if (ss.at(1).second.Pt() > os.second.Pt())
+            {
+              L.push_back(ss.at(1)) ;
+              L.push_back(os) ;
+            }
+          else
+            {
+              L.push_back(os) ;
+              L.push_back(ss.at(1)) ;
+            }
+        }
+    }
+  return L;
+}
+
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
+double
+findPzneutrino (TLorentzVector lep, TLorentzVector nu)
+{
+  double Pz_nu ;
+  double mW = 80.385 ;
+  double Pl = sqrt(pow(lep.Px(),2) + pow(lep.Py(),2) + pow(lep.Pz(),2)) ;
+  double a = sqrt(pow(nu.Px(),2) + pow(nu.Py(),2)) ;
+  double b = lep.Pz() / Pl ;
+  double c = (pow(mW,2) + 2.*(nu.Px()*lep.Px() + nu.Py()*lep.Py())) / (2.*Pl) ;
+  double Delta = pow(c,2) + pow(a,2) * (pow(b,2) - 1.) ;
+  if (Delta <= 0)
+    {
+      Pz_nu = -1. * b * c / (pow(b,2) - 1.) ;
+    }
+  else if (Delta > 0)
+    {
+      double Pz_nu_1 = (-1.*b*c + sqrt(Delta)) / (pow(b,2) - 1.) ;
+      double Pz_nu_2 = (-1.*b*c - sqrt(Delta)) / (pow(b,2) - 1.) ;
+      if (abs(Pz_nu_1 - lep.Pz()) < abs(Pz_nu_2 - lep.Pz()))
+        {
+          Pz_nu = Pz_nu_1 ;
+        }
+      else if (abs(Pz_nu_1 - lep.Pz()) > abs(Pz_nu_2 - lep.Pz()))
+        {
+          Pz_nu = Pz_nu_2 ;
+        }
+      if (Pz_nu > 300)
+        {
+          Pz_nu = min(abs(Pz_nu_1), abs(Pz_nu_2)) ;
+        }
+      // cout << "Pz nu = " << Pz_nu << "    1 = " << Pz_nu_1 << "   2 = " << Pz_nu_2 << "       true = " << nu.Pz() << endl ;
+    }
+  return Pz_nu ; 
+}
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
+TLorentzVector
+RecoNeutrino (TLorentzVector v_l_W, TLorentzVector v_f_nu)
+{
+  double pz_nu_W = findPzneutrino (v_l_W, v_f_nu) ;
+  double E_nu = sqrt(pow(v_f_nu.Px(),2) + pow(v_f_nu.Py(),2) + pow(pz_nu_W,2)) ;
+  TLorentzVector nu_reco = TLorentzVector(v_f_nu.Px(), v_f_nu.Py(), pz_nu_W, E_nu) ;
+  return nu_reco ;
+}
+
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
+vector <double>
+WZangles (TLorentzVector w, TLorentzVector z, TLorentzVector l_w, TLorentzVector l_z)
+{
+  vector <double> p ;
+  PtEtaPhiMVector W {w.Pt(), w.Eta(), w.Phi(), w.M()} ;
+  PtEtaPhiMVector Z {z.Pt(), z.Eta(), z.Phi(), z.M()} ;
+  PtEtaPhiMVector L_W {l_w.Pt(), l_w.Eta(), l_w.Phi(), l_w.M()} ;
+  PtEtaPhiMVector L_Z {l_z.Pt(), l_z.Eta(), l_z.Phi(), l_z.M()} ;
+  PtEtaPhiMVector WZsyst = W + Z ;
+  Boost WZboost {WZsyst.BoostToCM()} ;
+  Boost Wboost  {W.BoostToCM()} ;
+  Boost Zboost  {Z.BoostToCM()} ;
+
+  PtEtaPhiMVector W_WZcm = WZboost(W) ;
+  PtEtaPhiMVector Z_WZcm = WZboost(Z) ;
+  PtEtaPhiMVector L_W_Wcm = Wboost(L_W) ;
+  PtEtaPhiMVector L_Z_Zcm = Zboost(L_Z) ;
+  auto W_plane = L_W_Wcm.Vect().Cross(W) ;
+  auto Z_plane = L_Z_Zcm.Vect().Cross(Z) ;
+
+  p.push_back(abs(VectorUtil::DeltaPhi(W_plane, Z_plane))) ;
+  p.push_back(W_WZcm.Theta()) ;
+  p.push_back(L_W_Wcm.Theta()) ;
+  p.push_back(L_Z_Zcm.Theta()) ;
+
+  return p;
+}
+
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
 bool largerPt (const pair <int, TLorentzVector>& i, const pair <int, TLorentzVector>& j)
 {
   return (i.second.Pt () < j.second.Pt ()) ;
@@ -473,6 +641,42 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max, bool applyCu
           //cout << ">>>>>> mjj ::  " << mjj  << endl;
         }
 
+      vector <pair<int, TLorentzVector>> L = findLeptonW(v_f_leptons) ;
+      TLorentzVector v_l_W = L.at(0).second ;
+      TLorentzVector v_l_Z1 = L.at(1).second ;
+      TLorentzVector v_l_Z2 = L.at(2).second ;
+      TLorentzVector nu_reco = RecoNeutrino(v_l_W, v_f_neutrinos.at(0).second) ;
+
+      Ntuple.setvalue ("px_Z1", v_l_Z1.Px()) ;
+      Ntuple.setvalue ("py_Z1", v_l_Z1.Py()) ;
+      Ntuple.setvalue ("pz_Z1", v_l_Z1.Pz()) ;
+      Ntuple.setvalue ("px_Z2", v_l_Z2.Px()) ;
+      Ntuple.setvalue ("py_Z2", v_l_Z2.Py()) ;
+      Ntuple.setvalue ("pz_Z2", v_l_Z2.Pz()) ;
+      Ntuple.setvalue ("px_W", v_l_W.Px()) ;
+      Ntuple.setvalue ("py_W", v_l_W.Py()) ;
+      Ntuple.setvalue ("pz_W", v_l_W.Pz()) ;
+      Ntuple.setvalue ("px_nu", nu_reco.Px()) ;
+      Ntuple.setvalue ("py_nu", nu_reco.Py()) ;
+      Ntuple.setvalue ("pz_nu", nu_reco.Pz()) ;
+
+      TLorentzVector W = v_l_W + nu_reco ;
+      TLorentzVector Z = v_l_Z1 + v_l_Z2 ;
+      TLorentzVector WZ = W + Z ;
+      Ntuple.setvalue ("mW", W.M()) ;
+      Ntuple.setvalue ("mZ", Z.M()) ;
+      Ntuple.setvalue ("mWZ", WZ.M()) ;
+      Ntuple.setvalue ("deltaetaWZ", fabs(W.Eta() - Z.Eta())) ;
+      Ntuple.setvalue ("deltaphiWZ", deltaPhi (W.Phi(), Z.Phi())) ;
+
+      vector <double> ang = WZangles(W, Z, v_l_W, v_l_Z1) ;
+      Ntuple.setvalue ("Phiplanes", ang.at(0)) ;
+
+      double pz_nu = v_f_neutrinos.at(0).second.Pz() ;
+      Ntuple.setvalue ("pz_nu_true", pz_nu) ;
+      TLorentzVector W_true = v_l_W + v_f_neutrinos.at(0).second ;
+      Ntuple.setvalue ("mW_true", W_true.M()) ;
+
       TLorentzVector v_ll ;
       TLorentzVector v_ee ; 
       TLorentzVector ME ;
@@ -551,15 +755,10 @@ double fillNtuple (LHEF::Reader & reader, ntuple & Ntuple, int max, bool applyCu
       Ntuple.setvalue ("met", ME.Pt ()) ;
       Ntuple.setvalue ("ptll", v_ll.Pt ()) ;
       Ntuple.setvalue ("ptee", v_ee.Pt ()) ;
-    
-      // define transverse mass variables
-      float mtww = TMath::Sqrt(2*v_ll.Pt ()*ME.Pt ()*(1-TMath::Cos(deltaPhi (v_ll.Phi(), ME.Phi())))) ;
-      float mtl1 = TMath::Sqrt(2*v_f_leptons.at(0).second.Pt ()*ME.Pt ()*(1-TMath::Cos(deltaPhi (v_f_leptons.at(0).second.Phi(), ME.Phi())))) ;
-      float mtl2 = TMath::Sqrt(2*v_f_leptons.at(1).second.Pt ()*ME.Pt ()*(1-TMath::Cos(deltaPhi (v_f_leptons.at(1).second.Phi(), ME.Phi())))) ;
-
-      Ntuple.setvalue ("mtww", mtww) ;
-      Ntuple.setvalue ("mtl1", mtl1) ;
-      Ntuple.setvalue ("mtl2", mtl2) ;
+      
+      for(int wgt_idx = 1; wgt_idx <= 127; ++wgt_idx){
+         Ntuple.setvalue(Form("rwgt_%d", wgt_idx), reader.hepeup.namedweights[wgt_idx-1].weights[0]);
+      }
 
       Ntuple.fill (eventWeight) ;
 
@@ -590,7 +789,3 @@ changeLHEfolder (vector<string> & inputfiles, string newfolder)
     }  
   return ;
 }
-
-
-
-

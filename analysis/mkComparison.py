@@ -5,6 +5,8 @@ import os
 import sys
 import argparse
 
+ROOT.v5.TFormula.SetMaxima(100000,100000,1000000)
+
 class canvMaker():
     
     count = 0
@@ -84,15 +86,26 @@ def getHisto(path, tree, var, bins, range_, weight, luminosity):
     normalization = cross_section * 1000. * luminosity / (sum_weights_total)
     
     t = f.Get(tree)
+ 
+    if var is not "events": 
+       h = ROOT.TH1F("h_{}_{}".format(tree, var), "h", bins, range_[0], range_[1])
+       n = t.Draw("{} >> h_{}_{}".format(var, tree, var), "{}".format(weight))
+       h.SetBinContent(h.GetNbinsX(), h.GetBinContent(h.GetNbinsX()) + h.GetBinContent(h.GetNbinsX()+1))
+       h.SetBinContent(1, h.GetBinContent(0) + h.GetBinContent(1))
+       h.Scale(normalization)
+    else:
+       h = ROOT.TH1F("h_{}_{}".format(tree, var), "h", 1, 0, 2)
+       n = t.Draw("1 >> h_{}_{}".format(tree, var), "{}".format(weight))
+       h.SetBinContent(h.GetNbinsX(), h.GetBinContent(h.GetNbinsX()) + h.GetBinContent(h.GetNbinsX()+1))
+       h.Scale(normalization)
+       h.SetMinimum(1300)
+
     
-    h = ROOT.TH1F("h_{}_{}".format(tree, var), "h", bins, range_[0], range_[1])
-    n = t.Draw("{} >> h_{}_{}".format(var, tree, var), "{}".format(weight))
-    h.Scale(normalization)
-    
+  
     h.SetDirectory(0)
     
     h.SetTitle("")
-    
+
     h.GetYaxis().SetTitle("Events")
     h.GetYaxis().SetTitleSize(0.05)
     h.GetYaxis().SetLabelSize(0.04)
@@ -136,7 +149,7 @@ def getDefaultRatio(default, ratio_range):
 
 def getLegend(pos="upperright"):
     if pos == "upperright":
-        leg = ROOT.TLegend(0.4, 0.6, 0.89, 0.86)
+        leg = ROOT.TLegend(0.2, 0.6, 0.89, 0.86)
         leg.SetBorderSize(0)
         leg.SetNColumns(1)
         leg.SetTextSize(0.035)
@@ -164,6 +177,8 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Command line parser for model testing')
     parser.add_argument('--cfg',     dest='cfg',     help='the config file', required = True)
+    parser.add_argument('--int',     dest='integral',     help='Show integral in legend name for each entry', required = False, default = False, action = "store_true")
+    
     args = parser.parse_args()
    
     ROOT.gROOT.SetBatch(1)
@@ -174,9 +189,9 @@ if __name__ == "__main__":
     variables = {}
     output = ""
     luminosity = 0
-    ratio_range = [0,2]
-    showIntegral = True
-    
+    ratio_range = [0.5,1.5]
+    showIntegral = args.integral
+    scaleMax = 1.5 # factor to scale the maximum of all the histos in a pad
     execfile(args.cfg)
     
     if not os.path.isdir(output):
@@ -189,9 +204,14 @@ if __name__ == "__main__":
     for plot_comp in samples.keys():
        
        for b_name in variables.keys():
+
           histo_dict = {}
+          histo_stack_dict = {}
+
+          max_d = {}
 
           for sample in samples[plot_comp].keys():
+             print(samples[plot_comp][sample]["path"])
              histo_dict[sample] = getHisto(samples[plot_comp][sample]["path"], 
                                            samples[plot_comp][sample]["path"].split("/")[-1].split("ntuple_")[1].split(".root")[0], 
                                            b_name, 
@@ -207,32 +227,64 @@ if __name__ == "__main__":
                 histo_dict[sample].SetMarkerColor(ROOT.kRed if "color" not in samples[plot_comp][sample].keys() else samples[plot_comp][sample]["color"])
        
           
-       
+                    
              else:
                 histo_dict[sample].SetLineColor(ROOT.kBlack)
                 histo_dict[sample].SetFillColorAlpha(ROOT.kGray, 0.3)
                 histo_dict[sample].GetYaxis().SetTitle("Events" if "ylabel" not in variables[b_name].keys() else variables[b_name].keys()["ylabel"])
          
+             if "stack" in samples[plot_comp][sample].keys():
+                stack = samples[plot_comp][sample]["stack"]
+                if stack not in histo_stack_dict.keys(): histo_stack_dict[stack] = []
+                histo_stack_dict[stack].append(histo_dict[sample]) 
+      
+                # store the maximum so we can scale histos
+                if stack not in max_d.keys():
+                   max_d[stack] = histo_dict[sample].GetMaximum()
+                else: max_d[stack] += histo_dict[sample].GetMaximum()
+
+             else:
+                max_d[sample] = histo_dict[sample].GetMaximum()
+
+
+
+
           # MAIN PLOT
-          
+         
+
+          ovmax = max(value for key,value in max_d.items())
+           
           c, pad1, pad2 = cm.getCanv()
           
           leg = getLegend("upperright" if "legpos" not in variables[b_name].keys() else variables[b_name]["legpos"]) 
-          name = samples[plot_comp]["Main"]["nameHR"] + " [{:.1f}]".format(histo_dict["Main"].Integral()) if showIntegral else samples[plot_comp]["Main"]["nameHR"]
+          name = samples[plot_comp]["Main"]["nameHR"] + " [{:.1f}]".format(histo_dict["Main"].Integral()) if showIntegral is True else samples[plot_comp]["Main"]["nameHR"]
           leg.AddEntry(histo_dict["Main"], name , "F")
           
           for sample in samples[plot_comp].keys():
-             if sample is not "Main": 
+             if sample is not "Main" and "stack" not in samples[plot_comp][sample].keys(): 
                 name = samples[plot_comp][sample]["nameHR"] + " [{:.1f}]".format(histo_dict[sample].Integral()) if showIntegral else samples[plot_comp][sample]["nameHR"]
                 leg.AddEntry(histo_dict[sample], name, "PE")
 
 
           pad1.cd()
 
+          histo_dict["Main"].SetMaximum(scaleMax * ovmax)
           histo_dict["Main"].Draw("hist E")
           for sample in samples[plot_comp].keys():
+             if "stack" in samples[plot_comp][sample].keys(): continue
              if sample is not "Main": 
                 histo_dict[sample].Draw("PE same")
+
+          # Now build stacks
+          for stack_name in histo_stack_dict.keys():
+             h_ = histo_stack_dict[stack_name][0].Clone("h_" + stack_name)
+             for hist in histo_stack_dict[stack_name][1:]: h_.Add(hist)
+
+             histo_stack_dict[stack_name] = h_
+
+             name = stack_name + " [{:.1f}]".format(h_.Integral()) if showIntegral else stack_name
+             leg.AddEntry(h_, name, "PE")
+             h_.Draw("PE same")
 
 
           l = drawLumi(luminosity)
@@ -257,16 +309,21 @@ if __name__ == "__main__":
           histo_ratio_dict["Main"] = getDefaultRatio(histo_dict["Main"], ratio_range)
           
           for sample in samples[plot_comp].keys():
-             if sample is not "Main": histo_ratio_dict[sample] = getRatio(histo_dict[sample], histo_dict["Main"])
+             if sample is not "Main" and "stack" not in samples[plot_comp][sample].keys(): histo_ratio_dict[sample] = getRatio(histo_dict[sample], histo_dict["Main"])
 
+          for stack_name in histo_stack_dict.keys():
+             histo_ratio_dict[stack_name] = getRatio(histo_stack_dict[stack_name], histo_dict["Main"])
 
           histo_ratio_dict["Main"].SetMarkerSize(0)
-          histo_ratio_dict["Main"].GetYaxis().SetTitle("AD/REW" if "ratioylabel" not in variables[b_name].keys() else variables[b_name].keys()["ratioylabel"])
+          histo_ratio_dict["Main"].GetYaxis().SetTitle("Ratio" if "ratioylabel" not in variables[b_name].keys() else variables[b_name].keys()["ratioylabel"])
           histo_ratio_dict["Main"].GetXaxis().SetTitle(b_name if "xlabel" not in variables[b_name].keys() else variables[b_name].keys()["xlabel"])
 
           histo_ratio_dict["Main"].Draw("E2")
           for sample in samples[plot_comp].keys():
-             if sample is not "Main": histo_ratio_dict[sample].Draw("PE same")
+             if sample is not "Main" and "stack" not in samples[plot_comp][sample].keys(): histo_ratio_dict[sample].Draw("PE same")
+
+          for stack_name in histo_stack_dict.keys():
+             histo_ratio_dict[stack_name].Draw("PE same")
 
           c.Draw()
 

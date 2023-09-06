@@ -26,7 +26,12 @@ arguments             = $(ClusterId) $(ProcId) $(process_name) $(events_folder) 
 output                = $(jobconfig_folder)/job.$(ClusterId).$(ProcId).out
 error                 = $(jobconfig_folder)/job.$(ClusterId).$(ProcId).err
 log                   = $(jobconfig_folder)/job.$(ClusterId).log
+should_transfer_files = YES
+transfer_input_files =  INPUTFILE_CHANGEME
 # NB condor does not create folders!
+#request_cpus          = 2
+request_cpus=4 
+request_memory=10G
 
 +JobFlavour = "JOBFLAVOUR_CHANGEME"
 # NB it's real time
@@ -45,7 +50,7 @@ queue JOBS_NUMBER_REPLACEME
 # each job will have an incremental $ProcId
 # Note that the queue command has many other features, 
 # relevant for several job submission in a single cluster of jobs
-request_cpus=8
+
 
 # if I wanted to run the job again, with changed arguments:
 # https://research.cs.wisc.edu/htcondor/tutorials/fermi-2005/submit_first.html
